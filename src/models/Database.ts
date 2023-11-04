@@ -4,7 +4,7 @@ const idSymbol = Symbol('id');
 
 export class Database {
 
-    private tables = new Map<string, Table>();
+    private tables: { [name: string]: Table | undefined } = {};
 
     constructor(...tables: Table[]) {
         for (const table of tables) {
@@ -13,7 +13,7 @@ export class Database {
     }
 
     getTable(name: string) {
-        return this.tables.get(name);
+        return this.tables[name];
     }
 
     setTable(table: Table) {
@@ -24,24 +24,24 @@ export class Database {
             throw new Error(`Table ${table.name} belongs to another database`);
         }
         table[databaseSymbol] = this;
-        this.tables.set(table.name, table);
+        this.tables[table.name] = table;
     }
 
-    parse(csv: string) {
-        // todo
-    }
-
-    stringify(): string {
-        // todo
-        return '';
+    deleteTable(table: Table) {
+        if (table[databaseSymbol] === this) {
+            delete table[databaseSymbol];
+            delete this.tables[table.name];
+        }
     }
 }
 
 export class Table {
 
     [databaseSymbol]?: Database;
-    private fields = new Map<string, AbstractField>();
-    private records = new Map<number, Record>();
+    private fields: { [name: string]: AbstractField | undefined } = {};
+    private fieldsIndex: AbstractField[] = [];
+    private records: { [index: number]: Record | undefined } = {};
+    private recordsIndex: number[] = [];
     private index = 0;
 
     constructor(readonly name: string,
@@ -51,17 +51,33 @@ export class Table {
         }
     }
 
-    getField(name: string) {
-        return this.fields.get(name);
+    getFields() {
+        return this.fieldsIndex;
+    }
+
+    getField(name: string | number) {
+        if (typeof name === 'string') {
+            return this.fields[name];
+        }
+        return this.fieldsIndex?.[name];
     }
 
     setField(field: AbstractField) {
+        if (field[tableSymbol] === this) {
+            return;
+        }
+        if (field[tableSymbol] !== undefined) {
+            throw new Error(`Field ${field.name} belongs to table ${field[tableSymbol].name}`);
+        }
         field[tableSymbol] = this;
-        this.fields.set(field.name, field);
+        if (!this.fields[field.name]) {
+            this.fieldsIndex.push(field);
+        }
+        this.fields[field.name] = field;
     }
 
     get(record: number) {
-        return this.records.get(record);
+        return this.records[record];
     }
 
     add(record: Record) {
@@ -77,11 +93,13 @@ export class Table {
         } else {
             record[idSymbol] = ++this.index;
         }
+        this.records[record[idSymbol]] = record;
+        this.recordsIndex.push(record[idSymbol]);
     }
 
     delete(record: Record | number) {
         if (typeof record === 'number') {
-            const r = this.records.get(record);
+            const r = this.records[record];
             if (!r) {
                 return;
             }
@@ -91,50 +109,49 @@ export class Table {
         }
         const i = record[idSymbol];
         if (i !== undefined) {
-            this.records.delete(i);
+            delete this.records[i];
         }
-        record[tableSymbol] = undefined;
-        record[idSymbol] = undefined;
+        delete record[tableSymbol];
+        delete record[idSymbol];
     }
 
     truncate() {
-        for (const record of this.records.values()) {
-            record[tableSymbol] = undefined;
-            record[idSymbol] = undefined;
+        for (const id of this.recordsIndex) {
+            const record = this.records[id];
+            if (record) {
+                delete record[tableSymbol];
+                delete record[idSymbol];
+            }
         }
-        this.records.clear();
+        this.records = {};
     }
 }
 
-export abstract class AbstractField<P extends Value = Value, U extends Value = P> {
+export abstract class AbstractField<T extends Value = Value> {
 
     [tableSymbol]?: Table;
 
     constructor(readonly name: string) {
     }
 
-    abstract unpack(value: Value): U;
-
-    pack(value: Value): P {
-        return this.unpack(value) as unknown as P;
-    }
+    abstract parse(value: Value): T;
 
     stringify(value: Value): string {
-        value = this.pack(value);
+        value = this.parse(value);
         return value === undefined || value === null ? '' : String(value);
     }
 }
 
 export class StringField extends AbstractField<string> {
 
-    unpack(value: Value): string {
+    parse(value: Value): string {
         return value ? String(value) : '';
     }
 }
 
 export class NumberField extends AbstractField<number | undefined> {
 
-    unpack(value: Value): number | undefined {
+    parse(value: Value): number | undefined {
         if (typeof value === 'number') {
             return value;
         }
@@ -145,7 +162,10 @@ export class NumberField extends AbstractField<number | undefined> {
 
 export class BooleanField extends AbstractField<boolean> {
 
-    unpack(value: Value): boolean {
+    parse(value: Value): boolean {
+        if (value === '0') {
+            return false;
+        }
         return !!value;
     }
 
@@ -156,7 +176,7 @@ export class BooleanField extends AbstractField<boolean> {
 
 export class DateField extends AbstractField<Date | undefined> {
 
-    unpack(value: Value): Date | undefined {
+    parse(value: Value): Date | undefined {
         if (value instanceof Date) {
             return value;
         }
@@ -171,7 +191,7 @@ export class DateField extends AbstractField<Date | undefined> {
     }
 
     stringify(value: Value): string {
-        const date = this.pack(value);
+        const date = this.parse(value);
         if (date) {
             return date.toISOString();
         }
@@ -179,9 +199,12 @@ export class DateField extends AbstractField<Date | undefined> {
     }
 }
 
-export class ReferenceField extends AbstractField<number | undefined, Record | undefined> {
+export class ReferenceField extends AbstractField<Record | undefined> {
 
-    unpack(value: Value): Record | undefined {
+    parse(value: Value): Record | undefined {
+        if (value instanceof Record) {
+            return value;
+        }
         const id = typeof value === 'number' ? value : parseInt(String(value));
         if (isNaN(id)) {
             return undefined;
@@ -189,18 +212,11 @@ export class ReferenceField extends AbstractField<number | undefined, Record | u
         return this[tableSymbol]?.[databaseSymbol]?.getTable(this.name)?.get(id);
     }
 
-    pack(value: Value): number | undefined {
+    stringify(value: Value): string {
         if (value instanceof Record) {
-            return value[idSymbol];
+            value = value[idSymbol];
         }
-        if (typeof value === 'number') {
-            return value;
-        }
-        const id = parseInt(String(value));
-        if (!isNaN(id)) {
-            return id;
-        }
-        return undefined;
+        return super.stringify(value);
     }
 }
 
@@ -208,14 +224,18 @@ export class Record {
 
     [idSymbol]?: number;
     [tableSymbol]?: Table;
-    private values = new Map<string, Value>();
+    private values: { [name: string]: Value } = {};
 
-    getValue(name: string): Value {
-        return this[tableSymbol]?.getField(name)?.unpack(this.values.get(name));
+    constructor(id?: number) {
+        this[idSymbol] = id && isNaN(id) ? undefined : id;
     }
 
-    setValue(name: string, value: Value) {
-        this.values.set(name, this[tableSymbol]?.getField(name)?.pack(value));
+    get(name: string): Value {
+        return this.values[name];
+    }
+
+    set(name: string, value: Value) {
+        this.values[name] = this[tableSymbol]?.getField(name)?.parse(value);
     }
 }
 
