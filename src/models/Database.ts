@@ -127,14 +127,18 @@ export class Table {
     }
 }
 
-export abstract class AbstractField<T extends Value = Value> {
+export abstract class AbstractField<TStore extends Value = Value, TValue extends Value = TStore> {
 
     [tableSymbol]?: Table;
 
     constructor(readonly name: string) {
     }
 
-    abstract parse(value: Value): T;
+    cast(value: Value): TValue {
+        return this.parse(value) as unknown as TValue;
+    }
+
+    abstract parse(value: Value): TStore;
 
     stringify(value: Value): string {
         value = this.parse(value);
@@ -199,9 +203,9 @@ export class DateField extends AbstractField<Date | undefined> {
     }
 }
 
-export class ReferenceField extends AbstractField<Record | undefined> {
+export class ReferenceField extends AbstractField<number | undefined, Record | undefined> {
 
-    parse(value: Value): Record | undefined {
+    cast(value: Value): Record | undefined {
         if (value instanceof Record) {
             return value;
         }
@@ -210,6 +214,17 @@ export class ReferenceField extends AbstractField<Record | undefined> {
             return undefined;
         }
         return this[tableSymbol]?.[databaseSymbol]?.getTable(this.name)?.get(id);
+    }
+
+    parse(value: Value): number | undefined {
+        if (value instanceof Record) {
+            return value[idSymbol];
+        }
+        const id = typeof value === 'number' ? value : parseInt(String(value));
+        if (isNaN(id)) {
+            return undefined;
+        }
+        return id;
     }
 
     stringify(value: Value): string {
@@ -231,7 +246,7 @@ export class Record {
     }
 
     get(name: string): Value {
-        return this.values[name];
+        return this[tableSymbol]?.getField(name)?.cast(this.values[name]);
     }
 
     set(name: string, value: Value) {
