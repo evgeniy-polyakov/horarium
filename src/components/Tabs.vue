@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ITabItem} from "@/components/ITabItem";
 import Tab from "@/components/Tab.vue";
+import IconButton from "@/components/IconButton.vue";
 
 defineProps<{
   items: ITabItem[],
@@ -23,9 +23,7 @@ defineEmits<{
            @edit="(value) => $emit('editTab', item, value)"
            @remove="() => $emit('removeTab', index)"/>
       <li v-if="!fixed">
-        <button @click="$emit('addTab')">
-          <FontAwesomeIcon icon="fa-solid fa-plus"/>
-        </button>
+        <IconButton icon="plus" @click="$emit('addTab')"/>
       </li>
     </ul>
   </nav>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ITabItem} from "@/components/ITabItem";
+import IconButton from "@/components/IconButton.vue";
 
 defineProps<{
   item: ITabItem,
@@ -29,8 +29,6 @@ defineEmits<{
              @blur="(event) => event.target.style.pointerEvents = 'none'">
       <span>{{ item.label }}</span>
     </RouterLink>
-    <button v-if="item.removable" @click="$emit('remove')">
-      <FontAwesomeIcon icon="fa-solid fa-xmark"/>
-    </button>
+    <IconButton v-if="item.removable" @click="$emit('remove')" icon="xmark"/>
   </li>
 </template>
