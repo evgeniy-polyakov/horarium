@@ -5,14 +5,19 @@ export class AppFile {
 
     private _database?: IFileParser;
 
+    readonly filename: string;
+    readonly extension: string;
+
     constructor(private readonly file: File) {
+        this.filename = this.file.name.replace(/\.\w*$/, '');
+        this.extension = this.file.name.replace(/^.*\.(\w+)$/, '$1');
     }
 
     async parse() {
         if (this._database) {
             return;
         }
-        const extension = this.file.name.replace(/^.*\.(\w+)$/, '$1').toLowerCase();
+        const extension = this.extension.toLowerCase();
         const fileType = FileTypes.filter(it => it.extension === extension)[0];
         if (!fileType) {
             throw new Error(`Unknown file extension ${this.file.name}`);
