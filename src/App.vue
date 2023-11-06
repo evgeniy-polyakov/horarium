@@ -2,13 +2,13 @@
 import Tabs from "@/components/Tabs.vue";
 import IconButton from "@/components/IconButton.vue";
 import OpenFileButton from "@/components/OpenFileButton.vue";
-import {reactive} from "vue";
 import {AppFile} from "@/models/AppFile";
 import {FileTabItem} from "@/components/FileTabItem";
 import {ITabItem} from "@/components/ITabItem";
 import router from "@/router";
+import {useAppStore} from "@/stores/app";
 
-const items = reactive<FileTabItem[]>([]);
+const items = useAppStore().fileTabItems;
 
 const onOpenFile = async (file: AppFile) => {
   let item = items.filter(it => it.file.filename === file.filename)[0];

@@ -4,7 +4,7 @@ const idSymbol = Symbol('id');
 
 export class Database {
 
-    private tables: { [name: string]: Table | undefined } = {};
+    private tables = new Index<string, Table>();
 
     constructor(...tables: Table[]) {
         for (const table of tables) {
@@ -12,8 +12,12 @@ export class Database {
         }
     }
 
+    getTables() {
+        return this.tables.all();
+    }
+
     getTable(name: string) {
-        return this.tables[name];
+        return this.tables.get(name);
     }
 
     setTable(table: Table) {
@@ -24,13 +28,13 @@ export class Database {
             throw new Error(`Table ${table.name} belongs to another database`);
         }
         table[databaseSymbol] = this;
-        this.tables[table.name] = table;
+        this.tables.set(table.name, table);
     }
 
     deleteTable(table: Table) {
         if (table[databaseSymbol] === this) {
             delete table[databaseSymbol];
-            delete this.tables[table.name];
+            this.tables.delete(table.name);
         }
     }
 }
@@ -38,10 +42,8 @@ export class Database {
 export class Table {
 
     [databaseSymbol]?: Database;
-    private fields: { [name: string]: AbstractField | undefined } = {};
-    private fieldsIndex: AbstractField[] = [];
-    private records: { [index: number]: Record | undefined } = {};
-    private recordsIndex: number[] = [];
+    private fields = new Index<string, AbstractField>();
+    private records = new Index<number, Record>();
     private index = 0;
 
     constructor(readonly name: string,
@@ -52,14 +54,14 @@ export class Table {
     }
 
     getFields() {
-        return this.fieldsIndex;
+        return this.fields.all();
     }
 
     getField(name: string | number) {
         if (typeof name === 'string') {
-            return this.fields[name];
+            return this.fields.get(name);
         }
-        return this.fieldsIndex?.[name];
+        return this.fields.getAt(name);
     }
 
     setField(field: AbstractField) {
@@ -70,14 +72,11 @@ export class Table {
             throw new Error(`Field ${field.name} belongs to table ${field[tableSymbol].name}`);
         }
         field[tableSymbol] = this;
-        if (!this.fields[field.name]) {
-            this.fieldsIndex.push(field);
-        }
-        this.fields[field.name] = field;
+        this.fields.set(field.name, field);
     }
 
     get(record: number) {
-        return this.records[record];
+        return this.records.get(record);
     }
 
     add(record: Record) {
@@ -93,13 +92,12 @@ export class Table {
         } else {
             record[idSymbol] = ++this.index;
         }
-        this.records[record[idSymbol]] = record;
-        this.recordsIndex.push(record[idSymbol]);
+        this.records.set(record[idSymbol], record);
     }
 
     delete(record: Record | number) {
         if (typeof record === 'number') {
-            const r = this.records[record];
+            const r = this.records.get(record);
             if (!r) {
                 return;
             }
@@ -109,21 +107,18 @@ export class Table {
         }
         const i = record[idSymbol];
         if (i !== undefined) {
-            delete this.records[i];
+            this.records.deleteAt(i);
         }
         delete record[tableSymbol];
         delete record[idSymbol];
     }
 
     truncate() {
-        for (const id of this.recordsIndex) {
-            const record = this.records[id];
-            if (record) {
-                delete record[tableSymbol];
-                delete record[idSymbol];
-            }
+        for (const record of this.records.all()) {
+            delete record[tableSymbol];
+            delete record[idSymbol];
         }
-        this.records = {};
+        this.records.deleteAll();
     }
 }
 
@@ -255,3 +250,47 @@ export class Record {
 }
 
 export type Value = string | number | boolean | Date | Record | null | undefined;
+
+class Index<TKey extends string | number, TValue> {
+
+    private hash: { [index in keyof any]: TValue } = {};
+    private list: TKey[] = [];
+
+    set(key: TKey, value: TValue) {
+        if (!this.hash.hasOwnProperty(key)) {
+            this.list.push(key);
+        }
+        this.hash[key] = value;
+    }
+
+    get(key: TKey): TValue | undefined {
+        return this.hash[key];
+    }
+
+    getAt(index: number): TValue | undefined {
+        return this.hash[this.list[index]];
+    }
+
+    all(): TValue[] {
+        return this.list.map(key => this.hash[key]);
+    }
+
+    delete(key: TKey) {
+        const index = this.list.indexOf(key);
+        if (index >= 0) {
+            this.list.splice(index, 1);
+        }
+        delete this.hash[key];
+    }
+
+    deleteAt(index: number) {
+        const key = this.list[index];
+        this.list.splice(index, 1);
+        delete this.hash[key];
+    }
+
+    deleteAll() {
+        this.hash = {};
+        this.list = [];
+    }
+}

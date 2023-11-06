@@ -43,4 +43,8 @@ export class AppFile {
     async stringify() {
         return this._database?.stringify() ?? '';
     }
+
+    get database() {
+        return this._database!;
+    }
 }
