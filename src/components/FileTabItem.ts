@@ -1,5 +1,6 @@
 import {ITabItem} from "@/components/ITabItem";
 import {AppFile} from "@/models/AppFile";
+import router from "@/router";
 
 export class FileTabItem implements ITabItem {
 
@@ -23,5 +24,9 @@ export class FileTabItem implements ITabItem {
 
     get link() {
         return this._link;
+    }
+
+    get selected() {
+        return router.currentRoute.value.params['file'] === this._label.toLowerCase();
     }
 }

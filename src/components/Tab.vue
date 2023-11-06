@@ -14,7 +14,8 @@ defineEmits<{
 </script>
 
 <template>
-  <li @dblclick="(event) => {
+  <li :class="{selected:item.selected}"
+      @dblclick="(event) => {
             const input = event.currentTarget.querySelector('input');
             if (input) {
               input.style.pointerEvents = '';
@@ -32,3 +33,9 @@ defineEmits<{
     <IconButton v-if="item.removable" @click="$emit('remove')" icon="xmark"/>
   </li>
 </template>
+
+<style scoped lang="scss">
+li.selected {
+  color: red;
+}
+</style>

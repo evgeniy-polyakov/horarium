@@ -11,9 +11,12 @@ import router from "@/router";
 const items = reactive<FileTabItem[]>([]);
 
 const onOpenFile = async (file: AppFile) => {
-  await file.parse();
-  const item = new FileTabItem(file);
-  items.push(item);
+  let item = items.filter(it => it.file.filename === file.filename)[0];
+  if (!item) {
+    await file.parse();
+    item = new FileTabItem(file);
+    items.push(item);
+  }
   await router.push(item.link);
 };
 

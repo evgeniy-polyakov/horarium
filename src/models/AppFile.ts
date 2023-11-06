@@ -9,8 +9,8 @@ export class AppFile {
     readonly extension: string;
 
     constructor(private readonly file: File) {
-        this.filename = this.file.name.replace(/\.\w*$/, '');
-        this.extension = this.file.name.replace(/^.*\.(\w+)$/, '$1');
+        this.filename = file.name.replace(/\.\w*$/, '');
+        this.extension = file.name.replace(/^.*\.(\w+)$/, '$1');
     }
 
     async parse() {
