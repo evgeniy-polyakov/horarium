@@ -3,6 +3,7 @@ import Tabs from "@/components/Tabs.vue";
 import {reactive} from "vue";
 import {ITabItem} from "@/components/ITabItem";
 import IconButton from "@/components/IconButton.vue";
+import OpenFileButton from "@/components/OpenFileButton.vue";
 
 const items = reactive([
   {label: "AAA", link: "/aaa", editable: true, removable: true},
@@ -13,7 +14,7 @@ const items = reactive([
 
 <template>
   <header>
-    <IconButton icon="folder-open" theme="regular"/>
+    <OpenFileButton @open="async (file) => {await file.parse(); console.log(file);}"/>
     <IconButton icon="file-download"/>
     <Tabs :items="items"
           @remove-tab="(index) => items.splice(index,1)"
