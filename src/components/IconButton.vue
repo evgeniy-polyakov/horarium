@@ -3,12 +3,13 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 defineProps<{
   icon: string,
+  theme?: 'solid' | 'regular'
 }>();
 
 </script>
 
 <template>
   <button>
-    <FontAwesomeIcon :icon="`fa-solid fa-${icon}`"/>
+    <FontAwesomeIcon :icon="`fa-${theme ?? 'solid'} fa-${icon}`"/>
   </button>
 </template>
