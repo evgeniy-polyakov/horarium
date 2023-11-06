@@ -1,0 +1,13 @@
+@mixin select($value) {
+  -webkit-user-select: $value;
+  -ms-user-select: $value;
+  user-select: $value;
+}
+
+@mixin transition($properties) {
+  $pp: ();
+  @each $p in $properties {
+    $pp: append($pp, $p var(--tansition-duration) ease, comma);
+  }
+  transition: $pp;
+}
