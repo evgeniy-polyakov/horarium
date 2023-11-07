@@ -45,12 +45,33 @@ export class Table {
     private fields = new Index<string, AbstractField>();
     private records = new Index<number, Record>();
     private index = 0;
+    private _name: string;
 
-    constructor(readonly name: string,
+    constructor(name: string,
                 ...fields: AbstractField[]) {
+        this._name = name;
         for (const field of fields) {
             this.setField(field);
         }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    set name(value) {
+        if (this._name === value) {
+            return;
+        }
+        const db = this[databaseSymbol];
+        if (db) {
+            for (const table of db.getTables()) {
+                for (const field of table.getFields()) {
+                    field.renameTable(this._name, value);
+                }
+            }
+        }
+        this._name = value;
     }
 
     getFields() {
@@ -69,7 +90,7 @@ export class Table {
             return;
         }
         if (field[tableSymbol] !== undefined) {
-            throw new Error(`Field ${field.name} belongs to table ${field[tableSymbol].name}`);
+            throw new Error(`Field ${field.name} belongs to table ${field[tableSymbol]._name}`);
         }
         field[tableSymbol] = this;
         this.fields.set(field.name, field);
@@ -84,7 +105,7 @@ export class Table {
             return;
         }
         if (record[tableSymbol] !== undefined) {
-            throw new Error(`Record ${record[idSymbol]} belongs to table ${record[tableSymbol].name}`);
+            throw new Error(`Record ${record[idSymbol]} belongs to table ${record[tableSymbol]._name}`);
         }
         record[tableSymbol] = this;
         if (record[idSymbol] !== undefined) {
@@ -126,7 +147,11 @@ export abstract class AbstractField<TStore extends Value = Value, TValue extends
 
     [tableSymbol]?: Table;
 
-    constructor(readonly name: string) {
+    constructor(public name: string) {
+    }
+
+    renameTable(oldName: string, newName: string) {
+        // override
     }
 
     cast(value: Value): TValue {
@@ -199,6 +224,12 @@ export class DateField extends AbstractField<Date | undefined> {
 }
 
 export class ReferenceField extends AbstractField<number | undefined, Record | undefined> {
+
+    renameTable(oldName: string, newName: string) {
+        if (oldName === this.name) {
+            this.name = newName;
+        }
+    }
 
     cast(value: Value): Record | undefined {
         if (value instanceof Record) {
