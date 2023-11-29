@@ -143,7 +143,7 @@ export class Table {
     }
 }
 
-export abstract class AbstractField<TStore extends Value = Value, TValue extends Value = TStore> {
+export abstract class AbstractField<TStored extends Value = Value, TCalculated = TStored> {
 
     [tableSymbol]?: Table;
 
@@ -154,70 +154,65 @@ export abstract class AbstractField<TStore extends Value = Value, TValue extends
         // override
     }
 
-    cast(value: Value): TValue {
-        return this.parse(value) as unknown as TValue;
+    calculate(value: TStored): TCalculated {
+        return value as unknown as TCalculated;
     }
 
-    abstract parse(value: Value): TStore;
+    abstract parse(value?: string): TStored;
 
-    stringify(value: Value): string {
-        value = this.parse(value);
+    stringify(value?: TStored): string {
         return value === undefined || value === null ? '' : String(value);
     }
 }
 
 export class StringField extends AbstractField<string> {
 
-    parse(value: Value): string {
+    parse(value?: string): string {
         return value ? String(value) : '';
     }
 }
 
 export class NumberField extends AbstractField<number | undefined> {
 
-    parse(value: Value): number | undefined {
-        if (typeof value === 'number') {
-            return value;
+    parse(value?: string): number | undefined {
+        if (!value) {
+            return undefined;
         }
-        const n = parseFloat(String(value));
+        const n = parseFloat(value);
         return isNaN(n) ? undefined : n;
     }
 }
 
 export class BooleanField extends AbstractField<boolean> {
 
-    parse(value: Value): boolean {
+    parse(value?: string): boolean {
         if (value === '0') {
             return false;
         }
         return !!value;
     }
 
-    stringify(value: Value): string {
+    stringify(value?: boolean): string {
         return value ? '1' : '0';
     }
 }
 
 export class DateField extends AbstractField<Date | undefined> {
 
-    parse(value: Value): Date | undefined {
-        if (value instanceof Date) {
-            return value;
-        }
-        if (value === undefined || value === null) {
+    parse(value?: string): Date | undefined {
+        if (!value) {
             return undefined;
         }
-        const date = new Date(String(value));
+        const date = new Date(value);
         if (isNaN(date.valueOf())) {
             return undefined;
         }
         return date;
     }
 
-    stringify(value: Value): string {
-        const date = this.parse(value);
-        if (date) {
-            return date.toISOString();
+    stringify(value?: Date): string {
+        if (value) {
+            return value.toISOString();
         }
         return '';
     }
@@ -252,13 +247,6 @@ export class ReferenceField extends AbstractField<number | undefined, Record | u
         }
         return id;
     }
-
-    stringify(value: Value): string {
-        if (value instanceof Record) {
-            value = value[idSymbol];
-        }
-        return super.stringify(value);
-    }
 }
 
 export class Record {
@@ -272,15 +260,18 @@ export class Record {
     }
 
     get(name: string): Value {
-        return this[tableSymbol]?.getField(name)?.cast(this.values[name]);
+        // todo
+        // return this[tableSymbol]?.getField(name)?.cast(this.values[name]);
+        return undefined;
     }
 
     set(name: string, value: Value) {
-        this.values[name] = this[tableSymbol]?.getField(name)?.parse(value);
+        // todo
+        // this.values[name] = this[tableSymbol]?.getField(name)?.parse(value);
     }
 }
 
-export type Value = string | number | boolean | Date | Record | null | undefined;
+export type Value = string | number | boolean | Date | null | undefined;
 
 class Index<TKey extends string | number, TValue> {
 
