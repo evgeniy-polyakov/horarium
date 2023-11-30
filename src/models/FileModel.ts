@@ -7,6 +7,8 @@ export class FileModel {
     readonly extension: string;
     readonly loader: IFileLoader;
 
+    public textContent = "";
+
     constructor(private readonly file: File) {
         this.filename = file.name;
         this.extension = file.name.replace(/^.*\.(\w+)$/, '$1').toLowerCase();
@@ -14,5 +16,13 @@ export class FileModel {
         if (!this.loader) {
             throw new Error(`Unknown file extension ${this.filename}`);
         }
+    }
+
+    async load() {
+        this.textContent = await this.loader.load(this.file);
+    }
+
+    async save() {
+        await this.loader.save(this.textContent, this.filename);
     }
 }

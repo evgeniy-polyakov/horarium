@@ -13,6 +13,7 @@ const items = useAppStore().fileTabItems;
 const onOpenFile = async (file: FileModel) => {
   let item = items.filter(it => it.file.filename === file.filename)[0];
   if (!item) {
+    await file.load();
     item = new FileTabItem(file);
     items.push(item);
   }
@@ -29,6 +30,12 @@ const onEditFilename = (item: ITabItem, value: string) => {
 
 const onRemoveFile = (index: number) => {
   items.splice(index, 1);
+  if (items.length === 0) {
+    router.replace("/");
+  } else if (!items.some(it => it.selected)) {
+    index = Math.min(index, items.length - 1);
+    router.replace(items[index].link);
+  }
 };
 
 </script>
