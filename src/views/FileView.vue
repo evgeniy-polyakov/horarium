@@ -6,17 +6,18 @@ const scrollTopByFile: Record<string, number> = {};
 const scrollLeftByFile: Record<string, number> = {};
 
 const store = useAppStore();
-const text = ref(store.selectedFile?.textContent ?? "");
+const text = ref("");
 const filename = ref("");
 let textarea = ref<HTMLTextAreaElement>();
 
 watch(text, value => {
-  if (store.selectedFile) {
-    store.selectedFile.textContent = value;
+  const file = store.getSelectedFile();
+  if (file) {
+    file.textContent = value;
   }
 });
 
-watch(() => store.selectedFile, file => {
+watch(store.getSelectedFile, file => {
   text.value = file?.textContent ?? "";
   const fn = file?.filename ?? "";
   const ta = textarea.value;
@@ -24,7 +25,7 @@ watch(() => store.selectedFile, file => {
     ta.scrollTop = scrollTopByFile[fn] ?? 0;
     ta.scrollLeft = scrollLeftByFile[fn] ?? 0;
   }
-});
+}, {immediate: true});
 
 </script>
 
