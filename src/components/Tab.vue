@@ -16,7 +16,7 @@ defineEmits<{
 <template>
   <li :class="{selected:item.selected}"
       @dblclick="(event) => {
-            const input = event.currentTarget.querySelector('input');
+            const input = (event.currentTarget as HTMLElement)?.querySelector('input');
             if (input) {
               input.style.pointerEvents = '';
               input.focus();
@@ -26,8 +26,8 @@ defineEmits<{
     <RouterLink :to="item.link">
       <input v-if="item.editable" :value="item.label"
              style="pointer-events: none"
-             @change="(event) => $emit('edit', event.target.value)"
-             @blur="(event) => event.target.style.pointerEvents = 'none'">
+             @change="(event) => $emit('edit', (event.target as HTMLInputElement).value)"
+             @blur="(event) => (event.target as HTMLInputElement).style.pointerEvents = 'none'">
       <span>{{ item.label }}</span>
     </RouterLink>
     <IconButton v-if="item.removable" @click="$emit('remove')" icon="xmark"/>
