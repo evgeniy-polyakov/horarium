@@ -1,5 +1,5 @@
 import {ITabItem} from "@/components/ITabItem";
-import {AppFile} from "@/models/AppFile";
+import {FileModel} from "@/models/FileModel";
 import router from "@/router";
 
 export class FileTabItem implements ITabItem {
@@ -9,7 +9,7 @@ export class FileTabItem implements ITabItem {
     readonly removable = true;
     readonly editable = true;
 
-    constructor(readonly file: AppFile) {
+    constructor(readonly file: FileModel) {
         this.label = file.filename;
     }
 

@@ -2,7 +2,7 @@
 import Tabs from "@/components/Tabs.vue";
 import IconButton from "@/components/IconButton.vue";
 import OpenFileButton from "@/components/OpenFileButton.vue";
-import {AppFile} from "@/models/AppFile";
+import {FileModel} from "@/models/FileModel";
 import {FileTabItem} from "@/components/FileTabItem";
 import {ITabItem} from "@/components/ITabItem";
 import router from "@/router";
@@ -10,10 +10,9 @@ import {useAppStore} from "@/stores/app";
 
 const items = useAppStore().fileTabItems;
 
-const onOpenFile = async (file: AppFile) => {
+const onOpenFile = async (file: FileModel) => {
   let item = items.filter(it => it.file.filename === file.filename)[0];
   if (!item) {
-    await file.parse();
     item = new FileTabItem(file);
     items.push(item);
   }

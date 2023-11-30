@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import IconButton from "@/components/IconButton.vue";
-import {AppFile} from "@/models/AppFile";
+import {FileModel} from "@/models/FileModel";
 
 const emit = defineEmits<{
-  (e: 'open', file: AppFile): void,
+  (e: 'open', file: FileModel): void,
 }>();
 
 const onCLick = () => {
@@ -13,7 +13,7 @@ const onCLick = () => {
   input.onchange = () => {
     const file = input.files?.[0];
     if (file) {
-      emit('open', new AppFile(file));
+      emit('open', new FileModel(file));
     }
   }
   input.click();
