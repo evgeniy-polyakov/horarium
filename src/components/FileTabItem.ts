@@ -1,32 +1,18 @@
 import {ITabItem} from "@/components/ITabItem";
 import {FileModel} from "@/models/FileModel";
-import router from "@/router";
 
 export class FileTabItem implements ITabItem {
 
-    private _label!: string;
-    private _link!: string;
+    public name = "";
+    public selected = false;
     readonly removable = true;
     readonly editable = true;
 
     constructor(readonly file: FileModel) {
-        this.label = file.filename;
-    }
-
-    get label() {
-        return this._label;
-    }
-
-    set label(value: string) {
-        this._label = value;
-        this._link = `/${this._label.toLowerCase()}`;
+        this.name = file.filename;
     }
 
     get link() {
-        return this._link;
-    }
-
-    get selected() {
-        return router.currentRoute.value.params['file'] === this._label.toLowerCase();
+        return `/${this.name}`;
     }
 }

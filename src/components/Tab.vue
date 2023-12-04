@@ -3,12 +3,13 @@ import {ITabItem} from "@/components/ITabItem";
 import IconButton from "@/components/IconButton.vue";
 
 defineProps<{
-  item: ITabItem,
+  item: ITabItem;
 }>();
 
 defineEmits<{
-  (e: 'edit', value: string): void
-  (e: 'remove', index: number): void
+  (e: 'edit', value: string): void;
+  (e: 'remove'): void;
+  (e: 'select'): void;
 }>();
 
 </script>
@@ -23,13 +24,13 @@ defineEmits<{
               input.select();
             }
           }">
-    <RouterLink :to="item.link">
-      <input v-if="item.editable" :value="item.label"
+    <button @click="() => {if (!item.selected) $emit('select')}">
+      <input v-if="item.editable" :value="item.name"
              style="pointer-events: none"
              @change="(event) => $emit('edit', (event.target as HTMLInputElement).value)"
              @blur="(event) => (event.target as HTMLInputElement).style.pointerEvents = 'none'">
-      <span>{{ item.label }}</span>
-    </RouterLink>
+      <span>{{ item.name }}</span>
+    </button>
     <IconButton v-if="item.removable" @click="$emit('remove')" icon="xmark"/>
   </li>
 </template>

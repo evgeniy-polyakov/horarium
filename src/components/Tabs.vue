@@ -4,14 +4,15 @@ import Tab from "@/components/Tab.vue";
 import IconButton from "@/components/IconButton.vue";
 
 defineProps<{
-  items: ITabItem[],
-  fixed?: boolean
+  items: ITabItem[];
+  fixed?: boolean;
 }>();
 
 defineEmits<{
-  (e: 'editTab', item: ITabItem, value: string): void
-  (e: 'removeTab', index: number): void
-  (e: 'addTab'): void
+  (e: 'addTab'): void;
+  (e: 'renameTab', index: number, value: string): void;
+  (e: 'removeTab', index: number): void;
+  (e: 'selectTab', index: number): void;
 }>();
 
 </script>
@@ -19,9 +20,10 @@ defineEmits<{
 <template>
   <nav>
     <ul>
-      <Tab v-for="(item, index) in items" :key="item.link" :item="item"
-           @edit="(value) => $emit('editTab', item, value)"
-           @remove="() => $emit('removeTab', index)"/>
+      <Tab v-for="(item, index) in items" :key="item.name" :item="item"
+           @edit="(value) => $emit('renameTab', index, value)"
+           @remove="() => $emit('removeTab', index)"
+           @select="() => {items.forEach((it, i) => it.selected = i === index); $emit('selectTab', index);}"/>
       <li v-if="!fixed">
         <IconButton icon="plus" @click="$emit('addTab')"/>
       </li>
