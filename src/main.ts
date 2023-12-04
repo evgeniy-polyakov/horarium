@@ -7,10 +7,10 @@ import App from './App.vue'
 import router from './router'
 
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faFileDownload, faPlus, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faFileDownload, faFileLines, faPlus, faTableList, faXmark} from "@fortawesome/free-solid-svg-icons";
 import {faFolderOpen} from "@fortawesome/free-regular-svg-icons";
 
-library.add(faXmark, faPlus, faFolderOpen, faFileDownload);
+library.add(faXmark, faPlus, faFolderOpen, faFileDownload, faFileLines, faTableList);
 
 const app = createApp(App)
 
