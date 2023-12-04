@@ -63,15 +63,10 @@ watch(store.getSelectedFile, file => {
 </script>
 
 <template>
-  <header>
-    <OpenFileButton @open="onOpenFile"/>
-    <IconButton icon="file-download"/>
-    <Tabs :items="items" fixed
-          @select-tab="onSelectFile"
-          @remove-tab="onRemoveFile"
-          @rename-tab="onRenameFile"/>
-  </header>
-  <main>
-    <RouterView/>
-  </main>
+  <OpenFileButton @open="onOpenFile"/>
+  <IconButton icon="file-download"/>
+  <Tabs :items="items" fixed
+        @select-tab="onSelectFile"
+        @remove-tab="onRemoveFile"
+        @rename-tab="onRenameFile"/>
 </template>

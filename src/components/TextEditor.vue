@@ -30,7 +30,7 @@ watch(store.getSelectedFile, file => {
 </script>
 
 <template>
-  <textarea ref="textarea" v-model="text" v-if="store.getSelectedFile()" @scroll="() => {
+  <textarea ref="textarea" v-model="text" @scroll="() => {
     scrollTopByFile[filename] = textarea?.scrollTop ?? 0;
     scrollLeftByFile[filename] = textarea?.scrollLeft ?? 0;
   }"></textarea>
