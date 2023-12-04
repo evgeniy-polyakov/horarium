@@ -1,14 +1,14 @@
 import {IFileLoader} from "@/models/IFileLoader";
 import {FileLoaders} from "@/models/FileLoaders";
-import {EditMode} from "@/models/EditMode";
+
+let FileModelId = 0;
 
 export class FileModel {
 
+    readonly id = ++FileModelId;
     readonly filename: string;
     readonly extension: string;
     readonly loader: IFileLoader;
-
-    public editMode: EditMode = EditMode.Text;
 
     public textContent = "";
 

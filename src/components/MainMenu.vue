@@ -67,14 +67,12 @@ watch(store.getSelectedFile, file => {
 });
 
 const onSelectEditMode = (index: number) => {
-  const file = store.getSelectedFile();
-  if (file) {
-    file.editMode = modeItems[index].editMode;
-  }
+  store.setFileState('EditMode', modeItems[index].editMode);
 };
 
 watch(store.getSelectedFile, file => {
-  modeItems.forEach(it => it.selected = file?.editMode === it.editMode);
+  const editMode = store.getFileState('EditMode', EditMode.Text);
+  modeItems.forEach(it => it.selected = it.editMode === editMode);
 });
 
 </script>

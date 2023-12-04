@@ -9,6 +9,6 @@ const store = useAppStore();
 </script>
 
 <template>
-  <TextEditor v-if="store.getSelectedFile()?.editMode === EditMode.Text"/>
-  <TableEditor v-if="store.getSelectedFile()?.editMode === EditMode.Table"/>
+  <TextEditor v-if="store.getFileState('EditMode', EditMode.Text as EditMode) === EditMode.Text"/>
+  <TableEditor v-if="store.getFileState('EditMode', EditMode.Table as EditMode) === EditMode.Table"/>
 </template>

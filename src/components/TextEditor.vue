@@ -1,37 +1,44 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useAppStore} from "@/stores/app";
-
-const scrollTopByFile: Record<string, number> = {};
-const scrollLeftByFile: Record<string, number> = {};
+import {FileModel} from "@/models/FileModel";
 
 const store = useAppStore();
-const text = ref("");
-const filename = ref("");
 let textarea = ref<HTMLTextAreaElement>();
+const scrollTop = 'TextEditor:scrollTop';
+const scrollLeft = 'TextEditor:scrollLeft';
 
-watch(text, value => {
+const onScrollTextarea = () => {
+  store.setFileState(scrollTop, textarea.value?.scrollTop ?? 0);
+  store.setFileState(scrollLeft, textarea.value?.scrollLeft ?? 0);
+};
+
+const onChangeText = () => {
   const file = store.getSelectedFile();
-  if (file) {
-    file.textContent = value;
+  if (file && textarea.value) {
+    file.textContent = textarea.value.value;
   }
-});
+};
 
-watch(store.getSelectedFile, file => {
-  text.value = file?.textContent ?? "";
-  const fn = file?.filename ?? "";
+const onChangeSelectedFile = (file?: FileModel) => {
   const ta = textarea.value;
   if (ta) {
-    ta.scrollTop = scrollTopByFile[fn] ?? 0;
-    ta.scrollLeft = scrollLeftByFile[fn] ?? 0;
+    ta.value = file?.textContent ?? "";
+    ta.scrollTop = store.getFileState(scrollTop, 0);
+    ta.scrollLeft = store.getFileState(scrollLeft, 0);
   }
-}, {immediate: true});
+};
+
+watch(store.getSelectedFile, file => onChangeSelectedFile(file as FileModel));
+
+onMounted(() => {
+  onChangeSelectedFile(store.getSelectedFile() as FileModel);
+});
 
 </script>
 
 <template>
-  <textarea ref="textarea" v-model="text" @scroll="() => {
-    scrollTopByFile[filename] = textarea?.scrollTop ?? 0;
-    scrollLeftByFile[filename] = textarea?.scrollLeft ?? 0;
-  }"></textarea>
+  <textarea ref="textarea"
+            @change="onChangeText"
+            @scroll="onScrollTextarea"></textarea>
 </template>
