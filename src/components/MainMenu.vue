@@ -13,7 +13,7 @@ import {EditMode} from "@/models/EditMode";
 const store = useAppStore();
 const fileItems = store.fileTabItems;
 const modeItems = reactive([
-  new EditModeTabItem(EditMode.Text, 'file-lines'),
+  new EditModeTabItem(EditMode.Text, 'file-lines:regular'),
   new EditModeTabItem(EditMode.Table, 'table-list'),
 ]);
 

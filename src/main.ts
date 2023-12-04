@@ -7,8 +7,8 @@ import App from './App.vue'
 import router from './router'
 
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faFileDownload, faFileLines, faPlus, faTableList, faXmark} from "@fortawesome/free-solid-svg-icons";
-import {faFolderOpen} from "@fortawesome/free-regular-svg-icons";
+import {faFileDownload, faPlus, faTableList, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faFileLines, faFolderOpen} from "@fortawesome/free-regular-svg-icons";
 
 library.add(faXmark, faPlus, faFolderOpen, faFileDownload, faFileLines, faTableList);
 

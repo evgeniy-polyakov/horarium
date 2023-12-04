@@ -2,8 +2,9 @@
 import {ITabItem} from "@/components/ITabItem";
 import IconButton from "@/components/IconButton.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {computed} from "vue";
 
-defineProps<{
+const props = defineProps<{
   item: ITabItem;
 }>();
 
@@ -12,6 +13,10 @@ defineEmits<{
   (e: 'remove'): void;
   (e: 'select'): void;
 }>();
+
+const icon = computed(() => {
+  return props.item.icon.split(':');
+})
 
 </script>
 
@@ -32,7 +37,7 @@ defineEmits<{
              @blur="(event) => (event.target as HTMLInputElement).style.pointerEvents = 'none'">
       <span class="name" v-if="item.name">{{ item.name }}</span>
       <span class="icon" v-if="item.icon">
-        <FontAwesomeIcon :icon="`fa-solid fa-${item.icon}`"/>
+        <FontAwesomeIcon :icon="`fa-${icon[1] ?? 'solid'} fa-${icon[0]}`"/>
       </span>
     </button>
     <IconButton v-if="item.removable" @click="$emit('remove')" icon="xmark"/>
