@@ -1,7 +1,6 @@
 export interface ITabItem {
-    selected: boolean;
     name: string;
-    readonly link?: string;
+    selected: boolean;
     readonly editable?: boolean;
     readonly removable?: boolean;
 }

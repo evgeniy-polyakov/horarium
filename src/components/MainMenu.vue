@@ -6,41 +6,47 @@ import {FileModel} from "@/models/FileModel";
 import {FileTabItem} from "@/components/FileTabItem";
 import router from "@/router";
 import {useAppStore} from "@/stores/app";
-import {watch} from "vue";
+import {reactive, watch} from "vue";
+import {EditModeTabItem} from "@/components/EditModeTabItem";
+import {EditMode} from "@/models/EditMode";
 
 const store = useAppStore();
-const items = store.fileTabItems;
+const fileItems = store.fileTabItems;
+const modeItems = reactive([
+  new EditModeTabItem(EditMode.Text),
+  new EditModeTabItem(EditMode.Table),
+]);
 
 const onOpenFile = async (file: FileModel) => {
-  let item = items.filter(it => it.file.filename === file.filename)[0];
+  let item = fileItems.filter(it => it.file.filename === file.filename)[0];
   if (!item) {
     await file.load();
     item = new FileTabItem(file);
-    items.push(item);
+    fileItems.push(item);
   }
   await router.push(item.link);
 };
 
 const onSelectFile = (index: number) => {
-  const url = items[index]?.link;
+  const url = fileItems[index]?.link;
   if (url && router.currentRoute.value.fullPath !== url) {
     router.push(url);
   }
 };
 
 const onRemoveFile = (index: number) => {
-  items.splice(index, 1);
-  if (items.length === 0) {
+  fileItems.splice(index, 1);
+  if (fileItems.length === 0) {
     router.replace('/');
-  } else if (!items.some(it => it.selected)) {
-    index = Math.min(index, items.length - 1);
-    router.replace(items[index].link);
+  } else if (!fileItems.some(it => it.selected)) {
+    index = Math.min(index, fileItems.length - 1);
+    router.replace(fileItems[index].link);
   }
 };
 
 const onRenameFile = (index: number, value: string) => {
-  if (value && items[index]) {
-    const item = items[index];
+  if (value && fileItems[index]) {
+    const item = fileItems[index];
     if (item) {
       item.name = value;
       router.replace(item.link);
@@ -49,7 +55,7 @@ const onRenameFile = (index: number, value: string) => {
 };
 
 watch(router.currentRoute, (value) => {
-  items.forEach(item => item.selected = decodeURIComponent(value.path) === item.link);
+  fileItems.forEach(it => it.selected = decodeURIComponent(value.path) === it.link);
 });
 
 watch(store.getSelectedFile, file => {
@@ -60,13 +66,26 @@ watch(store.getSelectedFile, file => {
   }
 });
 
+const onSelectEditMode = (index: number) => {
+  const file = store.getSelectedFile();
+  if (file) {
+    file.editMode = modeItems[index].editMode;
+  }
+};
+
+watch(store.getSelectedFile, file => {
+  modeItems.forEach(it => it.selected = file?.editMode === it.editMode);
+});
+
 </script>
 
 <template>
   <OpenFileButton @open="onOpenFile"/>
   <IconButton icon="file-download"/>
-  <Tabs :items="items" fixed
+  <Tabs :items="fileItems" fixed
         @select-tab="onSelectFile"
         @remove-tab="onRemoveFile"
         @rename-tab="onRenameFile"/>
+  <Tabs :items="modeItems" fixed
+        @select-tab="onSelectEditMode"/>
 </template>
