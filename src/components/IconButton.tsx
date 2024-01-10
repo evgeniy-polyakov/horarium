@@ -3,7 +3,7 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {IconProp} from "@fortawesome/fontawesome-svg-core";
 
-export default function IconButton(_: {
+export function IconButton(_: {
     icon: IconProp,
     onClick?: () => void,
 }) {

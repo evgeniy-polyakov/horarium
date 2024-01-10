@@ -1,6 +1,6 @@
 'use client';
 
-import MainMenu from "@/components/MainMenu";
+import {MainMenu} from "@/components/MainMenu";
 import {useReducer} from "react";
 import {filesReducer} from "@/stores/filesReducer";
 

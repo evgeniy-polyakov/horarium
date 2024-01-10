@@ -1,11 +1,11 @@
 'use client';
 
-import IconButton from "@/components/IconButton";
+import {IconButton} from "@/components/IconButton";
 import {faFolderOpen} from '@fortawesome/free-solid-svg-icons';
 import {FileModel} from "@/models/FileModel";
 import {FileLoaders} from "@/models/FileLoaders";
 
-export default function OpenFileButton(_: {
+export function OpenFileButton(_: {
     onOpen?: (model: FileModel) => void,
 }) {
     function onCLick() {

@@ -1,16 +1,15 @@
 'use client';
 
-import OpenFileButton from "@/components/OpenFileButton";
+import {OpenFileButton} from "@/components/OpenFileButton";
 import {faFileDownload} from '@fortawesome/free-solid-svg-icons'
-import IconButton from "@/components/IconButton";
+import {IconButton} from "@/components/IconButton";
 import {FilesReducer} from "@/stores/filesReducer";
 import {Tabs} from "@/components/Tabs";
 import {FileTabItem} from "@/components/FileTabItem";
 
-export default function MainMenu({files}: {
+export function MainMenu({files}: {
     files: FilesReducer
 }) {
-
     return (
         <nav>
             <OpenFileButton onOpen={file => files[1]({

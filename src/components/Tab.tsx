@@ -3,7 +3,7 @@
 import {ITabItem} from "@/components/ITabItem";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faXmark} from '@fortawesome/free-solid-svg-icons';
-import IconButton from "@/components/IconButton";
+import {IconButton} from "@/components/IconButton";
 
 export function Tab({item, onSelect, onRemove}: {
     item: ITabItem,
