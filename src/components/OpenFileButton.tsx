@@ -5,7 +5,7 @@ import {faFolderOpen} from '@fortawesome/free-solid-svg-icons';
 import {FileModel} from "@/models/FileModel";
 import {FileLoaders} from "@/models/FileLoaders";
 
-export function OpenFileButton(_: {
+export function OpenFileButton({onOpen}: {
     onOpen?: (model: FileModel) => void,
 }) {
     function onCLick() {
@@ -15,7 +15,7 @@ export function OpenFileButton(_: {
         input.onchange = () => {
             const file = input.files?.[0];
             if (file) {
-                _.onOpen?.(new FileModel(file));
+                onOpen?.(new FileModel(file));
             }
         }
         input.click();
