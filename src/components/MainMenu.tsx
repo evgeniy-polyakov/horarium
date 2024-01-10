@@ -15,6 +15,7 @@ export function MainMenu({filesReducer}: {
 }) {
     const [filesModel, fileAction] = filesReducer;
     const files = filesModel.files;
+    const file = filesModel.selectedFile;
     return (
         <nav>
             <OpenFileButton onOpen={file => fileAction({
@@ -32,11 +33,11 @@ export function MainMenu({filesReducer}: {
                       type: "remove"
                   })}
             />
-            {filesModel.selectedFile && <Tabs items={[
-                new EditModeTabItem(filesModel.selectedFile, EditMode.Text, faFileLines),
-                new EditModeTabItem(filesModel.selectedFile, EditMode.Table, faTableList)
+            {file && <Tabs items={[
+                new EditModeTabItem(file, EditMode.Text, faFileLines),
+                new EditModeTabItem(file, EditMode.Table, faTableList)
             ]} onSelect={item => {
-                filesModel.selectedFile!.editMode = item.editMode;
+                file.editMode = item.editMode;
                 fileAction({
                     file: filesModel.selectedFile!,
                     type: "update"
