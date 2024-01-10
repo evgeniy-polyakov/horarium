@@ -12,13 +12,13 @@ export default function MainMenu(_: {
 }) {
 
     return (
-        <>
+        <nav>
             <OpenFileButton onOpen={file => _.files[1]({
                 file,
                 type: "add"
             })}/>
             <IconButton icon={faFileDownload}/>
             <Tabs items={_.files[0].map(it => new FileTabItem(it))}/>
-        </>
+        </nav>
     );
 }

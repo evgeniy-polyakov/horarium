@@ -4,7 +4,6 @@ import {FileModel} from "@/models/FileModel";
 export class FileTabItem implements ITabItem {
 
     public name;
-    public icon = "";
     readonly removable = true;
     readonly editable = true;
 

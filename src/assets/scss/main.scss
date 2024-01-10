@@ -7,6 +7,7 @@ body {
   overflow: hidden;
   @include select(none);
 
+  line-height: 1;
   color: var(--color-text);
   font-family: 'Inter', sans-serif;
   font-size: var(--font-size);
@@ -18,21 +19,12 @@ body {
   box-sizing: border-box;
 }
 
-.component {
-  display: block;
-}
-
-.main {
-
+main {
   width: 100vw;
   height: 100vh;
   line-height: 1;
   display: flex;
   flex-flow: column nowrap;
-
-  > .tabs {
-    flex: 1 0 auto;
-  }
 }
 
 p {
@@ -42,8 +34,4 @@ p {
 i {
   font-style: normal;
   display: block;
-}
-
-button {
-  all: unset;
 }

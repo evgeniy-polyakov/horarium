@@ -1,115 +1,19 @@
-.tabs {
+ul.tabs {
   display: flex;
-  flex-flow: column nowrap;
-  position: relative;
+  flex-flow: row nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 
-  > nav {
-    z-index: 1;
-    position: relative;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
+  > li {
+    flex: 0 1 auto;
 
-    > ul {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-flow: row nowrap;
-      margin: 0;
-      flex: 0 1 auto;
-      min-width: 0;
-
-      > li {
-        padding: 0;
-        display: flex;
-        flex-flow: row nowrap;
-        white-space: nowrap;
-        flex: 0 1 auto;
-        min-width: 0;
-        border: 1px transparent solid;
-        border-bottom: none;
-        background: var(--color-bg);
-        position: relative;
-        height: var(--row-height);
-
-        &:has(.plus) {
-          z-index: 1;
-          width: 32px;
-          justify-content: center;
-
-          &.selected {
-            background: none;
-          }
-        }
-
-        &:has(.close) label {
-          padding-right: 0;
-        }
-
-        > label {
-          padding: 7px 10px;
-          cursor: pointer;
-          flex: 0 1 auto;
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          @include transition(color);
-        }
-
-        &.selected {
-          background: var(--color-panel);
-        }
-
-        > .menu {
-          top: 100%;
-          left: -1;
-        }
-
-        > i {
-          display: block;
-          cursor: pointer;
-          padding: 6px 10px 0;
-          font-size: var(--icon-font-size);
-          line-height: var(--icon-line-size);
-          color: var(--color-icon);
-          @include transition(color);
-
-          &:hover {
-            color: var(--color-text);
-          }
-        }
-      }
+    button.label {
+      padding-right: 0;
     }
-
-    &:has(> ul > li > .menu.open) {
-      > ul > li:first-child {
-        background: var(--color-menu-bg);
-        border-color: var(--color-menu-border);
-
-        &:after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: -1px;
-          width: 100%;
-          height: 1px;
-          background: var(--color-menu-bg);
-        }
-      }
-    }
-  }
-
-  > article {
-    display: none;
-    flex: 1 0 auto;
-    max-height: calc(100% - var(--row-height));
-    position: relative;
-    z-index: 0;
-    background: var(--color-panel);
 
     &.selected {
-      display: block;
+      background: var(--color-panel);
     }
   }
 }

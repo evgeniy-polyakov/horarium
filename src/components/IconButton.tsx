@@ -8,7 +8,7 @@ export default function IconButton(_: {
     onClick?: () => void,
 }) {
     return (
-        <button onClick={_.onClick}>
+        <button className="icon" onClick={_.onClick}>
             <FontAwesomeIcon icon={_.icon}/>
         </button>
     );

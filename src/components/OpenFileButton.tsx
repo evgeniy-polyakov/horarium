@@ -1,7 +1,7 @@
 'use client';
 
 import IconButton from "@/components/IconButton";
-import {faFolderOpen} from '@fortawesome/free-solid-svg-icons'
+import {faFolderOpen} from '@fortawesome/free-solid-svg-icons';
 import {FileModel} from "@/models/FileModel";
 import {FileLoaders} from "@/models/FileLoaders";
 

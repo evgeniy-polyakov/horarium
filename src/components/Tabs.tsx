@@ -1,6 +1,7 @@
 'use client'
 
 import {ITabItem} from "@/components/ITabItem";
+import Tab from "@/components/Tab";
 
 export function Tabs(_: {
     items: ITabItem[],
@@ -9,11 +10,9 @@ export function Tabs(_: {
     onRemove?: (tab: ITabItem) => void,
 }) {
     return (
-        <nav>
-            <ul>
-                {_.items.map(item => <li key={item.key}>{item.name}</li>)}
-            </ul>
-        </nav>
+        <ul className="tabs">
+            {_.items.map(item => <Tab key={item.key} item={item}/>)}
+        </ul>
     );
 }
 
