@@ -7,13 +7,28 @@ ul.tabs {
 
   > li {
     flex: 0 1 auto;
+    transition: background-color 0.15s ease;
 
     button.label {
       padding-right: 0;
     }
 
+    button.icon {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
     &.selected {
       background: var(--color-panel);
+    }
+
+    &.selected,
+    &:hover {
+      button.icon {
+        opacity: 0.6;
+        pointer-events: auto;
+      }
     }
   }
 }

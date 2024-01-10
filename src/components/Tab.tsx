@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faXmark} from '@fortawesome/free-solid-svg-icons';
 import IconButton from "@/components/IconButton";
 
-export default function Tab({item, onSelect, onRemove}: {
+export function Tab({item, onSelect, onRemove}: {
     item: ITabItem,
     onSelect?: () => void,
     onRemove?: () => void

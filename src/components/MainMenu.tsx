@@ -7,18 +7,27 @@ import {FilesReducer} from "@/stores/filesReducer";
 import {Tabs} from "@/components/Tabs";
 import {FileTabItem} from "@/components/FileTabItem";
 
-export default function MainMenu(_: {
+export default function MainMenu({files}: {
     files: FilesReducer
 }) {
 
     return (
         <nav>
-            <OpenFileButton onOpen={file => _.files[1]({
+            <OpenFileButton onOpen={file => files[1]({
                 file,
                 type: "add"
             })}/>
             <IconButton icon={faFileDownload}/>
-            <Tabs items={_.files[0].map(it => new FileTabItem(it))}/>
+            <Tabs items={files[0].map(it => new FileTabItem(it))}
+                  onSelect={item => files[1]({
+                      file: item.file,
+                      type: "select"
+                  })}
+                  onRemove={item => files[1]({
+                      file: item.file,
+                      type: "remove"
+                  })}
+            />
         </nav>
     );
 }
