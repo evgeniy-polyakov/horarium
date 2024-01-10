@@ -5,7 +5,6 @@ export class FileTabItem implements ITabItem {
 
     public name;
     public icon = "";
-    public selected = false;
     readonly removable = true;
     readonly editable = true;
 
@@ -15,5 +14,9 @@ export class FileTabItem implements ITabItem {
 
     get link() {
         return `/${this.name}`;
+    }
+
+    get selected() {
+        return this.file.selected;
     }
 }

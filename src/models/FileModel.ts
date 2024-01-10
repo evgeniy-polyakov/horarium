@@ -11,6 +11,7 @@ export class FileModel {
     readonly loader: IFileLoader;
 
     public textContent = "";
+    public selected = false;
 
     constructor(private readonly file: File) {
         this.filename = file.name;
