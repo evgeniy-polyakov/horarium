@@ -10,7 +10,7 @@ export function Tab({item, onSelect, onRemove}: {
     onSelect?: () => void,
     onRemove?: () => void
 }) {
-    const className = `tab ${item.selected ? 'selected' : ''}`;
+    const className = `tab ${item.selected ? 'selected' : ''} ${item.editable ? 'editable' : ''}`;
     return (
         <li className={className}>
             <button className="label" onClick={() => {

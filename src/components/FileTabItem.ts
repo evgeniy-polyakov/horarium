@@ -3,12 +3,11 @@ import {FileModel} from "@/models/FileModel";
 
 export class FileTabItem implements ITabItem {
 
-    public name;
+    readonly name = this.file.filename;
     readonly removable = true;
     readonly editable = true;
 
     constructor(readonly file: FileModel) {
-        this.name = file.filename;
     }
 
     get key() {

@@ -1,16 +1,20 @@
 import {ITabItem} from "@/components/ITabItem";
 import {EditMode} from "@/models/EditMode";
+import {IconProp} from "@fortawesome/fontawesome-svg-core";
+import {FileModel} from "@/models/FileModel";
 
 export class EditModeTabItem implements ITabItem {
 
-    public name = "";
-    public icon: string;
-    public selected = false;
+    readonly key = this.editMode;
     readonly editable = false;
     readonly removable = false;
 
-    constructor(readonly editMode: EditMode,
-                icon: string) {
-        this.icon = icon;
+    constructor(readonly file: FileModel,
+                readonly editMode: EditMode,
+                readonly icon: IconProp) {
+    }
+
+    get selected() {
+        return this.file.editMode === this.editMode;
     }
 }

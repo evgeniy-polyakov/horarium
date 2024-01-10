@@ -9,7 +9,7 @@ ul.tabs {
     flex: 0 1 auto;
     transition: background-color 0.15s ease;
 
-    button.label {
+    &.editable button.label {
       padding-right: 0;
     }
 

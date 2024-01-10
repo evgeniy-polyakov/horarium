@@ -4,6 +4,10 @@ header > nav {
   border-bottom: 1px solid var(--color-panel);
 
   ul.tabs {
-    padding-left: 8px;
+    padding-left: 12px;
+
+    &:last-child {
+      margin-left: auto;
+    }
   }
 }

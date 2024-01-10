@@ -1,5 +1,6 @@
 import {IFileLoader} from "@/models/IFileLoader";
 import {FileLoaders} from "@/models/FileLoaders";
+import {EditMode} from "@/models/EditMode";
 
 let FileModelId = 0;
 
@@ -12,6 +13,8 @@ export class FileModel {
 
     public textContent = "";
     public selected = false;
+
+    public editMode: EditMode = EditMode.Table;
 
     constructor(private readonly file: File) {
         this.filename = file.name;

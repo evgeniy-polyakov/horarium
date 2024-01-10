@@ -5,11 +5,11 @@ import {useReducer} from "react";
 import {filesReducer} from "@/stores/filesReducer";
 
 export default function Home() {
-    const files = useReducer(filesReducer, []);
+    const files = useReducer(filesReducer, {files: []});
     return (
         <>
             <header>
-                <MainMenu files={files}/>
+                <MainMenu filesReducer={files}/>
             </header>
             <main>
 
