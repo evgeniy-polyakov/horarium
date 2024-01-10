@@ -1,6 +1,6 @@
 ul.tabs {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -8,6 +8,10 @@ ul.tabs {
   > li {
     flex: 0 1 auto;
     transition: background-color 0.15s ease;
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     &.editable button.label {
       padding-right: 0;
