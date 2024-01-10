@@ -12,11 +12,15 @@ export class FileTabItem implements ITabItem {
         this.name = file.filename;
     }
 
-    get link() {
-        return `/${this.name}`;
+    get key() {
+        return `${this.file.id}`;
     }
 
     get selected() {
         return this.file.selected;
+    }
+
+    get link() {
+        return `/${this.name}`;
     }
 }

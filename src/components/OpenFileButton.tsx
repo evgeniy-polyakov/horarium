@@ -3,6 +3,7 @@
 import IconButton from "@/components/IconButton";
 import {faFolderOpen} from '@fortawesome/free-solid-svg-icons'
 import {FileModel} from "@/models/FileModel";
+import {FileLoaders} from "@/models/FileLoaders";
 
 export default function OpenFileButton(_: {
     onOpen?: (model: FileModel) => void,
@@ -10,7 +11,7 @@ export default function OpenFileButton(_: {
     function onCLick() {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.csv,text/csv';
+        input.accept = FileLoaders.map(it => `.${it.extension},${it.mimeType}`).join(',');
         input.onchange = () => {
             const file = input.files?.[0];
             if (file) {

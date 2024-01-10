@@ -11,7 +11,7 @@ export function Tabs(_: {
     return (
         <nav>
             <ul>
-                {_.items.map(item => <li>{item.name}</li>)}
+                {_.items.map(item => <li key={item.key}>{item.name}</li>)}
             </ul>
         </nav>
     );
