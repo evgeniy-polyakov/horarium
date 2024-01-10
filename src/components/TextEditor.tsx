@@ -1,23 +1,21 @@
 import {FileModel} from "@/models/FileModel";
-import {useRef} from "react";
+import {useState} from "react";
 
 export function TextEditor({file}: {
     file: FileModel
 }) {
-    const textarea = useRef<HTMLTextAreaElement>(null);
-
-    function onChangeText() {
-        if (textarea.current) {
-            file.textContent = textarea.current.value;
-        }
+    const [value, setValue] = useState(file.textContent);
+    if (value !== file.textContent) {
+        setValue(file.textContent);
     }
-
     return (
-        <textarea ref={textarea}
-                  onChange={() => {
-                      if (textarea.current) {
-                          file.textContent = textarea.current.value;
-                      }
+        <textarea value={value}
+                  onChange={e => {
+                      file.textContent = e.target.value;
+                      setValue(e.target.value);
+                  }}
+                  onScroll={e => {
+                      // todo
                   }}/>
     );
 }

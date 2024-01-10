@@ -1,0 +1,15 @@
+article textarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  background: none;
+  padding: 6px;
+  font-family: monospace; // todo download google font
+  line-height: 1.4;
+}

@@ -3,16 +3,18 @@
 import {MainMenu} from "@/components/MainMenu";
 import {useReducer} from "react";
 import {filesReducer} from "@/stores/filesReducer";
+import {FileView} from "@/components/FileView";
 
 export default function Home() {
-    const files = useReducer(filesReducer, {files: []});
+    const globalFilesReducer = useReducer(filesReducer, {files: []});
+    const [filesModel, filesAction] = globalFilesReducer;
     return (
         <>
             <header>
-                <MainMenu filesReducer={files}/>
+                <MainMenu filesReducer={globalFilesReducer}/>
             </header>
             <main>
-
+                {filesModel.selectedFile && <FileView file={filesModel.selectedFile}/>}
             </main>
         </>
     )

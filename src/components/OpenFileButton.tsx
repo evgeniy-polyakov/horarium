@@ -12,10 +12,12 @@ export function OpenFileButton({onOpen}: {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = FileLoaders.map(it => `.${it.extension},${it.mimeType}`).join(',');
-        input.onchange = () => {
+        input.onchange = async () => {
             const file = input.files?.[0];
             if (file) {
-                onOpen?.(new FileModel(file));
+                const fileModel = new FileModel(file);
+                await fileModel.load();
+                onOpen?.(fileModel);
             }
         }
         input.click();
