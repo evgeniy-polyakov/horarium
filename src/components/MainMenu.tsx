@@ -1,5 +1,3 @@
-'use client';
-
 import {OpenFileButton} from "@/components/OpenFileButton";
 import {faFileDownload, faTableList} from '@fortawesome/free-solid-svg-icons'
 import {faFileLines} from '@fortawesome/free-regular-svg-icons';

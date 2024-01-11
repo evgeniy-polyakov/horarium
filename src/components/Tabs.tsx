@@ -1,5 +1,3 @@
-'use client'
-
 import {ITabItem} from "@/components/ITabItem";
 import {Tab} from "@/components/Tab";
 
