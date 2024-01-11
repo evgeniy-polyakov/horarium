@@ -7,11 +7,12 @@ import {TableCell} from "@/components/TableCell";
 export function TableEditor({file}: {
     file: FileModel
 }) {
-    const [textContent] = useState("");
+    const [textContent, setTextContent] = useState("");
     const [csv, setCSV] = useState<string[][]>([]);
     let columns = 0;
 
     if (textContent !== file.textContent) {
+        setTextContent(file.textContent);
         parse(file.textContent, {
             relaxColumnCount: true,
             relaxQuotes: true,
