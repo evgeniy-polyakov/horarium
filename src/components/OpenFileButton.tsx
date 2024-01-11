@@ -9,13 +9,15 @@ export function OpenFileButton({onOpen}: {
     function onCLick() {
         const input = document.createElement('input');
         input.type = 'file';
+        input.multiple = true;
         input.accept = FileLoaders.map(it => `.${it.extension},${it.mimeType}`).join(',');
         input.onchange = async () => {
-            const file = input.files?.[0];
-            if (file) {
-                const fileModel = new FileModel(file);
-                await fileModel.load();
-                onOpen?.(fileModel);
+            if (input.files) {
+                for (let i = 0; i < input.files.length; i++) {
+                    const fileModel = new FileModel(input.files.item(i)!);
+                    await fileModel.load();
+                    onOpen?.(fileModel);
+                }
             }
         }
         input.click();

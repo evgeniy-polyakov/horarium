@@ -16,9 +16,9 @@ export class FileModel {
 
     public editMode: EditMode = EditMode.Table;
 
-    constructor(private readonly file: File) {
-        this.filename = file.name;
-        this.extension = file.name.replace(/^.*\.(\w+)$/, '$1').toLowerCase();
+    constructor(private readonly file?: File) {
+        this.filename = file?.name ?? "untitled.csv";
+        this.extension = this.filename.replace(/^.*\.(\w+)$/, '$1').toLowerCase();
         this.loader = FileLoaders.filter(it => it.extension === this.extension)[0];
         if (!this.loader) {
             throw new Error(`Unknown file extension ${this.filename}`);
@@ -26,7 +26,9 @@ export class FileModel {
     }
 
     async load() {
-        this.textContent = await this.loader.load(this.file);
+        if (this.file) {
+            this.textContent = await this.loader.load(this.file);
+        }
     }
 
     async save() {

@@ -17,7 +17,7 @@ export function filesReducer(model: FilesReducer[0], action: Parameters<FilesRed
     switch (action.type) {
         case "add":
             files.forEach(it => it.selected = false);
-            const existing = files.filter(it => it.filename === action.file.filename)[0];
+            const existing = files.filter(it => it.id === action.file.id)[0];
             if (existing) {
                 existing.selected = true;
             } else {
