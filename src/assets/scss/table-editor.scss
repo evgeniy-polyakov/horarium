@@ -5,6 +5,7 @@
   font-family: monospace;
 
   table {
+    position: relative;
     border: none;
     border-collapse: collapse;
     width: 100%;
@@ -15,13 +16,34 @@
       border-bottom: 1px solid var(--color-panel);
 
       td {
+        position: relative;
         padding: 4px 6px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         height: 21px;
-
         border-right: 1px solid var(--color-panel);
+
+        span {
+          position: relative;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        textarea {
+          position: absolute;
+          background: var(--color-panel);
+          border: 1px solid var(--color-text);
+          outline: none;
+          color: var(--color-text);
+          font-size: var(--font-size);
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          resize: vertical;
+          padding: 2px 5px 3px;
+          z-index: 1;
+        }
       }
     }
   }

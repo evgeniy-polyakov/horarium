@@ -1,6 +1,8 @@
 import {FileModel} from "@/models/FileModel";
 import {useState} from "react";
 import {parse} from 'csv-parse/browser/esm';
+import {stringify} from "csv-stringify/browser/esm";
+import {TableCell} from "@/components/TableCell";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -8,6 +10,7 @@ export function TableEditor({file}: {
     const [textContent] = useState("");
     const [csv, setCSV] = useState<string[][]>([]);
     let columns = 0;
+
     if (textContent !== file.textContent) {
         parse(file.textContent, {
             relaxColumnCount: true,
@@ -26,13 +29,26 @@ export function TableEditor({file}: {
             }
         });
     }
+
+    function onEditCell(row: string[], index: number, value: string) {
+        row[index] = value;
+        stringify(csv, (err, output) => {
+            if (!err) {
+                file.textContent = output;
+            } else {
+                console.error(err);
+            }
+        });
+    }
+
     return (
         <div className="table-editor">
             <table>
                 <tbody>
-                {csv.map((row, i) =>
-                    <tr key={i}>{
-                        row.map((cell, j) => <td key={j}>{cell}</td>)
+                {csv.map((row, rowIndex) =>
+                    <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>{
+                        row.map((cell, cellIndex) =>
+                            <TableCell key={cellIndex} row={row} index={cellIndex} onEdit={value => onEditCell(row, cellIndex, value)}/>)
                     }</tr>
                 )}
                 </tbody>
