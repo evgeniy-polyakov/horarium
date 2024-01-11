@@ -9,7 +9,7 @@ export function TextEditor({file}: {
         setValue(file.textContent);
     }
     return (
-        <textarea value={value}
+        <textarea className="text-editor" value={value}
                   onChange={e => {
                       file.textContent = e.target.value;
                       setValue(e.target.value);
