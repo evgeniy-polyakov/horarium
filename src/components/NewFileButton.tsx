@@ -12,6 +12,6 @@ export function NewFileButton({onOpen}: {
     }
 
     return (
-        <IconButton icon={faFile} onClick={onCLick}/>
+        <IconButton icon={faFile} onClick={onCLick} hint="New File"/>
     );
 }

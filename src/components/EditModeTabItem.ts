@@ -11,7 +11,8 @@ export class EditModeTabItem implements ITabItem {
 
     constructor(readonly file: FileModel,
                 readonly editMode: EditMode,
-                readonly icon: IconProp) {
+                readonly icon: IconProp,
+                readonly hint: string) {
     }
 
     get selected() {

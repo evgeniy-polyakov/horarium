@@ -37,8 +37,8 @@ export function MainMenu({filesReducer}: {
                   })}
             />
             {file && <Tabs items={[
-                new EditModeTabItem(file, EditMode.Text, faFileLines),
-                new EditModeTabItem(file, EditMode.Table, faTableList)
+                new EditModeTabItem(file, EditMode.Text, faFileLines, "Text"),
+                new EditModeTabItem(file, EditMode.Table, faTableList, "Table"),
             ]} onSelect={item => {
                 file.editMode = item.editMode;
                 fileAction({

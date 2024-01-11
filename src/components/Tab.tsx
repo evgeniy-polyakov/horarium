@@ -11,7 +11,7 @@ export function Tab({item, onSelect, onRemove}: {
     const className = `tab ${item.selected ? 'selected' : ''} ${item.editable ? 'editable' : ''}`;
     return (
         <li className={className}>
-            <button className="label" onClick={() => {
+            <button className="label" title={item.hint ?? item.name} onClick={() => {
                 if (!item.selected) {
                     onSelect?.();
                 }
@@ -19,7 +19,7 @@ export function Tab({item, onSelect, onRemove}: {
                 {item.icon && <span className="icon"><FontAwesomeIcon icon={item.icon}/></span>}
                 {item.name && <span className="name">{item.name}</span>}
             </button>
-            {item.removable && <IconButton icon={faXmark} onClick={onRemove}/>}
+            {item.removable && <IconButton icon={faXmark} hint="Close" onClick={onRemove}/>}
         </li>
     );
 }

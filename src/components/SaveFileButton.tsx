@@ -10,6 +10,6 @@ export function SaveFileButton({file}: {
     }
 
     return (
-        <IconButton icon={faFileDownload} onClick={onCLick}/>
+        <IconButton icon={faFileDownload} onClick={onCLick} hint="Save File"/>
     );
 }

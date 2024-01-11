@@ -24,6 +24,6 @@ export function OpenFileButton({onOpen}: {
     }
 
     return (
-        <IconButton icon={faFolderOpen} onClick={onCLick}/>
+        <IconButton icon={faFolderOpen} onClick={onCLick} hint="Open File"/>
     );
 }
