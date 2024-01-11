@@ -2,7 +2,7 @@
 
 import {MainMenu} from "@/components/MainMenu";
 import {useReducer} from "react";
-import {filesReducer} from "@/stores/filesReducer";
+import {filesReducer} from "@/models/filesReducer";
 import {FileView} from "@/components/FileView";
 
 export default function Home() {
