@@ -21,7 +21,7 @@ export function OpenFileButton({onOpen}: {
             }
         }
         input.click();
-    };
+    }
 
     return (
         <IconButton icon={faFolderOpen} onClick={onCLick}/>
