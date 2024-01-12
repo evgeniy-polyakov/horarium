@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'export',
-    distDir: 'build',
-    basePath: '/tabula-csv-editor/build',
+    distDir: 'docs',
+    basePath: '/tabula-csv-editor',
 }
 
 module.exports = nextConfig
