@@ -44,6 +44,10 @@
           padding: 2px 5px 3px;
           z-index: 1;
         }
+
+        &.selected {
+          background: var(--color-panel);
+        }
       }
     }
   }

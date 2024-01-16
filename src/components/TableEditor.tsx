@@ -1,15 +1,20 @@
 import {FileModel} from "@/models/FileModel";
-import {useState} from "react";
+import {useReducer, useState} from "react";
 import {parse} from 'csv-parse/browser/esm';
 import {stringify} from "csv-stringify/browser/esm";
 import {TableCell} from "@/components/TableCell";
+import {tableSelectionReducer} from "@/models/TableSelection";
 
 export function TableEditor({file}: {
     file: FileModel
 }) {
     const [textContent, setTextContent] = useState("");
     const [csv, setCSV] = useState<string[][]>([]);
-    let columns = 0;
+    const selectionReducer = useReducer(tableSelectionReducer, {file});
+
+    if (selectionReducer[0].file !== file) {
+        selectionReducer[1]({file: file, type: "update"});
+    }
 
     if (textContent !== file.textContent) {
         setTextContent(file.textContent);
@@ -18,21 +23,20 @@ export function TableEditor({file}: {
             relaxQuotes: true,
         }, (err, records: string[][]) => {
             if (!err) {
-                columns = records.reduce((a, t) => Math.max(t.length, a), 0);
+                const columns = records.reduce((a, t) => Math.max(t.length, a), 0);
                 records.forEach(it => {
                     while (it.length < columns) it.push("");
                 });
                 setCSV(records);
             } else {
-                columns = 0;
                 setCSV([]);
                 console.error(err);
             }
         });
     }
 
-    function onEditCell(row: string[], index: number, value: string) {
-        row[index] = value;
+    function onEditCell(row: string[], cellIndex: number, value: string) {
+        row[cellIndex] = value;
         stringify(csv, (err, output) => {
             if (!err) {
                 file.textContent = output;
@@ -49,7 +53,9 @@ export function TableEditor({file}: {
                 {csv.map((row, rowIndex) =>
                     <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>{
                         row.map((cell, cellIndex) =>
-                            <TableCell key={cellIndex} row={row} index={cellIndex} onEdit={value => onEditCell(row, cellIndex, value)}/>)
+                            <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
+                                       selectionReducer={selectionReducer}
+                                       onEdit={value => onEditCell(row, cellIndex, value)}/>)
                     }</tr>
                 )}
                 </tbody>
