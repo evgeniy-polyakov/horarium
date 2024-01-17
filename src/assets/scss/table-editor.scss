@@ -11,6 +11,7 @@
     width: 100%;
     table-layout: fixed;
     line-height: 1;
+    @include select(none);
 
     tr {
       border-bottom: 1px solid var(--color-panel);
