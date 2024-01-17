@@ -1,5 +1,5 @@
 import {MouseEvent, useRef, useState} from "react";
-import {TableSelectionMode, TableSelectionReducer} from "@/models/TableSelection";
+import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReducer} from "@/models/TableSelection";
 
 export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit}: {
     csv: string[][],
@@ -22,8 +22,8 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit}: 
         e.preventDefault();
         selectionReducer[1]({
             rowIndex, cellIndex,
-            mode: e.shiftKey ? TableSelectionMode.Range : e.ctrlKey ? TableSelectionMode.Append : TableSelectionMode.Single,
-            type: cellSelection.isSelected(rowIndex, cellIndex) ? "unselect" : "select",
+            mode: (e.shiftKey ? MODE_RANGE : 0) | (e.ctrlKey ? MODE_APPEND : 0) |
+                (cellSelection.contains(rowIndex, cellIndex) ? MODE_UNSELECT : MODE_SELECT)
         });
     }
 
@@ -43,7 +43,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit}: 
     }
 
     return (
-        <td ref={cell} className={cellSelection.isSelected(rowIndex, cellIndex) ? "selected" : ""}
+        <td ref={cell} className={cellSelection.contains(rowIndex, cellIndex) ? "selected" : ""}
             onDoubleClick={onEditCell} onClick={onSelectCell}>
             <span>{text}</span>
         </td>

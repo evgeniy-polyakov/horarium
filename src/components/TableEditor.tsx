@@ -13,7 +13,7 @@ export function TableEditor({file}: {
     const selectionReducer = useReducer(tableSelectionReducer, {file});
 
     if (selectionReducer[0].file !== file) {
-        selectionReducer[1]({file: file, type: "update"});
+        selectionReducer[1]({file: file, mode: "update"});
     }
 
     if (textContent !== file.textContent) {
