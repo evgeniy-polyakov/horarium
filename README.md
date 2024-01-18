@@ -5,6 +5,11 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.1.2
+
+* Column and row headers
+* Selection of columns and rows by click on their header
+
 ### 0.1.1
 
 * Selection of table cells with mouse and Shift, Ctrl keys
