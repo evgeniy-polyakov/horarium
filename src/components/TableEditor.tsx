@@ -57,7 +57,7 @@ export function TableEditor({file}: {
                     <thead>
                     <tr>
                         <TableAllHeader csv={csv} selectionReducer={selectionReducer}/>
-                        {csv[0].map((cell, cellIndex) => <TableColumnHeader cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}/>)}
+                        {csv[0].map((cell, cellIndex) => <TableColumnHeader key={cellIndex} cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}/>)}
                     </tr>
                     </thead>
                 </table>
