@@ -5,6 +5,10 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.1.1
+
+* Selection of table cells with mouse and Shift, Ctrl keys
+
 ### 0.1.0
 
 * Open and save files
