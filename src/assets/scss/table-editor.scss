@@ -15,7 +15,6 @@
     @include select(none);
 
     tr {
-      border-bottom: 1px solid var(--color-panel);
 
       td,
       th {
@@ -25,6 +24,7 @@
         height: 21px;
         text-align: left;
         border-right: 1px solid var(--color-panel);
+        border-bottom: 1px solid var(--color-panel);
 
         span {
           position: relative;
@@ -57,9 +57,14 @@
       th {
         background: var(--color-header);
         color: var(--color-text-disabled);
+        transition: background-color 0.15s ease;
 
         &:first-child {
           width: 32px;
+        }
+
+        &:hover {
+          background: var(--color-panel);
         }
       }
     }

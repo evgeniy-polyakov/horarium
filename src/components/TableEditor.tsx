@@ -7,6 +7,7 @@ import {useStateAccessor} from "@/models/StateAccessor";
 import {parseCSV} from "@/models/CSVParser";
 import {TableColumnHeader} from "@/components/TableColumnHeader";
 import {TableRowHeader} from "@/components/TableRowHeader";
+import {TableAllHeader} from "@/components/TableAllHeader";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -55,8 +56,8 @@ export function TableEditor({file}: {
                 <table className="columns">
                     <thead>
                     <tr>
-                        <TableColumnHeader cellIndex={-1}/>
-                        {csv[0].map((cell, cellIndex) => <TableColumnHeader cellIndex={cellIndex}/>)}
+                        <TableAllHeader csv={csv} selectionReducer={selectionReducer}/>
+                        {csv[0].map((cell, cellIndex) => <TableColumnHeader cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}/>)}
                     </tr>
                     </thead>
                 </table>
@@ -65,7 +66,7 @@ export function TableEditor({file}: {
                 <tbody>
                 {csv.map((row, rowIndex) =>
                     <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>
-                        <TableRowHeader rowIndex={rowIndex}/>
+                        <TableRowHeader rowIndex={rowIndex} csv={csv} selectionReducer={selectionReducer}/>
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
