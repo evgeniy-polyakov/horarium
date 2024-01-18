@@ -5,6 +5,8 @@ import {TableCell} from "@/components/TableCell";
 import {tableSelectionReducer} from "@/models/TableSelection";
 import {useStateAccessor} from "@/models/StateAccessor";
 import {parseCSV} from "@/models/CSVParser";
+import {TableColumnHeader} from "@/components/TableColumnHeader";
+import {TableRowHeader} from "@/components/TableRowHeader";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -49,15 +51,28 @@ export function TableEditor({file}: {
 
     return (
         <div className="table-editor">
-            <table>
+            {csv.length > 0 && (
+                <table className="columns">
+                    <thead>
+                    <tr>
+                        <TableColumnHeader cellIndex={-1}/>
+                        {csv[0].map((cell, cellIndex) => <TableColumnHeader cellIndex={cellIndex}/>)}
+                    </tr>
+                    </thead>
+                </table>
+            )}
+            <table className="content">
                 <tbody>
                 {csv.map((row, rowIndex) =>
-                    <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>{
-                        row.map((cell, cellIndex) =>
-                            <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
-                                       selectionReducer={selectionReducer} mouseDown={mouseDown}
-                                       onEdit={value => onEditCell(row, cellIndex, value)}/>)
-                    }</tr>
+                    <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>
+                        <TableRowHeader rowIndex={rowIndex}/>
+                        {
+                            row.map((cell, cellIndex) =>
+                                <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
+                                           selectionReducer={selectionReducer} mouseDown={mouseDown}
+                                           onEdit={value => onEditCell(row, cellIndex, value)}/>)
+                        }
+                    </tr>
                 )}
                 </tbody>
             </table>
