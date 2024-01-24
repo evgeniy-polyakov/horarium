@@ -15,7 +15,7 @@ import {EditCellAction, InsertColumnAction, InsertRowAction} from "@/components/
 export function TableEditor({file}: {
     file: FileModel
 }) {
-    const [textContent, setTextContent] = useState("");
+    const [fileId, setFileId] = useState(-1);
     const [csv, setCSV] = useState<string[][]>([]);
     const mouseDown = useStateAccessor(false);
     const cellEdit = useStateAccessor<[number, number]>([-1, -1]);
@@ -37,8 +37,8 @@ export function TableEditor({file}: {
         selectionReducer[1]({file: file, mode: "update"});
     }
 
-    if (textContent !== file.textContent) {
-        setTextContent(file.textContent);
+    if (fileId !== file.id) {
+        setFileId(file.id);
         parseCSV(file.textContent).then(records => setCSV(records));
     }
 
