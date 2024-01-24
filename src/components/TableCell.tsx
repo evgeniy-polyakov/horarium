@@ -3,12 +3,13 @@ import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReduc
 import {StateAssessor} from "@/models/StateAccessor";
 import {classList} from "@/models/classList";
 
-export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, mouseDown}: {
+export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, onMenu, mouseDown}: {
     csv: string[][],
     rowIndex: number,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
     onEdit?: (value: string) => void,
+    onMenu?: (e: MouseEvent) => void,
     mouseDown: StateAssessor<boolean>,
 }) {
 
@@ -69,7 +70,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
         onMouseEnter(e);
     }
 
-    function onEditCell() {
+    function onDoubleClick() {
         const textarea = document.createElement("textarea");
         cell.current?.append(textarea);
         cell.current?.classList.add("editing");
@@ -86,12 +87,22 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
         });
     }
 
+    function onContextMenu(e: MouseEvent) {
+        if (!isEditing() && onMenu) {
+            e.preventDefault();
+            onMenu(e);
+        }
+    }
+
     return (
-        <td ref={cell} className={classList({
-            selected: cellSelection.contains(rowIndex, cellIndex),
-            focused: cellSelection.isFocused(rowIndex, cellIndex)
-        })}
-            onDoubleClick={onEditCell} onMouseDown={onMouseDown} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onMouseUp={onMouseUp}>
+        <td ref={cell}
+            className={classList({
+                selected: cellSelection.contains(rowIndex, cellIndex),
+                focused: cellSelection.isFocused(rowIndex, cellIndex)
+            })}
+            onDoubleClick={onDoubleClick} onContextMenu={onContextMenu}
+            onMouseDown={onMouseDown} onMouseUp={onMouseUp}
+            onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
             <span>{text}</span>
         </td>
     );

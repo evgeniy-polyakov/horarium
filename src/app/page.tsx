@@ -1,6 +1,6 @@
 'use client';
 
-import {MainMenu} from "@/components/MainMenu";
+import {Header} from "@/components/Header";
 import {useReducer} from "react";
 import {filesReducer} from "@/models/FilesReducer";
 import {FileView} from "@/components/FileView";
@@ -11,7 +11,7 @@ export default function Home() {
     return (
         <>
             <header>
-                <MainMenu filesReducer={globalFilesReducer}/>
+                <Header filesReducer={globalFilesReducer}/>
             </header>
             <main>
                 {filesModel.selectedFile && <FileView file={filesModel.selectedFile}/>}

@@ -10,7 +10,7 @@ import {SaveFileButton} from "@/components/SaveFileButton";
 import {FileModel} from "@/models/FileModel";
 import {NewFileButton} from "@/components/NewFileButton";
 
-export function MainMenu({filesReducer}: {
+export function Header({filesReducer}: {
     filesReducer: FilesReducer
 }) {
     const [filesModel, fileAction] = filesReducer;
