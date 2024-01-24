@@ -6,7 +6,7 @@ nav.menu {
   font-family: var(--font-family);
 
   ul {
-    padding: 0;
+    padding: 8px 0;
     margin: 0;
     list-style: none;
 
@@ -14,6 +14,11 @@ nav.menu {
       padding: 8px 32px 8px 24px;
       margin: 4px 0;
       @include select(none);
+
+      &.disabled {
+        pointer-events: none;
+        color: var(--color-text-disabled);
+      }
 
       &:hover {
         background: var(--color-panel);

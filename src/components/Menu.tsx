@@ -1,6 +1,7 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useEffect, useRef} from "react";
+import {classList} from "@/models/classList";
 
 export function Menu({items, x, y, remove}: {
     items: IMenuItem[],
@@ -36,7 +37,7 @@ export function Menu({items, x, y, remove}: {
                     <li key={i} onClick={() => {
                         remove?.();
                         item.select?.();
-                    }} className={item.className}>
+                    }} className={classList(item.className, {disabled: item.disabled})}>
                         <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                         <span className="name">{item.name}</span>
                     </li>

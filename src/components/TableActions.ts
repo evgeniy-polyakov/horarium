@@ -20,6 +20,7 @@ export class InsertRowAction implements IMenuItem {
     readonly name = `Insert Row ${this.sign < 0 ? "Above" : "Below"}`;
     readonly icon = faArrowRightToBracket;
     readonly className = `insert-row-${this.sign < 0 ? "above" : "below"}`;
+    readonly disabled = true;
 
     constructor(readonly rowIndex: number, private readonly sign: -1 | 1) {
     }
@@ -34,6 +35,7 @@ export class InsertColumnAction implements IMenuItem {
     readonly name = `Insert Column ${this.sign < 0 ? "Before" : "After"}`;
     readonly icon = faArrowRightToBracket;
     readonly className = `insert-column-${this.sign < 0 ? "before" : "after"}`;
+    readonly disabled = true;
 
     constructor(readonly columnIndex: number, private readonly sign: -1 | 1) {
     }
