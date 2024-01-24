@@ -5,6 +5,10 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.1.3
+
+* Table context menu
+
 ### 0.1.2
 
 * Column and row headers
