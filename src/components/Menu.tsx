@@ -3,12 +3,16 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useEffect, useRef} from "react";
 import {classList} from "@/models/classList";
 
-export function Menu({items, x, y, remove}: {
+export interface IMenu {
     items: IMenuItem[],
     x: number,
     y: number,
+    viewportWidth: number,
+    viewportHeight: number,
     remove?: () => void
-}) {
+}
+
+export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu) {
 
     const nav = useRef<HTMLElement>(null);
 
@@ -25,13 +29,20 @@ export function Menu({items, x, y, remove}: {
         }
     });
 
+    useEffect(() => {
+        if (nav.current) {
+            nav.current.style.left = "0";
+            nav.current.style.top = "0";
+            const width = nav.current.offsetWidth;
+            const height = nav.current.offsetHeight;
+            nav.current.style.left = `${x < viewportWidth - width ? x : x - width}px`;
+            nav.current.style.top = `${y < viewportHeight - height ? y : y - height}px`;
+        }
+    });
+
     return (
         <nav className="menu" ref={nav}
-             style={{
-                 left: `${x}px`,
-                 top: `${y}px`,
-                 display: items.length > 0 ? "block" : "none"
-             }}>
+             style={{display: items.length > 0 ? "block" : "none"}}>
             <ul>
                 {items.map((item, i) => (
                     <li key={i} onClick={() => {

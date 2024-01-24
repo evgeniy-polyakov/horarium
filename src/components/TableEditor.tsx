@@ -8,7 +8,7 @@ import {parseCSV} from "@/models/CSVParser";
 import {TableColumnHeader} from "@/components/TableColumnHeader";
 import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
-import {Menu} from "@/components/Menu";
+import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
 import {EditCellAction, InsertColumnAction, InsertRowAction} from "@/components/TableActions";
 
@@ -20,9 +20,8 @@ export function TableEditor({file}: {
     const mouseDown = useStateAccessor(false);
     const cellEdit = useStateAccessor<[number, number]>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
-    const [contextMenu, setContextMenu] = useState<{ items: IMenuItem[], x: number, y: number, remove: () => void }>();
-    const table = useRef<HTMLTableElement>(null);
-    const header = useRef<HTMLTableElement>(null);
+    const [contextMenu, setContextMenu] = useState<IMenu>();
+    const editor = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (mouseDown.get()) {
@@ -61,6 +60,9 @@ export function TableEditor({file}: {
 
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {
         event.preventDefault();
+        if (!editor.current) {
+            return;
+        }
         const items: IMenuItem[] = [];
         if (rowIndex >= 0 && cellIndex >= 0) {
             items.push(new EditCellAction(cellEdit, rowIndex, cellIndex));
@@ -77,20 +79,23 @@ export function TableEditor({file}: {
                 new InsertColumnAction(cellIndex, 1),
             );
         }
-        const b = table.current?.getBoundingClientRect();
-        const h = header.current?.offsetHeight ?? 0;
+        const b = editor.current.querySelector('table.content')!.getBoundingClientRect();
+        const h = (editor.current.querySelector('table.columns') as HTMLElement).offsetHeight;
+        const v = editor.current.offsetHeight;
         setContextMenu({
             items: items,
-            x: event.clientX - (b?.x ?? 0),
-            y: event.clientY - (b?.y ?? 0) + h,
+            x: event.clientX - (b.x ?? 0),
+            y: event.clientY - (b.y ?? 0) + h,
+            viewportWidth: b.width,
+            viewportHeight: v,
             remove: () => setContextMenu(undefined)
         });
     }
 
     return (
-        <div className="table-editor">
+        <div className="table-editor" ref={editor}>
             {csv.length > 0 && (
-                <table className="columns" ref={header}>
+                <table className="columns">
                     <thead>
                     <tr>
                         <TableAllHeader csv={csv} selectionReducer={selectionReducer}/>
@@ -101,7 +106,7 @@ export function TableEditor({file}: {
                     </thead>
                 </table>
             )}
-            <table className="content" ref={table}>
+            <table className="content">
                 <tbody>
                 {csv.map((row, rowIndex) =>
                     <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>
