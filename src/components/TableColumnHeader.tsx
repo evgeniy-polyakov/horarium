@@ -9,7 +9,6 @@ export function TableColumnHeader({csv, cellIndex, selectionReducer, onMenu}: {
 }) {
 
     function onMouseDown(e: MouseEvent) {
-        e.preventDefault();
         // todo allow to select ranges in one call
         selectionReducer[1]({
             rowIndex: 0,
