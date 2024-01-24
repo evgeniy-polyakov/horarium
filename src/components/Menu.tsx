@@ -42,7 +42,8 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
 
     return (
         <nav className="menu" ref={nav}
-             style={{display: items.length > 0 ? "block" : "none"}}>
+             style={{display: items.length > 0 ? "block" : "none"}}
+             onContextMenu={e => e.preventDefault()}>
             <ul>
                 {items.map((item, i) => (
                     <li key={i} onClick={() => {
