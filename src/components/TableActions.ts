@@ -7,7 +7,9 @@ export class EditCellAction implements IMenuItem {
     readonly name = "Edit Cell";
     readonly icon = faPencil;
 
-    constructor(readonly cellEdit: StateAssessor<[number, number]>, readonly rowIndex: number, readonly cellIndex: number) {
+    constructor(private readonly cellEdit: StateAssessor<[number, number]>,
+                private readonly rowIndex: number,
+                private readonly cellIndex: number) {
     }
 
     select() {
@@ -17,31 +19,45 @@ export class EditCellAction implements IMenuItem {
 
 export class InsertRowAction implements IMenuItem {
 
-    readonly name = `Insert Row ${this.sign < 0 ? "Above" : "Below"}`;
+    readonly name = `Insert Row ${this.above ? "Above" : "Below"}`;
     readonly icon = faArrowRightToBracket;
-    readonly className = `insert-row-${this.sign < 0 ? "above" : "below"}`;
-    readonly disabled = true;
+    readonly className = `insert-row-${this.above ? "above" : "below"}`;
 
-    constructor(readonly rowIndex: number, private readonly sign: -1 | 1) {
+    constructor(private readonly csv: string[][],
+                private readonly setCSV: (value: string[][]) => void,
+                private readonly rowIndex: number,
+                private readonly above: boolean) {
     }
 
     select() {
-        // todo
+        const index = this.rowIndex + (this.above ? 0 : 1);
+        const row = this.csv[0].map(() => "");
+        this.setCSV([
+            ...this.csv.slice(0, index),
+            row,
+            ...this.csv.slice(index)
+        ]);
     }
 }
 
 export class InsertColumnAction implements IMenuItem {
 
-    readonly name = `Insert Column ${this.sign < 0 ? "Before" : "After"}`;
+    readonly name = `Insert Column ${this.before ? "Before" : "After"}`;
     readonly icon = faArrowRightToBracket;
-    readonly className = `insert-column-${this.sign < 0 ? "before" : "after"}`;
-    readonly disabled = true;
+    readonly className = `insert-column-${this.before ? "before" : "after"}`;
 
-    constructor(readonly columnIndex: number, private readonly sign: -1 | 1) {
+    constructor(private readonly csv: string[][],
+                private readonly setCSV: (value: string[][]) => void,
+                private readonly columnIndex: number,
+                private readonly before: boolean) {
     }
 
     select() {
-        // todo
+        const index = this.columnIndex + (this.before ? 0 : 1);
+        for (const row of this.csv) {
+            row.splice(index, 0, "");
+        }
+        this.setCSV([...this.csv]);
     }
 }
 

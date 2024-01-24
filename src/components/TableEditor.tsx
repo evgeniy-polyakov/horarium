@@ -1,10 +1,9 @@
 import {FileModel} from "@/models/FileModel";
 import {MouseEvent, useEffect, useReducer, useRef, useState} from "react";
-import {stringify} from "csv-stringify/browser/esm";
 import {TableCell} from "@/components/TableCell";
 import {tableSelectionReducer} from "@/models/TableSelection";
 import {useStateAccessor} from "@/models/StateAccessor";
-import {parseCSV} from "@/models/CSVParser";
+import {parseCSV, stringifyCSV} from "@/models/CSVParser";
 import {TableColumnHeader} from "@/components/TableColumnHeader";
 import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
@@ -42,21 +41,19 @@ export function TableEditor({file}: {
         parseCSV(file.textContent).then(records => setCSV(records));
     }
 
+    function storeCSV(csv: string[][]) {
+        setCSV(csv);
+        stringifyCSV(csv, file);
+    }
+
     function onMouseUp() {
         mouseDown.set(false);
     }
 
     function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
         csv[rowIndex][cellIndex] = value;
-        stringify(csv, (err, output) => {
-            if (!err) {
-                file.textContent = output;
-            } else {
-                console.error(err);
-            }
-        });
+        stringifyCSV(csv, file);
     }
-
 
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {
         event.preventDefault();
@@ -69,14 +66,14 @@ export function TableEditor({file}: {
         }
         if (rowIndex >= 0) {
             items.push(
-                new InsertRowAction(rowIndex, -1),
-                new InsertRowAction(rowIndex, 1),
+                new InsertRowAction(csv, storeCSV, rowIndex, true),
+                new InsertRowAction(csv, storeCSV, rowIndex, false),
             );
         }
         if (cellIndex >= 0) {
             items.push(
-                new InsertColumnAction(cellIndex, -1),
-                new InsertColumnAction(cellIndex, 1),
+                new InsertColumnAction(csv, storeCSV, cellIndex, true),
+                new InsertColumnAction(csv, storeCSV, cellIndex, false),
             );
         }
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();

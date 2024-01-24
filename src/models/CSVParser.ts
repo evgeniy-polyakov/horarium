@@ -1,4 +1,6 @@
 import {parse} from "csv-parse";
+import {stringify} from "csv-stringify";
+import {FileModel} from "@/models/FileModel";
 
 export async function parseCSV(value: string) {
     return new Promise<string[][]>((res, rej) => parse(value, {
@@ -17,8 +19,20 @@ export async function parseCSV(value: string) {
             }
             res(records);
         } else {
-            res([[""]]);
             console.error(err);
+            res([[""]]);
+        }
+    }));
+}
+
+export async function stringifyCSV(csv: string[][], file: FileModel) {
+    return new Promise<string>((res, rej) => stringify(csv, (err, output) => {
+        if (!err) {
+            file.textContent = output;
+            res(output);
+        } else {
+            console.error(err);
+            res("");
         }
     }));
 }
