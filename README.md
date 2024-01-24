@@ -5,6 +5,11 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.2.0
+
+* Fixed creating empty files
+* Insert row and column actions
+
 ### 0.1.3
 
 * Table context menu
