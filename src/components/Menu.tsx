@@ -36,7 +36,7 @@ export function Menu({items, x, y, remove}: {
                     <li key={i} onClick={() => {
                         remove?.();
                         item.select?.();
-                    }}>
+                    }} className={item.className}>
                         <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                         <span className="name">{item.name}</span>
                     </li>

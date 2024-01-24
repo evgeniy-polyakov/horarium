@@ -11,12 +11,33 @@ nav.menu {
     list-style: none;
 
     li {
-      padding: 8px 32px;
+      padding: 8px 32px 8px 24px;
       margin: 4px 0;
       @include select(none);
 
       &:hover {
         background: var(--color-panel);
+      }
+
+      .icon {
+        display: inline-block;
+        width: 32px;
+
+        svg {
+          transform-origin: center;
+        }
+      }
+
+      &.insert-row-above .icon svg {
+        transform: rotate(-90deg);
+      }
+
+      &.insert-row-below .icon svg {
+        transform: rotate(90deg);
+      }
+
+      &.insert-column-before .icon svg {
+        transform: rotate(180deg);
       }
     }
   }
