@@ -98,7 +98,6 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
 
     function onContextMenu(e: MouseEvent) {
         if (!isEditing() && onMenu) {
-            e.preventDefault();
             onMenu(e);
         }
     }

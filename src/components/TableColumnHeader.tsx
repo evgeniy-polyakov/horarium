@@ -1,10 +1,11 @@
 import {MouseEvent} from "react";
 import {MODE_APPEND, MODE_RANGE, MODE_SELECT, TableSelectionReducer} from "@/models/TableSelection";
 
-export function TableColumnHeader({csv, cellIndex, selectionReducer}: {
+export function TableColumnHeader({csv, cellIndex, selectionReducer, onMenu}: {
     csv: string[][],
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
+    onMenu?: (event: MouseEvent) => void
 }) {
 
     function onClick(e: MouseEvent) {
@@ -23,6 +24,6 @@ export function TableColumnHeader({csv, cellIndex, selectionReducer}: {
     }
 
     return (
-        <th onClick={onClick}>{cellIndex >= 0 ? cellIndex + 1 : ""}</th>
+        <th onClick={onClick} onContextMenu={onMenu}>{cellIndex >= 0 ? cellIndex + 1 : ""}</th>
     );
 }

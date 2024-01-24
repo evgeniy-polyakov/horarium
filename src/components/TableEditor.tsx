@@ -20,6 +20,7 @@ export function TableEditor({file}: {
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<{ items: IMenuItem[], x: number, y: number, remove: () => void }>();
     const table = useRef<HTMLTableElement>(null);
+    const header = useRef<HTMLTableElement>(null);
 
     useEffect(() => {
         if (mouseDown.get()) {
@@ -55,12 +56,33 @@ export function TableEditor({file}: {
         });
     }
 
+
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {
+        event.preventDefault();
+        const items: IMenuItem[] = [];
+        if (rowIndex >= 0 && cellIndex >= 0) {
+            items.push(
+                {name: "Edit Cell"}
+            );
+        }
+        if (rowIndex >= 0) {
+            items.push(
+                {name: "Insert Row Above"},
+                {name: "Insert Row Below"},
+            );
+        }
+        if (cellIndex >= 0) {
+            items.push(
+                {name: "Insert Column Before"},
+                {name: "Insert Column After"},
+            );
+        }
         const b = table.current?.getBoundingClientRect();
+        const h = header.current?.offsetHeight ?? 0;
         setContextMenu({
-            items: [],
+            items: items,
             x: event.clientX - (b?.x ?? 0),
-            y: event.clientY - (b?.y ?? 0),
+            y: event.clientY - (b?.y ?? 0) + h,
             remove: () => setContextMenu(undefined)
         });
     }
@@ -68,11 +90,13 @@ export function TableEditor({file}: {
     return (
         <div className="table-editor">
             {csv.length > 0 && (
-                <table className="columns">
+                <table className="columns" ref={header}>
                     <thead>
                     <tr>
                         <TableAllHeader csv={csv} selectionReducer={selectionReducer}/>
-                        {csv[0].map((cell, cellIndex) => <TableColumnHeader key={cellIndex} cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}/>)}
+                        {csv[0].map((cell, cellIndex) =>
+                            <TableColumnHeader key={cellIndex} cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}
+                                               onMenu={event => onCellMenu(event, -1, cellIndex)}/>)}
                     </tr>
                     </thead>
                 </table>
@@ -81,7 +105,8 @@ export function TableEditor({file}: {
                 <tbody>
                 {csv.map((row, rowIndex) =>
                     <tr key={rowIndex} style={{zIndex: csv.length - rowIndex}}>
-                        <TableRowHeader rowIndex={rowIndex} csv={csv} selectionReducer={selectionReducer}/>
+                        <TableRowHeader rowIndex={rowIndex} csv={csv} selectionReducer={selectionReducer}
+                                        onMenu={event => onCellMenu(event, rowIndex, -1)}/>
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
