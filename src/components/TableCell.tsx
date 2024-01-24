@@ -72,10 +72,13 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
 
     function onDoubleClick() {
         const textarea = document.createElement("textarea");
+        const getMinHeight = () => {
+            return textarea.scrollHeight + 2;
+        }
         cell.current?.append(textarea);
         cell.current?.classList.add("editing");
         textarea.value = text;
-        textarea.style.height = `${textarea.scrollHeight + 2}px`;
+        textarea.style.height = `${getMinHeight()}px`;
         textarea.focus();
         textarea.addEventListener("blur", () => {
             if (textarea.value !== text) {
@@ -84,6 +87,12 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
             }
             textarea.remove();
             cell.current?.classList.remove("editing");
+        });
+        textarea.addEventListener("input", () => {
+            const minHeight = getMinHeight();
+            if (textarea.offsetHeight < minHeight) {
+                textarea.style.height = `${getMinHeight()}px`;
+            }
         });
     }
 
