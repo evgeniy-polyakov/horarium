@@ -8,7 +8,7 @@ export function TableRowHeader({csv, rowIndex, selectionReducer, onMenu}: {
     onMenu?: (event: MouseEvent) => void
 }) {
 
-    function onClick(e: MouseEvent) {
+    function onMouseDown(e: MouseEvent) {
         e.preventDefault();
         // todo allow to select ranges in one call
         selectionReducer[1]({
@@ -24,6 +24,6 @@ export function TableRowHeader({csv, rowIndex, selectionReducer, onMenu}: {
     }
 
     return (
-        <th onClick={onClick} onContextMenu={onMenu}>{rowIndex + 1}</th>
+        <th onMouseDown={onMouseDown} onContextMenu={onMenu}>{rowIndex + 1}</th>
     );
 }
