@@ -3,11 +3,12 @@ import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReduc
 import {StateAssessor} from "@/models/StateAccessor";
 import {classList} from "@/models/classList";
 
-export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, onMenu, mouseDown}: {
+export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit, onEdit, onMenu, mouseDown}: {
     csv: string[][],
     rowIndex: number,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
+    cellEdit: StateAssessor<[number, number]>,
     onEdit?: (value: string) => void,
     onMenu?: (e: MouseEvent) => void,
     mouseDown: StateAssessor<boolean>,
@@ -15,6 +16,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
 
     const [text, setText] = useState("");
     const [mouseAction, setMouseAction] = useState(false);
+    const [editing, setEditing] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
     const cellSelection = selectionReducer[0].file.cellSelection;
 
@@ -25,6 +27,11 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
 
     if (!mouseDown.get() && mouseAction) {
         setMouseAction(false);
+    }
+
+    if (isEditing() && !editing) {
+        setEditing(true);
+        edit();
     }
 
     function callSelectionAction(e: MouseEvent, extraModes = 0) {
@@ -38,7 +45,35 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
     }
 
     function isEditing() {
-        return cell.current?.classList.contains("editing");
+        return cellEdit.get()[0] === rowIndex && cellEdit.get()[1] === cellIndex;
+    }
+
+    function edit() {
+        const textarea = document.createElement("textarea");
+        const getMinHeight = () => {
+            return textarea.scrollHeight + 2;
+        }
+        cell.current?.append(textarea);
+        cell.current?.classList.add("editing");
+        textarea.value = text;
+        textarea.style.height = `${getMinHeight()}px`;
+        textarea.focus();
+        textarea.addEventListener("blur", () => {
+            if (textarea.value !== text) {
+                setText(textarea.value);
+                onEdit?.(textarea.value);
+            }
+            textarea.remove();
+            cell.current?.classList.remove("editing");
+            setEditing(false);
+            cellEdit.set([-1, -1]);
+        });
+        textarea.addEventListener("input", () => {
+            const minHeight = getMinHeight();
+            if (textarea.offsetHeight < minHeight) {
+                textarea.style.height = `${getMinHeight()}px`;
+            }
+        });
     }
 
     function onMouseDown(e: MouseEvent) {
@@ -71,29 +106,8 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
     }
 
     function onDoubleClick() {
-        const textarea = document.createElement("textarea");
-        const getMinHeight = () => {
-            return textarea.scrollHeight + 2;
-        }
-        cell.current?.append(textarea);
-        cell.current?.classList.add("editing");
-        textarea.value = text;
-        textarea.style.height = `${getMinHeight()}px`;
-        textarea.focus();
-        textarea.addEventListener("blur", () => {
-            if (textarea.value !== text) {
-                setText(textarea.value);
-                onEdit?.(textarea.value);
-            }
-            textarea.remove();
-            cell.current?.classList.remove("editing");
-        });
-        textarea.addEventListener("input", () => {
-            const minHeight = getMinHeight();
-            if (textarea.offsetHeight < minHeight) {
-                textarea.style.height = `${getMinHeight()}px`;
-            }
-        });
+        if (isEditing()) return;
+        cellEdit.set([rowIndex, cellIndex]);
     }
 
     function onContextMenu(e: MouseEvent) {

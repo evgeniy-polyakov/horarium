@@ -10,6 +10,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
+import {EditCellAction, InsertColumnAction, InsertRowAction} from "@/components/TableActions";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -17,6 +18,7 @@ export function TableEditor({file}: {
     const [textContent, setTextContent] = useState("");
     const [csv, setCSV] = useState<string[][]>([]);
     const mouseDown = useStateAccessor(false);
+    const cellEdit = useStateAccessor<[number, number]>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<{ items: IMenuItem[], x: number, y: number, remove: () => void }>();
     const table = useRef<HTMLTableElement>(null);
@@ -61,20 +63,18 @@ export function TableEditor({file}: {
         event.preventDefault();
         const items: IMenuItem[] = [];
         if (rowIndex >= 0 && cellIndex >= 0) {
-            items.push(
-                {name: "Edit Cell"}
-            );
+            items.push(new EditCellAction(cellEdit, rowIndex, cellIndex));
         }
         if (rowIndex >= 0) {
             items.push(
-                {name: "Insert Row Above"},
-                {name: "Insert Row Below"},
+                new InsertRowAction(rowIndex, -1),
+                new InsertRowAction(rowIndex, 1),
             );
         }
         if (cellIndex >= 0) {
             items.push(
-                {name: "Insert Column Before"},
-                {name: "Insert Column After"},
+                new InsertColumnAction(cellIndex, -1),
+                new InsertColumnAction(cellIndex, 1),
             );
         }
         const b = table.current?.getBoundingClientRect();
@@ -110,7 +110,7 @@ export function TableEditor({file}: {
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
-                                           selectionReducer={selectionReducer} mouseDown={mouseDown}
+                                           selectionReducer={selectionReducer} mouseDown={mouseDown} cellEdit={cellEdit}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }
