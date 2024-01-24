@@ -12,8 +12,8 @@ class SelectionRange {
     private excluded: number[] = [];
 
     constructor(
-        private readonly startRow: number,
-        private readonly startCell: number,
+        readonly startRow: number,
+        readonly startCell: number,
         private endRow: number,
         private endCell: number
     ) {
@@ -71,6 +71,14 @@ export class TableSelection {
 
     contains(rowIndex: number, cellIndex: number) {
         return this.ranges.some(it => it.contains(rowIndex, cellIndex));
+    }
+
+    isFocused(rowIndex: number, cellIndex: number) {
+        if (this.ranges.length === 0) {
+            return false;
+        }
+        const range = this.ranges[this.ranges.length - 1];
+        return range.startRow === rowIndex && range.startCell === cellIndex;
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {

@@ -1,6 +1,7 @@
 import {MouseEvent, useRef, useState} from "react";
 import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReducer} from "@/models/TableSelection";
 import {StateAssessor} from "@/models/StateAccessor";
+import {classList} from "@/models/classList";
 
 export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, mouseDown}: {
     csv: string[][],
@@ -35,7 +36,12 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
         });
     }
 
+    function isEditing() {
+        return cell.current?.classList.contains("editing");
+    }
+
     function onMouseDown(e: MouseEvent) {
+        if (isEditing()) return;
         mouseDown.set(true);
         setMouseAction(true);
         callSelectionAction(e);
@@ -45,6 +51,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
     }
 
     function onMouseEnter(e: MouseEvent) {
+        if (isEditing()) return;
         if (mouseDown.get() && !mouseAction) {
             setMouseAction(true);
             callSelectionAction(e, MODE_RANGE);
@@ -52,10 +59,12 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
     }
 
     function onMouseLeave(e: MouseEvent) {
+        if (isEditing()) return;
         setMouseAction(false);
     }
 
     function onMouseUp(e: MouseEvent) {
+        if (isEditing()) return;
         mouseDown.set(false);
         onMouseEnter(e);
     }
@@ -63,6 +72,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
     function onEditCell() {
         const textarea = document.createElement("textarea");
         cell.current?.append(textarea);
+        cell.current?.classList.add("editing");
         textarea.value = text;
         textarea.style.height = `${textarea.scrollHeight + 2}px`;
         textarea.focus();
@@ -72,11 +82,15 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, m
                 onEdit?.(textarea.value);
             }
             textarea.remove();
+            cell.current?.classList.remove("editing");
         });
     }
 
     return (
-        <td ref={cell} className={cellSelection.contains(rowIndex, cellIndex) ? "selected" : ""}
+        <td ref={cell} className={classList({
+            selected: cellSelection.contains(rowIndex, cellIndex),
+            focused: cellSelection.isFocused(rowIndex, cellIndex)
+        })}
             onDoubleClick={onEditCell} onMouseDown={onMouseDown} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onMouseUp={onMouseUp}>
             <span>{text}</span>
         </td>
