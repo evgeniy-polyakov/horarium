@@ -66,14 +66,14 @@ export function TableEditor({file}: {
         }
         if (rowIndex >= 0) {
             items.push(
-                new InsertRowAction(csv, storeCSV, rowIndex, true),
-                new InsertRowAction(csv, storeCSV, rowIndex, false),
+                new InsertRowAction(csv, storeCSV, selectionReducer, rowIndex, true),
+                new InsertRowAction(csv, storeCSV, selectionReducer, rowIndex, false),
             );
         }
         if (cellIndex >= 0) {
             items.push(
-                new InsertColumnAction(csv, storeCSV, cellIndex, true),
-                new InsertColumnAction(csv, storeCSV, cellIndex, false),
+                new InsertColumnAction(csv, storeCSV, selectionReducer, cellIndex, true),
+                new InsertColumnAction(csv, storeCSV, selectionReducer, cellIndex, false),
             );
         }
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();

@@ -1,6 +1,7 @@
 import {StateAssessor} from "@/models/StateAccessor";
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowRightToBracket, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {MODE_DOWN, MODE_RIGHT, TableSelectionReducer} from "@/models/TableSelection";
 
 export class EditCellAction implements IMenuItem {
 
@@ -25,6 +26,7 @@ export class InsertRowAction implements IMenuItem {
 
     constructor(private readonly csv: string[][],
                 private readonly setCSV: (value: string[][]) => void,
+                private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number,
                 private readonly above: boolean) {
     }
@@ -37,6 +39,13 @@ export class InsertRowAction implements IMenuItem {
             row,
             ...this.csv.slice(index)
         ]);
+        if (this.above) {
+            this.selectionReducer[1]({
+                mode: MODE_DOWN,
+                rowIndex: this.rowIndex,
+                cellIndex: -1,
+            });
+        }
     }
 }
 
@@ -48,6 +57,7 @@ export class InsertColumnAction implements IMenuItem {
 
     constructor(private readonly csv: string[][],
                 private readonly setCSV: (value: string[][]) => void,
+                private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number,
                 private readonly before: boolean) {
     }
@@ -58,6 +68,13 @@ export class InsertColumnAction implements IMenuItem {
             row.splice(index, 0, "");
         }
         this.setCSV([...this.csv]);
+        if (this.before) {
+            this.selectionReducer[1]({
+                mode: MODE_RIGHT,
+                rowIndex: -1,
+                cellIndex: this.columnIndex,
+            });
+        }
     }
 }
 

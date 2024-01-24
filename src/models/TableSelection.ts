@@ -6,14 +6,16 @@ export const MODE_UNSELECT = 2;
 export const MODE_APPEND = 4;
 export const MODE_RANGE = 8;
 export const MODE_ALL = 16;
+export const MODE_RIGHT = 32;
+export const MODE_DOWN = 64;
 
 class SelectionRange {
 
     private excluded: number[] = [];
 
     constructor(
-        readonly startRow: number,
-        readonly startCell: number,
+        private startRow: number,
+        private startCell: number,
         private endRow: number,
         private endCell: number
     ) {
@@ -59,6 +61,28 @@ class SelectionRange {
         return this.excluded.length >= (1 + Math.abs(this.startRow - this.endRow)) * (1 + Math.abs(this.startCell - this.endCell)) * 2;
     }
 
+    isStart(rowIndex: number, cellIndex: number) {
+        return this.startRow === rowIndex && this.startCell === cellIndex;
+    }
+
+    shiftDown(rowIndex: number) {
+        rowIndex++;
+        this.startRow = rowIndex;
+        this.endRow = rowIndex;
+        for (let i = 0; i < this.excluded.length; i += 2) {
+            this.excluded[i] = rowIndex;
+        }
+    }
+
+    shiftRight(cellIndex: number) {
+        cellIndex++;
+        this.startCell = cellIndex;
+        this.endCell = cellIndex;
+        for (let i = 1; i < this.excluded.length; i += 2) {
+            this.excluded[i] = cellIndex;
+        }
+    }
+
     private inRange(rowIndex: number, cellIndex: number) {
         return (this.startRow <= this.endRow ? rowIndex >= this.startRow && rowIndex <= this.endRow : rowIndex <= this.startRow && rowIndex >= this.endRow) &&
             (this.startCell <= this.endCell ? cellIndex >= this.startCell && cellIndex <= this.endCell : cellIndex <= this.startCell && cellIndex >= this.endCell);
@@ -78,11 +102,15 @@ export class TableSelection {
             return false;
         }
         const range = this.ranges[this.ranges.length - 1];
-        return range.startRow === rowIndex && range.startCell === cellIndex;
+        return range.isStart(rowIndex, cellIndex);
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
-        if (mode & MODE_ALL) {
+        if (mode & MODE_DOWN) {
+            this.ranges.forEach(it => it.shiftDown(rowIndex));
+        } else if (mode & MODE_RIGHT) {
+            this.ranges.forEach(it => it.shiftRight(cellIndex));
+        } else if (mode & MODE_ALL) {
             this.ranges = [new SelectionRange(0, 0, rowIndex, cellIndex)];
         } else if ((mode & MODE_RANGE) && (mode & MODE_APPEND)) {
             if (this.ranges.length === 0) {
