@@ -30,7 +30,7 @@ export function TableEditor({file}: {
         return () => {
             window.removeEventListener("mouseup", onMouseUp, false);
         }
-    }, [mouseDown]);
+    });
 
     if (selectionReducer[0].file !== file) {
         setMouseDown(false);

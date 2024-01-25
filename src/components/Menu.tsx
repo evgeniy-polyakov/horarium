@@ -46,7 +46,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
              onContextMenu={e => e.preventDefault()}>
             <ul>
                 {items.map((item, i) => item.separator ? (
-                    <li className="separator"></li>
+                    <li key={i} className="separator"></li>
                 ) : (
                     <li key={i} onClick={() => {
                         remove?.();
