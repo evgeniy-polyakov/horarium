@@ -111,3 +111,7 @@ export class CloneColumnAction implements IMenuItem {
         setCSV([...csv]);
     }
 }
+
+export class Separator implements IMenuItem {
+    readonly separator = true;
+}
