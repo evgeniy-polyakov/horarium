@@ -1,23 +1,22 @@
 import {MouseEvent, useRef, useState} from "react";
 import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReducer} from "@/models/TableSelection";
-import {StateAssessor} from "@/models/StateAccessor";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 
-export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit, onEdit, onMenu, mouseDownState: [mouseDown, setMouseDown]}: {
+export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, onMenu, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
     csv: string[][],
     rowIndex: number,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
-    cellEdit: StateAssessor<[number, number]>,
     onEdit?: (value: string) => void,
     onMenu?: (e: MouseEvent) => void,
+    cellEditState: State<[number, number]>,
     mouseDownState: State<boolean>,
 }) {
 
     const [text, setText] = useState("");
     const [mouseAction, setMouseAction] = useState(false);
-    const [editing, setEditing] = useState(false);
+    const [thisCellEdit, setThisCellEdit] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
     const cellSelection = selectionReducer[0].file.cellSelection;
 
@@ -30,8 +29,8 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
         setMouseAction(false);
     }
 
-    if (isEditing() && !editing) {
-        setEditing(true);
+    if (isEditing() && !thisCellEdit) {
+        setThisCellEdit(true);
         edit();
     }
 
@@ -46,7 +45,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
     }
 
     function isEditing() {
-        return cellEdit.get()[0] === rowIndex && cellEdit.get()[1] === cellIndex;
+        return cellEdit[0] === rowIndex && cellEdit[1] === cellIndex;
     }
 
     function edit() {
@@ -66,8 +65,8 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
             }
             textarea.remove();
             cell.current?.classList.remove("editing");
-            setEditing(false);
-            cellEdit.set([-1, -1]);
+            setThisCellEdit(false);
+            setCellEdit([-1, -1]);
         });
         textarea.addEventListener("input", () => {
             const minHeight = getMinHeight();
@@ -108,7 +107,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
 
     function onDoubleClick() {
         if (isEditing()) return;
-        cellEdit.set([rowIndex, cellIndex]);
+        setCellEdit([rowIndex, cellIndex]);
     }
 
     function onContextMenu(e: MouseEvent) {

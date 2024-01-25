@@ -1,4 +1,3 @@
-import {StateAssessor} from "@/models/StateAccessor";
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowRightToBracket, faPencil} from '@fortawesome/free-solid-svg-icons'
 import {MODE_DOWN, MODE_RIGHT, TableSelectionReducer} from "@/models/TableSelection";
@@ -9,13 +8,13 @@ export class EditCellAction implements IMenuItem {
     readonly name = "Edit Cell";
     readonly icon = faPencil;
 
-    constructor(private readonly cellEdit: StateAssessor<[number, number]>,
+    constructor(private readonly cellEditState: State<[number, number]>,
                 private readonly rowIndex: number,
                 private readonly cellIndex: number) {
     }
 
     select() {
-        this.cellEdit.set([this.rowIndex, this.cellIndex]);
+        this.cellEditState[1]([this.rowIndex, this.cellIndex]);
     }
 }
 

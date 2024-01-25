@@ -2,7 +2,6 @@ import {FileModel} from "@/models/FileModel";
 import {MouseEvent, useEffect, useReducer, useRef, useState} from "react";
 import {TableCell} from "@/components/TableCell";
 import {tableSelectionReducer} from "@/models/TableSelection";
-import {useStateAccessor} from "@/models/StateAccessor";
 import {parseCSV, stringifyCSV} from "@/models/CSVParser";
 import {TableColumnHeader} from "@/components/TableColumnHeader";
 import {TableRowHeader} from "@/components/TableRowHeader";
@@ -19,7 +18,7 @@ export function TableEditor({file}: {
     const [csv, setCSV] = csvState;
     const mouseDownState = useState(false);
     const [mouseDown, setMouseDown] = mouseDownState;
-    const cellEdit = useStateAccessor<[number, number]>([-1, -1]);
+    const cellEditState = useState<[number, number]>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);
@@ -64,7 +63,7 @@ export function TableEditor({file}: {
         }
         const items: IMenuItem[] = [];
         if (rowIndex >= 0 && cellIndex >= 0) {
-            items.push(new EditCellAction(cellEdit, rowIndex, cellIndex));
+            items.push(new EditCellAction(cellEditState, rowIndex, cellIndex));
         }
         if (rowIndex >= 0) {
             items.push(
@@ -114,7 +113,7 @@ export function TableEditor({file}: {
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
-                                           selectionReducer={selectionReducer} mouseDownState={mouseDownState} cellEdit={cellEdit}
+                                           selectionReducer={selectionReducer} mouseDownState={mouseDownState} cellEditState={cellEditState}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }
