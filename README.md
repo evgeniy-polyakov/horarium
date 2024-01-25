@@ -5,6 +5,11 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.2.1
+
+* Clone row and column actions
+* Separators in context menu
+
 ### 0.2.0
 
 * Fixed creating empty files
