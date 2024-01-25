@@ -2,8 +2,9 @@ import {MouseEvent, useRef, useState} from "react";
 import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReducer} from "@/models/TableSelection";
 import {StateAssessor} from "@/models/StateAccessor";
 import {classList} from "@/models/classList";
+import {State} from "@/models/State";
 
-export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit, onEdit, onMenu, mouseDown}: {
+export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit, onEdit, onMenu, mouseDownState: [mouseDown, setMouseDown]}: {
     csv: string[][],
     rowIndex: number,
     cellIndex: number,
@@ -11,7 +12,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
     cellEdit: StateAssessor<[number, number]>,
     onEdit?: (value: string) => void,
     onMenu?: (e: MouseEvent) => void,
-    mouseDown: StateAssessor<boolean>,
+    mouseDownState: State<boolean>,
 }) {
 
     const [text, setText] = useState("");
@@ -25,7 +26,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
         setText(oldText);
     }
 
-    if (!mouseDown.get() && mouseAction) {
+    if (!mouseDown && mouseAction) {
         setMouseAction(false);
     }
 
@@ -78,7 +79,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
 
     function onMouseDown(e: MouseEvent) {
         if (isEditing()) return;
-        mouseDown.set(true);
+        setMouseDown(true);
         setMouseAction(true);
         callSelectionAction(e);
         if (document.activeElement instanceof HTMLElement) {
@@ -88,7 +89,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
 
     function onMouseEnter(e: MouseEvent) {
         if (isEditing()) return;
-        if (mouseDown.get() && !mouseAction) {
+        if (mouseDown && !mouseAction) {
             setMouseAction(true);
             callSelectionAction(e, MODE_RANGE);
         }
@@ -101,7 +102,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, cellEdit,
 
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
-        mouseDown.set(false);
+        setMouseDown(false);
         onMouseEnter(e);
     }
 

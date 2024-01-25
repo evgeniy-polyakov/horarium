@@ -15,15 +15,17 @@ export function TableEditor({file}: {
     file: FileModel
 }) {
     const [fileId, setFileId] = useState(-1);
-    const [csv, setCSV] = useState<string[][]>([]);
-    const mouseDown = useStateAccessor(false);
+    const csvState = useState<string[][]>([]);
+    const [csv, setCSV] = csvState;
+    const mouseDownState = useState(false);
+    const [mouseDown, setMouseDown] = mouseDownState;
     const cellEdit = useStateAccessor<[number, number]>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (mouseDown.get()) {
+        if (mouseDown) {
             window.addEventListener("mouseup", onMouseUp, false);
         }
         return () => {
@@ -32,7 +34,7 @@ export function TableEditor({file}: {
     }, [mouseDown]);
 
     if (selectionReducer[0].file !== file) {
-        mouseDown.set(false);
+        setMouseDown(false);
         selectionReducer[1]({file: file, mode: "update"});
     }
 
@@ -47,7 +49,7 @@ export function TableEditor({file}: {
     }
 
     function onMouseUp() {
-        mouseDown.set(false);
+        setMouseDown(false);
     }
 
     function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
@@ -66,14 +68,14 @@ export function TableEditor({file}: {
         }
         if (rowIndex >= 0) {
             items.push(
-                new InsertRowAction(csv, storeCSV, selectionReducer, rowIndex, true),
-                new InsertRowAction(csv, storeCSV, selectionReducer, rowIndex, false),
+                new InsertRowAction(csvState, selectionReducer, rowIndex, true),
+                new InsertRowAction(csvState, selectionReducer, rowIndex, false),
             );
         }
         if (cellIndex >= 0) {
             items.push(
-                new InsertColumnAction(csv, storeCSV, selectionReducer, cellIndex, true),
-                new InsertColumnAction(csv, storeCSV, selectionReducer, cellIndex, false),
+                new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
+                new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
             );
         }
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();
@@ -112,7 +114,7 @@ export function TableEditor({file}: {
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
-                                           selectionReducer={selectionReducer} mouseDown={mouseDown} cellEdit={cellEdit}
+                                           selectionReducer={selectionReducer} mouseDownState={mouseDownState} cellEdit={cellEdit}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }
