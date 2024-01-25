@@ -10,15 +10,14 @@ import {SaveFileButton} from "@/components/SaveFileButton";
 import {FileModel} from "@/models/FileModel";
 import {NewFileButton} from "@/components/NewFileButton";
 
-export function Header({filesReducer}: {
+export function Header({filesReducer: [filesModel, filesAction]}: {
     filesReducer: FilesReducer
 }) {
-    const [filesModel, fileAction] = filesReducer;
     const files = filesModel.files;
     const file = filesModel.selectedFile;
 
     function onOpenFile(file: FileModel) {
-        fileAction({file, type: "add"});
+        filesAction({file, type: "add"});
     }
 
     return (
@@ -27,11 +26,11 @@ export function Header({filesReducer}: {
             <NewFileButton onOpen={onOpenFile}/>
             {file && <SaveFileButton file={file}/>}
             <Tabs items={files.map(it => new FileTabItem(it))}
-                  onSelect={item => fileAction({
+                  onSelect={item => filesAction({
                       file: item.file,
                       type: "select"
                   })}
-                  onRemove={item => fileAction({
+                  onRemove={item => filesAction({
                       file: item.file,
                       type: "remove"
                   })}
@@ -41,7 +40,7 @@ export function Header({filesReducer}: {
                 new EditModeTabItem(file, EditMode.Table, faTableList, "Table"),
             ]} onSelect={item => {
                 file.editMode = item.editMode;
-                fileAction({
+                filesAction({
                     file: filesModel.selectedFile!,
                     type: "update"
                 });

@@ -3,7 +3,7 @@ import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReduc
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 
-export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, onMenu, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
+export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
     csv: string[][],
     rowIndex: number,
     cellIndex: number,
@@ -18,7 +18,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
     const [mouseAction, setMouseAction] = useState(false);
     const [thisCellEdit, setThisCellEdit] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
-    const cellSelection = selectionReducer[0].file.cellSelection;
+    const cellSelection = selection.file.cellSelection;
 
     const oldText = csv[rowIndex]?.[cellIndex];
     if (text !== oldText) {
@@ -36,7 +36,7 @@ export function TableCell({csv, rowIndex, cellIndex, selectionReducer, onEdit, o
 
     function callSelectionAction(e: MouseEvent, extraModes = 0) {
         e.preventDefault();
-        selectionReducer[1]({
+        select({
             rowIndex, cellIndex,
             mode: (e.ctrlKey ? MODE_APPEND : 0) | (e.shiftKey ? MODE_RANGE : 0) |
                 (cellSelection.contains(rowIndex, cellIndex) ? MODE_UNSELECT : MODE_SELECT) |

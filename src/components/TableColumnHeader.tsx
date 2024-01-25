@@ -1,7 +1,7 @@
 import {MouseEvent} from "react";
 import {MODE_APPEND, MODE_RANGE, MODE_SELECT, TableSelectionReducer} from "@/models/TableSelection";
 
-export function TableColumnHeader({csv, cellIndex, selectionReducer, onMenu}: {
+export function TableColumnHeader({csv, cellIndex, selectionReducer: [, select], onMenu}: {
     csv: string[][],
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
@@ -10,12 +10,12 @@ export function TableColumnHeader({csv, cellIndex, selectionReducer, onMenu}: {
 
     function onMouseDown(e: MouseEvent) {
         // todo allow to select ranges in one call
-        selectionReducer[1]({
+        select({
             rowIndex: 0,
             cellIndex: cellIndex,
             mode: MODE_SELECT | (e.shiftKey ? MODE_RANGE : 0) | (e.ctrlKey ? MODE_APPEND : 0)
         });
-        selectionReducer[1]({
+        select({
             rowIndex: csv.length,
             cellIndex: cellIndex,
             mode: MODE_SELECT | MODE_RANGE | (e.ctrlKey ? MODE_APPEND : 0)
