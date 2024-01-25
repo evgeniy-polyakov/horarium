@@ -8,7 +8,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {EditCellAction, InsertColumnAction, InsertRowAction} from "@/components/TableActions";
+import {CloneColumnAction, CloneRowAction, EditCellAction, InsertColumnAction, InsertRowAction} from "@/components/TableActions";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -67,12 +67,14 @@ export function TableEditor({file}: {
         }
         if (rowIndex >= 0) {
             items.push(
+                new CloneRowAction(csvState, rowIndex),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, true),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, false),
             );
         }
         if (cellIndex >= 0) {
             items.push(
+                new CloneColumnAction(csvState, cellIndex),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
             );

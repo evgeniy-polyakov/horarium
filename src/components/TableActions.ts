@@ -1,5 +1,5 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowRightToBracket, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {faArrowRightToBracket, faClone, faPencil} from '@fortawesome/free-solid-svg-icons'
 import {MODE_DOWN, MODE_RIGHT, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 
@@ -34,11 +34,8 @@ export class InsertRowAction implements IMenuItem {
         const [csv, setCSV] = this.csvState;
         const index = this.rowIndex + (this.above ? 0 : 1);
         const row = csv[0].map(() => "");
-        setCSV([
-            ...csv.slice(0, index),
-            row,
-            ...csv.slice(index)
-        ]);
+        csv.splice(index, 0, row);
+        setCSV([...csv]);
         if (this.above) {
             this.selectionReducer[1]({
                 mode: MODE_DOWN,
@@ -78,3 +75,39 @@ export class InsertColumnAction implements IMenuItem {
     }
 }
 
+export class CloneRowAction implements IMenuItem {
+
+    readonly name = `Clone Row`;
+    readonly icon = faClone;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly rowIndex: number) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        const index = this.rowIndex;
+        const row = csv[index].slice();
+        csv.splice(index, 0, row);
+        setCSV([...csv]);
+    }
+}
+
+export class CloneColumnAction implements IMenuItem {
+
+    readonly name = `Clone Column`;
+    readonly icon = faClone;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly columnIndex: number) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        const index = this.columnIndex;
+        for (const row of csv) {
+            row.splice(index, 0, row[index]);
+        }
+        setCSV([...csv]);
+    }
+}
