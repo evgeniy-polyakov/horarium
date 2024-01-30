@@ -1,6 +1,6 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowRightToBracket, faClone, faPencil} from '@fortawesome/free-solid-svg-icons'
-import {MODE_DOWN, MODE_RIGHT, TableSelectionReducer} from "@/models/TableSelection";
+import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faClone, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 
 export class EditCellAction implements IMenuItem {
@@ -109,6 +109,70 @@ export class CloneColumnAction implements IMenuItem {
             row.splice(index, 0, row[index]);
         }
         setCSV([...csv]);
+    }
+}
+
+export class MoveRowAction implements IMenuItem {
+
+    readonly name = `Move Row ${this.up ? "Up" : "Down"}`;
+    readonly icon = this.up ? faArrowUp : faArrowDown;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
+                private readonly rowIndex: number,
+                private readonly up: boolean) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        const otherIndex = this.rowIndex + (this.up ? -1 : 1);
+        const row = csv[this.rowIndex];
+        csv[this.rowIndex] = csv[otherIndex];
+        csv[otherIndex] = row;
+        setCSV([...csv]);
+        this.selectionReducer[1]({
+            mode: this.up ? MODE_UP : MODE_DOWN,
+            rowIndex: this.rowIndex,
+            cellIndex: -1,
+        });
+    }
+
+    get disabled() {
+        const [csv] = this.csvState;
+        return (this.up && this.rowIndex === 0) || (!this.up && this.rowIndex >= csv.length - 1);
+    }
+}
+
+export class MoveColumnAction implements IMenuItem {
+
+    readonly name = `Move Column ${this.left ? "Left" : "Right"}`;
+    readonly icon = this.left ? faArrowLeft : faArrowRight;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
+                private readonly columnIndex: number,
+                private readonly left: boolean) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        const otherIndex = this.columnIndex + (this.left ? -1 : 1);
+        for (const row of csv) {
+            const cell = row[this.columnIndex];
+            row[this.columnIndex] = row[otherIndex];
+            row[otherIndex] = cell;
+        }
+        setCSV([...csv]);
+        this.selectionReducer[1]({
+            mode: this.left ? MODE_LEFT : MODE_RIGHT,
+            rowIndex: -1,
+            cellIndex: this.columnIndex,
+        });
+    }
+
+    get disabled() {
+        const [csv] = this.csvState;
+        return (this.left && this.columnIndex === 0) || (!this.left && this.columnIndex >= csv[0].length - 1);
     }
 }
 

@@ -6,8 +6,10 @@ export const MODE_UNSELECT = 2;
 export const MODE_APPEND = 4;
 export const MODE_RANGE = 8;
 export const MODE_ALL = 16;
-export const MODE_RIGHT = 32;
-export const MODE_DOWN = 64;
+export const MODE_UP = 64;
+export const MODE_DOWN = 128;
+export const MODE_LEFT = 256;
+export const MODE_RIGHT = 512;
 
 class SelectionRange {
 
@@ -65,8 +67,8 @@ class SelectionRange {
         return this.startRow === rowIndex && this.startCell === cellIndex;
     }
 
-    shiftDown(rowIndex: number) {
-        rowIndex++;
+    shiftRow(rowIndex: number, distance: number) {
+        rowIndex += distance;
         this.startRow = rowIndex;
         this.endRow = rowIndex;
         for (let i = 0; i < this.excluded.length; i += 2) {
@@ -74,8 +76,8 @@ class SelectionRange {
         }
     }
 
-    shiftRight(cellIndex: number) {
-        cellIndex++;
+    shiftColumn(cellIndex: number, distance: number) {
+        cellIndex += distance;
         this.startCell = cellIndex;
         this.endCell = cellIndex;
         for (let i = 1; i < this.excluded.length; i += 2) {
@@ -106,10 +108,15 @@ export class TableSelection {
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
-        if (mode & MODE_DOWN) {
-            this.ranges.forEach(it => it.shiftDown(rowIndex));
+        console.log(mode);
+        if (mode & MODE_UP) {
+            this.ranges.forEach(it => it.shiftRow(rowIndex, -1));
+        } else if (mode & MODE_DOWN) {
+            this.ranges.forEach(it => it.shiftRow(rowIndex, 1));
+        } else if (mode & MODE_LEFT) {
+            this.ranges.forEach(it => it.shiftColumn(cellIndex, -1));
         } else if (mode & MODE_RIGHT) {
-            this.ranges.forEach(it => it.shiftRight(cellIndex));
+            this.ranges.forEach(it => it.shiftColumn(cellIndex, 1));
         } else if (mode & MODE_ALL) {
             this.ranges = [new SelectionRange(0, 0, rowIndex, cellIndex)];
         } else if ((mode & MODE_RANGE) && (mode & MODE_APPEND)) {

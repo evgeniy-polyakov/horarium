@@ -8,7 +8,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {CloneColumnAction, CloneRowAction, EditCellAction, InsertColumnAction, InsertRowAction, Separator} from "@/components/TableActions";
+import {CloneColumnAction, CloneRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MoveColumnAction, MoveRowAction, Separator} from "@/components/TableActions";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -61,26 +61,32 @@ export function TableEditor({file}: {
         if (!editor.current) {
             return;
         }
-        const items: IMenuItem[] = [];
-        if (rowIndex >= 0 && cellIndex >= 0) {
-            items.push(new EditCellAction(cellEditState, rowIndex, cellIndex));
-        }
-        if (rowIndex >= 0) {
-            items.length > 0 && items.push(new Separator());
-            items.push(
+        const items: IMenuItem[] =
+            rowIndex >= 0 && cellIndex >= 0 ? [
+                new EditCellAction(cellEditState, rowIndex, cellIndex),
+                new Separator(),
                 new CloneRowAction(csvState, rowIndex),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, true),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, false),
-            );
-        }
-        if (cellIndex >= 0) {
-            items.length > 0 && items.push(new Separator());
-            items.push(
+                new Separator(),
                 new CloneColumnAction(csvState, cellIndex),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
-            );
-        }
+            ] : rowIndex >= 0 ? [
+                new CloneRowAction(csvState, rowIndex),
+                new InsertRowAction(csvState, selectionReducer, rowIndex, true),
+                new InsertRowAction(csvState, selectionReducer, rowIndex, false),
+                new Separator(),
+                new MoveRowAction(csvState, selectionReducer, rowIndex, true),
+                new MoveRowAction(csvState, selectionReducer, rowIndex, false),
+            ] : cellIndex >= 0 ? [
+                new CloneColumnAction(csvState, cellIndex),
+                new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
+                new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
+                new Separator(),
+                new MoveColumnAction(csvState, selectionReducer, cellIndex, true),
+                new MoveColumnAction(csvState, selectionReducer, cellIndex, false),
+            ] : [];
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();
         const h = (editor.current.querySelector('table.columns') as HTMLElement).offsetHeight;
         const v = editor.current.offsetHeight;
