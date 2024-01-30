@@ -1,5 +1,6 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCaretRight} from '@fortawesome/free-solid-svg-icons'
 import {useEffect, useRef} from "react";
 import {classList} from "@/models/classList";
 
@@ -49,7 +50,6 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             const isBottom = y > viewportHeight - height;
             const isRightSubmenu = x > viewportWidth - widthWithSubmenu;
             const isBottomSubmenu = y > viewportHeight - heightWithSubmenu;
-            console.log(x, widthWithSubmenu, viewportWidth);
             menu.querySelectorAll("ul").forEach(it => {
                 it.style.display = "";
                 it.style.left = "";
@@ -75,6 +75,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                 }} className={classList(item.className, {disabled: item.disabled})}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
+                    {item.items && <span className="expand"><FontAwesomeIcon icon={faCaretRight}/></span>}
                     {item.items && renderItems(item.items)}
                 </li>
             ))}

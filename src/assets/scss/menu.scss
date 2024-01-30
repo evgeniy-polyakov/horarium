@@ -17,6 +17,8 @@ nav.menu {
       margin: 4px 0;
       white-space: nowrap;
       @include select(none);
+      display: flex;
+      flex-flow: row nowrap;
 
       &:before {
         content: '';
@@ -48,6 +50,7 @@ nav.menu {
         svg {
           display: block;
           margin: 0 auto;
+          transform-origin: center;
         }
       }
 
@@ -73,7 +76,24 @@ nav.menu {
           display: block;
           height: 1px;
           background: var(--color-panel);
+          position: relative;
         }
+      }
+
+      .expand {
+        margin-left: auto;
+        color: var(--color-text-disabled);
+        width: 32px;
+        transform: translateX(12px);
+
+        svg {
+          display: block;
+          margin-left: auto;
+        }
+      }
+
+      &:hover .expand {
+        color: inherit;
       }
 
       > ul {
