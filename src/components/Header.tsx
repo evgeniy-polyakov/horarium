@@ -1,5 +1,5 @@
 import {OpenFileButton} from "@/components/OpenFileButton";
-import {faTableList} from '@fortawesome/free-solid-svg-icons'
+import {faTableCells} from '@fortawesome/free-solid-svg-icons'
 import {faFileLines} from '@fortawesome/free-regular-svg-icons';
 import {FilesReducer} from "@/models/FilesReducer";
 import {Tabs} from "@/components/Tabs";
@@ -37,7 +37,7 @@ export function Header({filesReducer: [filesModel, filesAction]}: {
             />
             {file && <Tabs items={[
                 new EditModeTabItem(file, EditMode.Text, faFileLines, "Text"),
-                new EditModeTabItem(file, EditMode.Table, faTableList, "Table"),
+                new EditModeTabItem(file, EditMode.Table, faTableCells, "Table"),
             ]} onSelect={item => {
                 file.editMode = item.editMode;
                 filesAction({

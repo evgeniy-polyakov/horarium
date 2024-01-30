@@ -1,5 +1,5 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faGripLines, faGripLinesVertical, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
 import {faClone} from '@fortawesome/free-regular-svg-icons'
 import {MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
@@ -23,7 +23,7 @@ export class InsertRowAction implements IMenuItem {
 
     readonly name = `Insert Row ${this.above ? "Above" : "Below"}`;
     readonly icon = faArrowRightToBracket;
-    readonly className = `insert-row-${this.above ? "above" : "below"}`;
+    readonly className = `rotate${this.above ? "-90" : "90"}`;
 
     constructor(private readonly csvState: State<string[][]>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -51,7 +51,7 @@ export class InsertColumnAction implements IMenuItem {
 
     readonly name = `Insert Column ${this.before ? "Before" : "After"}`;
     readonly icon = faArrowRightToBracket;
-    readonly className = `insert-column-${this.before ? "before" : "after"}`;
+    readonly className = `rotate${this.before ? "180" : "0"}`;
 
     constructor(private readonly csvState: State<string[][]>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -184,7 +184,7 @@ export class MenuSeparator implements IMenuItem {
 export class RowMenuGroup implements IMenuItem {
 
     readonly name = "Row";
-    readonly icon = faGripLines;
+    readonly icon = faTableList;
 
     constructor(readonly items: IMenuItem[]) {
     }
@@ -193,7 +193,7 @@ export class RowMenuGroup implements IMenuItem {
 export class ColumnMenuGroup implements IMenuItem {
 
     readonly name = "Column";
-    readonly icon = faGripLinesVertical;
+    readonly icon = faColumns;
 
     constructor(readonly items: IMenuItem[]) {
     }

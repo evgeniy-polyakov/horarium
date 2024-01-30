@@ -54,15 +54,15 @@ nav.menu {
         }
       }
 
-      &.insert-row-above .icon svg {
+      &.rotate-90 .icon svg {
         transform: rotate(-90deg);
       }
 
-      &.insert-row-below .icon svg {
+      &.rotate90 .icon svg {
         transform: rotate(90deg);
       }
 
-      &.insert-column-before .icon svg {
+      &.rotate180 .icon svg {
         transform: rotate(180deg);
       }
 
