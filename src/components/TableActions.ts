@@ -1,5 +1,6 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faClone, faGripLines, faGripLinesVertical, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faGripLines, faGripLinesVertical, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {faClone} from '@fortawesome/free-regular-svg-icons'
 import {MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 
