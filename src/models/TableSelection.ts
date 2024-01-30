@@ -108,7 +108,6 @@ export class TableSelection {
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
-        console.log(mode);
         if (mode & MODE_UP) {
             this.ranges.forEach(it => it.shiftRow(rowIndex, -1));
         } else if (mode & MODE_DOWN) {
