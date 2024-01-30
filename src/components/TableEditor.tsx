@@ -8,7 +8,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {CloneColumnAction, CloneRowAction, ColumnMenuGroup, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
+import {CloneColumnAction, CloneRowAction, ColumnMenuGroup, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -70,6 +70,8 @@ export function TableEditor({file}: {
                 new MenuSeparator(),
                 new MoveRowAction(csvState, selectionReducer, rowIndex, true),
                 new MoveRowAction(csvState, selectionReducer, rowIndex, false),
+                new MenuSeparator(),
+                new DeleteRowAction(csvState, selectionReducer, rowIndex),
             ];
         }
 
@@ -81,6 +83,8 @@ export function TableEditor({file}: {
                 new MenuSeparator(),
                 new MoveColumnAction(csvState, selectionReducer, cellIndex, true),
                 new MoveColumnAction(csvState, selectionReducer, cellIndex, false),
+                new MenuSeparator(),
+                new DeleteColumnAction(csvState, selectionReducer, cellIndex),
             ];
         }
 
@@ -94,6 +98,7 @@ export function TableEditor({file}: {
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();
         const h = (editor.current.querySelector('table.columns') as HTMLElement).offsetHeight;
         const v = editor.current.offsetHeight;
+
         setContextMenu({
             items: items,
             x: event.clientX - (b.x ?? 0),

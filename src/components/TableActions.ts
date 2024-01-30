@@ -1,7 +1,7 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
-import {faClone} from '@fortawesome/free-regular-svg-icons'
-import {MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
+import {faClone, faTrashCan} from '@fortawesome/free-regular-svg-icons'
+import {MODE_CLEAR, MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 
 export class EditCellAction implements IMenuItem {
@@ -174,6 +174,52 @@ export class MoveColumnAction implements IMenuItem {
     get disabled() {
         const [csv] = this.csvState;
         return (this.left && this.columnIndex === 0) || (!this.left && this.columnIndex >= csv[0].length - 1);
+    }
+}
+
+export class DeleteRowAction implements IMenuItem {
+
+    readonly name = "Delete Row";
+    readonly icon = faTrashCan;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
+                private readonly rowIndex: number) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        csv.splice(this.rowIndex, 1);
+        setCSV([...csv]);
+        this.selectionReducer[1]({
+            mode: MODE_CLEAR,
+            rowIndex: -1,
+            cellIndex: -1,
+        });
+    }
+}
+
+export class DeleteColumnAction implements IMenuItem {
+
+    readonly name = "Delete Column";
+    readonly icon = faTrashCan;
+
+    constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
+                private readonly columnIndex: number) {
+    }
+
+    select() {
+        const [csv, setCSV] = this.csvState;
+        for (const row of csv) {
+            row.splice(this.columnIndex, 1);
+        }
+        setCSV([...csv]);
+        this.selectionReducer[1]({
+            mode: MODE_CLEAR,
+            rowIndex: -1,
+            cellIndex: -1,
+        });
     }
 }
 

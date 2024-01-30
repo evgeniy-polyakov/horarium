@@ -10,6 +10,7 @@ export const MODE_UP = 64;
 export const MODE_DOWN = 128;
 export const MODE_LEFT = 256;
 export const MODE_RIGHT = 512;
+export const MODE_CLEAR = 1024;
 
 class SelectionRange {
 
@@ -118,6 +119,8 @@ export class TableSelection {
             this.ranges.forEach(it => it.shiftColumn(cellIndex, 1));
         } else if (mode & MODE_ALL) {
             this.ranges = [new SelectionRange(0, 0, rowIndex, cellIndex)];
+        } else if (mode & MODE_CLEAR) {
+            this.ranges = [];
         } else if ((mode & MODE_RANGE) && (mode & MODE_APPEND)) {
             if (this.ranges.length === 0) {
                 this.ranges.push(new SelectionRange(rowIndex, cellIndex, rowIndex, cellIndex));
