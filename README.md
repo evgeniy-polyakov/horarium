@@ -5,6 +5,14 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.3.0
+
+* Letters instead of numbers in column headers
+* Move row and column actions
+* Delete row and column actions
+* Nested row and column actions in cell context menu
+* Update of icons
+
 ### 0.2.1
 
 * Clone row and column actions
