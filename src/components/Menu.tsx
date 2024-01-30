@@ -30,33 +30,43 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
     });
 
     useEffect(() => {
-        if (nav.current) {
-            nav.current.style.left = "0";
-            nav.current.style.top = "0";
-            const width = nav.current.offsetWidth;
-            const height = nav.current.offsetHeight;
-            nav.current.style.left = `${x < viewportWidth - width ? x : x - width}px`;
-            nav.current.style.top = `${y < viewportHeight - height ? y : y - height}px`;
+        const menu = nav.current;
+        if (menu) {
+            menu.style.left = "0";
+            menu.style.top = "0";
+            const width = menu.offsetWidth;
+            const height = menu.offsetHeight;
+            const isRight = x > viewportWidth - width;
+            const isBottom = y > viewportHeight - height;
+            menu.style.left = `${isRight ? x - width : x}px`;
+            menu.style.top = `${isBottom ? y - height : y}px`;
+            menu.classList.toggle('menu-right', isRight);
+            menu.classList.toggle('menu-bottom', isRight);
         }
     });
+
+    function renderItems(items: IMenuItem[]) {
+        return (<ul>
+            {items.map((item, i) => item.separator ? (
+                <li key={i} className="separator"></li>
+            ) : (
+                <li key={i} onClick={() => {
+                    remove?.();
+                    item.select?.();
+                }} className={classList(item.className, {disabled: item.disabled})}>
+                    <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
+                    <span className="name">{item.name}</span>
+                    {item.items && renderItems(item.items)}
+                </li>
+            ))}
+        </ul>);
+    }
 
     return (
         <nav className="menu" ref={nav}
              style={{display: items.length > 0 ? "block" : "none"}}
              onContextMenu={e => e.preventDefault()}>
-            <ul>
-                {items.map((item, i) => item.separator ? (
-                    <li key={i} className="separator"></li>
-                ) : (
-                    <li key={i} onClick={() => {
-                        remove?.();
-                        item.select?.();
-                    }} className={classList(item.className, {disabled: item.disabled})}>
-                        <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
-                        <span className="name">{item.name}</span>
-                    </li>
-                ))}
-            </ul>
+            {renderItems(items)}
         </nav>
     );
 }

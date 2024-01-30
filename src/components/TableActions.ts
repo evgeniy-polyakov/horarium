@@ -1,5 +1,5 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faClone, faPencil} from '@fortawesome/free-solid-svg-icons'
+import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faClone, faGripLines, faGripLinesVertical, faPencil} from '@fortawesome/free-solid-svg-icons'
 import {MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 
@@ -176,6 +176,24 @@ export class MoveColumnAction implements IMenuItem {
     }
 }
 
-export class Separator implements IMenuItem {
+export class MenuSeparator implements IMenuItem {
     readonly separator = true;
+}
+
+export class RowMenuGroup implements IMenuItem {
+
+    readonly name = "Row";
+    readonly icon = faGripLines;
+
+    constructor(readonly items: IMenuItem[]) {
+    }
+}
+
+export class ColumnMenuGroup implements IMenuItem {
+
+    readonly name = "Column";
+    readonly icon = faGripLinesVertical;
+
+    constructor(readonly items: IMenuItem[]) {
+    }
 }
