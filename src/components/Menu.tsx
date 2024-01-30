@@ -34,14 +34,33 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         if (menu) {
             menu.style.left = "0";
             menu.style.top = "0";
+            menu.querySelectorAll("ul").forEach(it => {
+                it.style.display = "block";
+                it.style.left = "100%";
+                it.style.right = "auto";
+                it.style.top = "0";
+                it.style.bottom = "auto";
+            });
+            const widthWithSubmenu = menu.scrollWidth;
+            const heightWithSubmenu = menu.scrollHeight;
             const width = menu.offsetWidth;
             const height = menu.offsetHeight;
             const isRight = x > viewportWidth - width;
             const isBottom = y > viewportHeight - height;
+            const isRightSubmenu = x > viewportWidth - widthWithSubmenu;
+            const isBottomSubmenu = y > viewportHeight - heightWithSubmenu;
+            console.log(x, widthWithSubmenu, viewportWidth);
+            menu.querySelectorAll("ul").forEach(it => {
+                it.style.display = "";
+                it.style.left = "";
+                it.style.right = "";
+                it.style.top = "";
+                it.style.bottom = "";
+            });
             menu.style.left = `${isRight ? x - width : x}px`;
             menu.style.top = `${isBottom ? y - height : y}px`;
-            menu.classList.toggle('menu-right', isRight);
-            menu.classList.toggle('menu-bottom', isRight);
+            menu.classList.toggle('menu-right', isRightSubmenu);
+            menu.classList.toggle('menu-bottom', isBottomSubmenu);
         }
     });
 
