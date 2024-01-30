@@ -91,6 +91,7 @@ export function TableEditor({file}: {
         const items: IMenuItem[] =
             rowIndex >= 0 && cellIndex >= 0 ? [
                 new EditCellAction(cellEditState, rowIndex, cellIndex),
+                new MenuSeparator(),
                 new RowMenuGroup(getRowItems()),
                 new ColumnMenuGroup(getColumnItems()),
             ] : rowIndex >= 0 ? getRowItems() :
