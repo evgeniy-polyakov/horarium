@@ -23,6 +23,18 @@ export function TableColumnHeader({csv, cellIndex, selectionReducer: [, select],
     }
 
     return (
-        <th onMouseDown={onMouseDown} onContextMenu={onMenu}>{cellIndex >= 0 ? cellIndex + 1 : ""}</th>
+        <th onMouseDown={onMouseDown} onContextMenu={onMenu}>{getTitle(cellIndex)}</th>
     );
+}
+
+function getTitle(cellIndex: number) {
+    const startSymbol = "A".charCodeAt(0);
+    const endSymbol = "Z".charCodeAt(0);
+    const radix = endSymbol - startSymbol + 1;
+    let s = String.fromCharCode(startSymbol + cellIndex % radix);
+    while (cellIndex >= radix) {
+        cellIndex = Math.floor(cellIndex / radix) - 1;
+        s = String.fromCharCode(startSymbol + cellIndex % radix) + s;
+    }
+    return s;
 }
