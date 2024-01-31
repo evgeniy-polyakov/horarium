@@ -95,6 +95,7 @@ class SelectionRange {
 export interface ITableSelection {
     contains(rowIndex: number, cellIndex: number): boolean;
     isFocus(rowIndex: number, cellIndex: number): boolean;
+    hasFocus(): boolean;
     readonly focusRow: number;
     readonly focusCell: number;
 }
@@ -117,6 +118,10 @@ export class TableSelection implements ITableSelection {
     setFocus(rowIndex: number, cellIndex: number) {
         this.focus[0] = rowIndex;
         this.focus[1] = cellIndex;
+    }
+
+    hasFocus() {
+        return this.focus[0] >= 0 && this.focus[1] >= 0;
     }
 
     get focusRow() {

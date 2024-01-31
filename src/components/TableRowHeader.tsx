@@ -1,7 +1,7 @@
 import {MouseEvent} from "react";
-import {MODE_APPEND, MODE_RANGE, MODE_SELECT, TableSelectionReducer} from "@/models/TableSelection";
+import {TableSelectionReducer} from "@/models/TableSelection";
 
-export function TableRowHeader({csv, rowIndex, selectionReducer: [, select], onMenu}: {
+export function TableRowHeader({csv, rowIndex, selectionReducer: [selection, select], onMenu}: {
     csv: string[][],
     rowIndex: number,
     selectionReducer: TableSelectionReducer,
@@ -9,17 +9,21 @@ export function TableRowHeader({csv, rowIndex, selectionReducer: [, select], onM
 }) {
 
     function onMouseDown(e: MouseEvent) {
-        // todo allow to select ranges in one call
-        select({
-            rowIndex: rowIndex,
-            cellIndex: 0,
-            mode: MODE_SELECT | (e.shiftKey ? MODE_RANGE : 0) | (e.ctrlKey ? MODE_APPEND : 0)
-        });
-        select({
-            rowIndex: rowIndex,
-            cellIndex: csv[0]?.length ?? 0,
-            mode: MODE_SELECT | MODE_RANGE | (e.ctrlKey ? MODE_APPEND : 0)
-        });
+        if (e.button !== 0) {
+            return;
+        }
+        const tableSelection = selection.file.tableSelection;
+        let focusRow = selection.file.tableSelection.focusRow;
+        if (!tableSelection.hasFocus()) {
+            select({action: "setFocus", rowIndex, cellIndex: 0});
+            focusRow = rowIndex;
+        }
+        if (e.shiftKey) {
+            select({action: "selectRange", startRow: focusRow, startCell: 0, endRow: rowIndex, endCell: csv[rowIndex].length - 1, clear: !e.ctrlKey});
+        } else {
+            select({action: "setFocus", rowIndex, cellIndex: 0});
+            select({action: "selectRange", startRow: rowIndex, startCell: 0, endRow: rowIndex, endCell: csv[rowIndex].length - 1, clear: !e.ctrlKey});
+        }
     }
 
     return (
