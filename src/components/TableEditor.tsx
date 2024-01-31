@@ -34,7 +34,7 @@ export function TableEditor({file}: {
 
     if (selectionReducer[0].file !== file) {
         setMouseDown(false);
-        selectionReducer[1]({file: file, mode: "update"});
+        selectionReducer[1]({file: file, action: "update"});
     }
 
     if (fileId !== file.id) {

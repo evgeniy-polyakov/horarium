@@ -80,7 +80,16 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (isEditing()) return;
         setMouseDown(true);
         setMouseAction(true);
-        callSelectionAction(e);
+        if (e.shiftKey && e.ctrlKey) {
+            // todo select range
+        } else if (e.shiftKey) {
+            // todo clear and select range
+        } else if (e.ctrlKey) {
+            select({action: "setFocus", rowIndex, cellIndex});
+        } else {
+            // todo clear selection
+            select({action: "setFocus", rowIndex, cellIndex});
+        }
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
         }

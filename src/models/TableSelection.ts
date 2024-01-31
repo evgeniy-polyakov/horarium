@@ -95,17 +95,24 @@ class SelectionRange {
 export class TableSelection {
 
     private ranges: SelectionRange[] = [];
+    private focus: [number, number] = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
         return this.ranges.some(it => it.contains(rowIndex, cellIndex));
     }
 
     isFocused(rowIndex: number, cellIndex: number) {
-        if (this.ranges.length === 0) {
-            return false;
-        }
-        const range = this.ranges[this.ranges.length - 1];
-        return range.isStart(rowIndex, cellIndex);
+        return this.focus[0] === rowIndex && this.focus[1] === cellIndex;
+    }
+
+    setFocus(rowIndex: number, cellIndex: number) {
+        this.focus[0] = rowIndex;
+        this.focus[1] = cellIndex;
+    }
+
+    clearFocus() {
+        this.focus[0] = -1;
+        this.focus[1] = -1;
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
@@ -169,19 +176,34 @@ export type TableSelectionReducer = [
         file: FileModel
     },
     Dispatch<{
+        action?: "",
         rowIndex: number,
         cellIndex: number,
         mode: number,
     } | {
+        action: "update",
         file: FileModel,
-        mode: "update"
-    }>
+    } | {
+        action: "setFocus",
+        rowIndex: number,
+        cellIndex: number,
+    } | {
+        action: "clearFocus",
+    }
+    >
 ];
 
 export function tableSelectionReducer(model: TableSelectionReducer[0], action: Parameters<TableSelectionReducer[1]>[0]): TableSelectionReducer[0] {
-    if (action.mode === "update") {
-        return {...model, file: action.file};
+    const cellSelection = model.file.cellSelection;
+    switch (action.action) {
+        case "update":
+            return {...model, file: action.file};
+        case "setFocus":
+            cellSelection.setFocus(action.rowIndex, action.cellIndex);
+            break;
+        case "clearFocus":
+            cellSelection.clearFocus();
+            break;
     }
-    model.file.cellSelection.toggleSelection(action.rowIndex, action.cellIndex, action.mode);
     return {...model};
 }
