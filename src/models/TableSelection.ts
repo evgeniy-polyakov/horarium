@@ -242,7 +242,7 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             if (action.clear) {
                 tableSelection.clearSelection();
             }
-            tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell);
+            tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
             break;
         case "excludeRange":
             tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
