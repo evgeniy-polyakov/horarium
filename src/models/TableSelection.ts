@@ -166,48 +166,6 @@ export class TableSelection implements ITableSelection {
         }
     }
 
-    toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
-        if (mode & MODE_UP) {
-            this.ranges.forEach(it => it.shiftRow(rowIndex, -1));
-        } else if (mode & MODE_DOWN) {
-            this.ranges.forEach(it => it.shiftRow(rowIndex, 1));
-        } else if (mode & MODE_LEFT) {
-            this.ranges.forEach(it => it.shiftColumn(cellIndex, -1));
-        } else if (mode & MODE_RIGHT) {
-            this.ranges.forEach(it => it.shiftColumn(cellIndex, 1));
-        } else if (mode & MODE_ALL) {
-            this.ranges = [new SelectionRange(0, 0, rowIndex, cellIndex)];
-        } else if (mode & MODE_CLEAR) {
-            this.ranges = [];
-        } else if ((mode & MODE_RANGE) && (mode & MODE_APPEND)) {
-            if (this.ranges.length === 0) {
-                this.ranges.push(new SelectionRange(rowIndex, cellIndex, rowIndex, cellIndex));
-            } else {
-                const range = this.ranges[this.ranges.length - 1];
-                range.expand(rowIndex, cellIndex);
-                this.swallowRanges(range);
-            }
-        } else if (mode & MODE_RANGE) {
-            if (this.ranges.length === 0) {
-                this.ranges.push(new SelectionRange(rowIndex, cellIndex, rowIndex, cellIndex));
-            } else {
-                this.ranges[this.ranges.length - 1].expand(rowIndex, cellIndex);
-                this.ranges = this.ranges.slice(-1);
-            }
-        } else if (mode & MODE_APPEND) {
-            if (mode & MODE_SELECT) {
-                const range = new SelectionRange(rowIndex, cellIndex, rowIndex, cellIndex);
-                this.ranges.push(range);
-                this.swallowRanges(range);
-            } else {
-                this.ranges.forEach(it => it.exclude(rowIndex, cellIndex));
-                this.clearRanges();
-            }
-        } else {
-            this.ranges = [new SelectionRange(rowIndex, cellIndex, rowIndex, cellIndex)];
-        }
-    }
-
     private swallowRanges(range: SelectionRange) {
         this.ranges.forEach(it => {
             if (it !== range) {

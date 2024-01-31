@@ -15,7 +15,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
 }) {
 
     const [text, setText] = useState("");
-    const [mouseAction, setMouseAction] = useState(false);
     const [thisCellEdit, setThisCellEdit] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
     const tableSelection = selection.file.tableSelection;
@@ -23,10 +22,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     const oldText = csv[rowIndex]?.[cellIndex];
     if (text !== oldText) {
         setText(oldText);
-    }
-
-    if (!mouseDown && mouseAction) {
-        setMouseAction(false);
     }
 
     if (isEditing() && !thisCellEdit) {
@@ -117,11 +112,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         }
     }
 
-    function onMouseLeave(e: MouseEvent) {
-        if (isEditing()) return;
-        setMouseAction(false);
-    }
-
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
         if (isMouseDown() && e.ctrlKey && !e.shiftKey) {
@@ -153,7 +143,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             })}
             onDoubleClick={onDoubleClick} onContextMenu={onContextMenu}
             onMouseDown={onMouseDown} onMouseUp={onMouseUp}
-            onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+            onMouseEnter={onMouseEnter}>
             <span>{text}</span>
         </td>
     );
