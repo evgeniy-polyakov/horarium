@@ -1,5 +1,5 @@
 import {MouseEvent, useRef, useState} from "react";
-import {MODE_APPEND, MODE_RANGE, MODE_SELECT, MODE_UNSELECT, TableSelectionReducer} from "@/models/TableSelection";
+import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 
@@ -27,16 +27,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     if (isEditing() && !thisCellEdit) {
         setThisCellEdit(true);
         edit();
-    }
-
-    function callSelectionAction(e: MouseEvent, extraModes = 0) {
-        e.preventDefault();
-        select({
-            rowIndex, cellIndex,
-            mode: (e.ctrlKey ? MODE_APPEND : 0) | (e.shiftKey ? MODE_RANGE : 0) |
-                (tableSelection.contains(rowIndex, cellIndex) ? MODE_UNSELECT : MODE_SELECT) |
-                extraModes
-        });
     }
 
     function isMouseDown() {

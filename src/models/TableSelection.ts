@@ -1,11 +1,6 @@
 import {FileModel} from "@/models/FileModel";
 import {Dispatch} from "react";
 
-export const MODE_SELECT = 1;
-export const MODE_UNSELECT = 2;
-export const MODE_APPEND = 4;
-export const MODE_RANGE = 8;
-export const MODE_ALL = 16;
 export const MODE_UP = 64;
 export const MODE_DOWN = 128;
 export const MODE_LEFT = 256;
