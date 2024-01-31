@@ -92,7 +92,14 @@ class SelectionRange {
     }
 }
 
-export class TableSelection {
+export interface ITableSelection {
+    contains(rowIndex: number, cellIndex: number): boolean;
+    isFocus(rowIndex: number, cellIndex: number): boolean;
+    readonly focusRow: number;
+    readonly focusCell: number;
+}
+
+export class TableSelection implements ITableSelection {
 
     private ranges: SelectionRange[] = [];
     private focus: [number, number] = [-1, -1];
@@ -101,7 +108,7 @@ export class TableSelection {
         return this.ranges.some(it => it.contains(rowIndex, cellIndex));
     }
 
-    isFocused(rowIndex: number, cellIndex: number) {
+    isFocus(rowIndex: number, cellIndex: number) {
         return this.focus[0] === rowIndex && this.focus[1] === cellIndex;
     }
 
@@ -110,9 +117,34 @@ export class TableSelection {
         this.focus[1] = cellIndex;
     }
 
+    get focusRow() {
+        return this.focus[0];
+    }
+
+    get focusCell() {
+        return this.focus[1];
+    }
+
     clearFocus() {
         this.focus[0] = -1;
         this.focus[1] = -1;
+    }
+
+    clearSelection() {
+        this.ranges = [];
+    }
+
+    selectRange(startRow: number, startCell: number, endRow: number, endCell: number) {
+        const existingRange = this.ranges[this.ranges.length - 1];
+        let range: SelectionRange;
+        if (existingRange?.isStart(startRow, startCell)) {
+            range = existingRange;
+            range.expand(endRow, endCell);
+        } else {
+            range = new SelectionRange(startRow, startCell, endRow, endCell);
+            this.ranges.push(range);
+        }
+        this.swallowRanges(range);
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
@@ -157,7 +189,7 @@ export class TableSelection {
         }
     }
 
-    swallowRanges(range: SelectionRange) {
+    private swallowRanges(range: SelectionRange) {
         this.ranges.forEach(it => {
             if (it !== range) {
                 it.exclude(range);
@@ -166,7 +198,7 @@ export class TableSelection {
         this.clearRanges();
     }
 
-    clearRanges() {
+    private clearRanges() {
         this.ranges = this.ranges.filter(it => !it.isEmpty());
     }
 }
@@ -187,22 +219,44 @@ export type TableSelectionReducer = [
         action: "setFocus",
         rowIndex: number,
         cellIndex: number,
+        clear?: boolean,
     } | {
         action: "clearFocus",
+    } | {
+        action: "clearSelection",
+    } | {
+        action: "selectRange",
+        startRow: number,
+        startCell: number,
+        endRow: number,
+        endCell: number,
+        clear?: boolean,
     }
     >
 ];
 
 export function tableSelectionReducer(model: TableSelectionReducer[0], action: Parameters<TableSelectionReducer[1]>[0]): TableSelectionReducer[0] {
-    const cellSelection = model.file.cellSelection;
+    const cellSelection = model.file.tableSelection as TableSelection;
     switch (action.action) {
         case "update":
             return {...model, file: action.file};
         case "setFocus":
+            if (action.clear) {
+                cellSelection.clearSelection();
+            }
             cellSelection.setFocus(action.rowIndex, action.cellIndex);
             break;
         case "clearFocus":
             cellSelection.clearFocus();
+            break;
+        case "clearSelection":
+            cellSelection.clearSelection();
+            break;
+        case "selectRange":
+            if (action.clear) {
+                cellSelection.clearSelection();
+            }
+            cellSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell);
             break;
     }
     return {...model};

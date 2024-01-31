@@ -18,7 +18,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     const [mouseAction, setMouseAction] = useState(false);
     const [thisCellEdit, setThisCellEdit] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
-    const cellSelection = selection.file.cellSelection;
+    const tableSelection = selection.file.tableSelection;
 
     const oldText = csv[rowIndex]?.[cellIndex];
     if (text !== oldText) {
@@ -39,7 +39,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         select({
             rowIndex, cellIndex,
             mode: (e.ctrlKey ? MODE_APPEND : 0) | (e.shiftKey ? MODE_RANGE : 0) |
-                (cellSelection.contains(rowIndex, cellIndex) ? MODE_UNSELECT : MODE_SELECT) |
+                (tableSelection.contains(rowIndex, cellIndex) ? MODE_UNSELECT : MODE_SELECT) |
                 extraModes
         });
     }
@@ -80,15 +80,19 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (isEditing()) return;
         setMouseDown(true);
         setMouseAction(true);
-        if (e.shiftKey && e.ctrlKey) {
-            // todo select range
+        if (e.button === 2) {
+            select({action: "setFocus", rowIndex, cellIndex});
         } else if (e.shiftKey) {
-            // todo clear and select range
-        } else if (e.ctrlKey) {
-            select({action: "setFocus", rowIndex, cellIndex});
+            select({
+                action: "selectRange",
+                startRow: tableSelection.focusRow,
+                startCell: tableSelection.focusCell,
+                endRow: rowIndex,
+                endCell: cellIndex,
+                clear: !e.ctrlKey,
+            });
         } else {
-            // todo clear selection
-            select({action: "setFocus", rowIndex, cellIndex});
+            select({action: "setFocus", rowIndex, cellIndex, clear: !e.ctrlKey});
         }
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
@@ -128,8 +132,8 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     return (
         <td ref={cell}
             className={classList({
-                selected: cellSelection.contains(rowIndex, cellIndex),
-                focused: cellSelection.isFocused(rowIndex, cellIndex)
+                selected: tableSelection.contains(rowIndex, cellIndex),
+                focused: tableSelection.isFocus(rowIndex, cellIndex)
             })}
             onDoubleClick={onDoubleClick} onContextMenu={onContextMenu}
             onMouseDown={onMouseDown} onMouseUp={onMouseUp}

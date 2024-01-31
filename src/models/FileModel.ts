@@ -1,7 +1,7 @@
 import {IFileLoader} from "@/models/IFileLoader";
 import {FileLoaders} from "@/models/FileLoaders";
 import {EditMode} from "@/models/EditMode";
-import {TableSelection} from "@/models/TableSelection";
+import {ITableSelection, TableSelection} from "@/models/TableSelection";
 
 let FileModelId = 0;
 
@@ -16,7 +16,7 @@ export class FileModel {
     public selected = false;
 
     public editMode: EditMode = EditMode.Table;
-    readonly cellSelection = new TableSelection();
+    readonly tableSelection: ITableSelection = new TableSelection();
 
     constructor(private readonly file?: File) {
         this.filename = file?.name ?? "untitled.csv";
