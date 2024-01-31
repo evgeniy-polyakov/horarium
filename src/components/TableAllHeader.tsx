@@ -1,5 +1,5 @@
 import {MouseEvent} from "react";
-import {MODE_ALL, TableSelectionReducer} from "@/models/TableSelection";
+import {TableSelectionReducer} from "@/models/TableSelection";
 
 export function TableAllHeader({csv, selectionReducer: [, select]}: {
     csv: string[][],
@@ -9,9 +9,12 @@ export function TableAllHeader({csv, selectionReducer: [, select]}: {
     function onClick(e: MouseEvent) {
         e.preventDefault();
         select({
-            rowIndex: csv.length,
-            cellIndex: csv[0]?.length ?? 0,
-            mode: MODE_ALL
+            action: "selectRange",
+            startRow: 0,
+            startCell: 0,
+            endRow: csv.length - 1,
+            endCell: csv[0].length - 1,
+            clear: true
         });
     }
 
