@@ -28,33 +28,6 @@ class SelectionRange {
         return this.inRange(rowIndex, cellIndex);
     }
 
-    exclude(range: SelectionRange): void;
-    exclude(rowIndex: number, cellIndex: number): void;
-    exclude(rowIndex: number | SelectionRange, cellIndex?: number): void {
-        if (typeof rowIndex === "number" && typeof cellIndex === "number") {
-            if (this.contains(rowIndex, cellIndex)) {
-                this.excluded.push(rowIndex, cellIndex);
-            }
-        } else if (typeof rowIndex === "object") {
-            const range = rowIndex;
-            const minRow = Math.min(range.startRow, range.endRow);
-            const maxRow = Math.max(range.startRow, range.endRow);
-            const minCell = Math.min(range.startCell, range.endCell);
-            const maxCell = Math.max(range.startCell, range.endCell);
-            for (let row = minRow; row <= maxRow; row++) {
-                for (let cell = minCell; cell <= maxCell; cell++) {
-                    this.exclude(row, cell);
-                }
-            }
-        }
-    }
-
-    expand(endRow: number, endCell: number) {
-        this.endRow = endRow;
-        this.endCell = endCell;
-        this.excluded = [];
-    }
-
     isEmpty() {
         return this.excluded.length >= (1 + Math.abs(this.startRow - this.endRow)) * (1 + Math.abs(this.startCell - this.endCell)) * 2;
     }
@@ -97,13 +70,15 @@ export interface ITableSelection {
 
 export class TableSelection implements ITableSelection {
 
-    private ranges: SelectionRange[] = [];
-    // todo make an array of excluded ranges
-    private excludedRange?: SelectionRange;
+    private included: SelectionRange[] = [];
+    private excluded: SelectionRange[] = [];
+    private draftIncluded?: SelectionRange;
+    private draftExcluded?: SelectionRange;
     private focus: [number, number] = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
-        return !this.excludedRange?.contains(rowIndex, cellIndex) && this.ranges.some(it => it.contains(rowIndex, cellIndex));
+        return (!this.draftExcluded?.contains(rowIndex, cellIndex) && !this.excluded.some(it => it.contains(rowIndex, cellIndex))) &&
+            (this.draftIncluded?.contains(rowIndex, cellIndex) || this.included.some(it => it.contains(rowIndex, cellIndex)));
     }
 
     isFocus(rowIndex: number, cellIndex: number) {
@@ -133,50 +108,37 @@ export class TableSelection implements ITableSelection {
     }
 
     clearSelection() {
-        this.ranges = [];
-        this.excludedRange = undefined;
+        this.included = [];
+        this.excluded = [];
     }
 
     selectRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
-        this.excludedRange = undefined;
-        const existingRange = this.ranges[this.ranges.length - 1];
-        let range: SelectionRange;
-        if (existingRange?.isStart(startRow, startCell)) {
-            range = existingRange;
-            range.expand(endRow, endCell);
+        if (draft) {
+            this.draftIncluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
-            range = new SelectionRange(startRow, startCell, endRow, endCell);
-            this.ranges.push(range);
+            const range = new SelectionRange(startRow, startCell, endRow, endCell);
+            this.included.push(range);
         }
-        this.swallowRanges(range);
     }
 
     excludeRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
         if (draft) {
-            this.excludedRange = new SelectionRange(startRow, startCell, endRow, endCell);
-        } else if (startRow === endRow && startCell === endCell) {
-            this.excludedRange = undefined;
-            this.ranges.forEach(it => it.exclude(startRow, startCell));
-            this.clearRanges();
+            this.draftExcluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
-            this.excludedRange = undefined;
             const range = new SelectionRange(startRow, startCell, endRow, endCell);
-            this.ranges.forEach(it => it.exclude(range));
-            this.clearRanges();
+            this.excluded.push(range);
         }
     }
 
-    private swallowRanges(range: SelectionRange) {
-        this.ranges.forEach(it => {
-            if (it !== range) {
-                it.exclude(range);
-            }
-        })
-        this.clearRanges();
-    }
-
-    private clearRanges() {
-        this.ranges = this.ranges.filter(it => !it.isEmpty());
+    commitDraft() {
+        if (this.draftIncluded) {
+            this.included.push(this.draftIncluded);
+            this.draftIncluded = undefined;
+        }
+        if (this.draftExcluded) {
+            this.excluded.push(this.draftExcluded);
+            this.draftExcluded = undefined;
+        }
     }
 }
 
@@ -215,6 +177,8 @@ export type TableSelectionReducer = [
         endRow: number,
         endCell: number,
         draft?: boolean,
+    } | {
+        action: "commitDraft",
     }
     >
 ];
@@ -241,6 +205,9 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             break;
         case "excludeRange":
             tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
+            break;
+        case "commitDraft":
+            tableSelection.commitDraft();
             break;
     }
     return {...model};

@@ -82,6 +82,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                 endRow: rowIndex,
                 endCell: cellIndex,
                 clear: !e.ctrlKey,
+                draft: true,
             });
         } else {
             select({action: "setFocus", rowIndex, cellIndex});
@@ -92,6 +93,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                 endRow: rowIndex,
                 endCell: cellIndex,
                 clear: !e.ctrlKey,
+                draft: true,
             });
         }
         if (document.activeElement instanceof HTMLElement) {
@@ -105,20 +107,21 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             if (isStartCellSelected()) {
                 select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex, draft: true});
             } else {
-                select({action: "selectRange", startRow: tableSelection.focusRow, startCell: tableSelection.focusCell, endRow: rowIndex, endCell: cellIndex});
+                select({action: "selectRange", startRow: tableSelection.focusRow, startCell: tableSelection.focusCell, endRow: rowIndex, endCell: cellIndex, draft: true});
             }
         }
     }
 
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
-        if (isMouseDown() && e.ctrlKey && !e.shiftKey) {
-            if (isStartCellSelected()) {
-                select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
-            } else {
-                select({action: "selectRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
-            }
-        }
+        select({action: "commitDraft"});
+        // if (isMouseDown() && e.ctrlKey && !e.shiftKey) {
+        //     if (isStartCellSelected()) {
+        //         select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
+        //     } else {
+        //         select({action: "selectRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
+        //     }
+        // }
         setMouseDown([-1, -1]);
     }
 
