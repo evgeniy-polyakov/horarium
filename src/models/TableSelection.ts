@@ -116,12 +116,16 @@ export class TableSelection implements ITableSelection {
         if (draft) {
             this.draftIncluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
-            const range = new SelectionRange(startRow, startCell, endRow, endCell);
-            this.included.push(range);
+            this.included.push(new SelectionRange(startRow, startCell, endRow, endCell));
         }
     }
 
+    removeRange(startRow: number, startCell: number) {
+        this.included = this.included.filter(it => !it.isStart(startRow, startCell));
+    }
+
     excludeRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
+        // todo make exclude ranges consistent
         if (draft) {
             this.draftExcluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
@@ -170,6 +174,7 @@ export type TableSelectionReducer = [
         endCell: number,
         clear?: boolean,
         draft?: boolean,
+        replace?: boolean,
     } | {
         action: "excludeRange",
         startRow: number,
@@ -200,6 +205,9 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
         case "selectRange":
             if (action.clear) {
                 tableSelection.clearSelection();
+            }
+            if (action.replace) {
+                tableSelection.removeRange(action.startRow, action.startCell);
             }
             tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
             break;

@@ -75,25 +75,25 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (e.button !== 0) {
             select({action: "setFocus", rowIndex, cellIndex});
         } else if (e.shiftKey) {
+            const hasFocus = tableSelection.hasFocus();
+            if (!hasFocus) {
+                select({action: "setFocus", rowIndex, cellIndex});
+            }
             select({
                 action: "selectRange",
-                startRow: tableSelection.focusRow,
-                startCell: tableSelection.focusCell,
-                endRow: rowIndex,
-                endCell: cellIndex,
-                clear: !e.ctrlKey,
-                draft: true,
+                startRow: hasFocus ? tableSelection.focusRow : rowIndex,
+                startCell: hasFocus ? tableSelection.focusCell : cellIndex,
+                endRow: rowIndex, endCell: cellIndex,
+                clear: !e.ctrlKey, replace: true,
             });
         } else {
+            // todo exclude selection on Ctrl
             select({action: "setFocus", rowIndex, cellIndex});
             select({
                 action: "selectRange",
-                startRow: rowIndex,
-                startCell: cellIndex,
-                endRow: rowIndex,
-                endCell: cellIndex,
+                startRow: rowIndex, startCell: cellIndex,
+                endRow: rowIndex, endCell: cellIndex,
                 clear: !e.ctrlKey,
-                draft: true,
             });
         }
         if (document.activeElement instanceof HTMLElement) {
@@ -105,9 +105,19 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (isEditing()) return;
         if (isMouseDown()) {
             if (isStartCellSelected()) {
-                select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex, draft: true});
+                select({
+                    action: "excludeRange",
+                    startRow: mouseDown[0], startCell: mouseDown[1],
+                    endRow: rowIndex, endCell: cellIndex,
+                    draft: true
+                });
             } else {
-                select({action: "selectRange", startRow: tableSelection.focusRow, startCell: tableSelection.focusCell, endRow: rowIndex, endCell: cellIndex, draft: true});
+                select({
+                    action: "selectRange",
+                    startRow: tableSelection.focusRow, startCell: tableSelection.focusCell,
+                    endRow: rowIndex, endCell: cellIndex,
+                    draft: true, replace: true
+                });
             }
         }
     }
@@ -115,13 +125,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
         select({action: "commitDraft"});
-        // if (isMouseDown() && e.ctrlKey && !e.shiftKey) {
-        //     if (isStartCellSelected()) {
-        //         select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
-        //     } else {
-        //         select({action: "selectRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
-        //     }
-        // }
         setMouseDown([-1, -1]);
     }
 
