@@ -142,7 +142,7 @@ export class TableSelection implements ITableSelection {
         this.excludedRange = undefined;
     }
 
-    selectRange(startRow: number, startCell: number, endRow: number, endCell: number) {
+    selectRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
         this.excludedRange = undefined;
         const existingRange = this.ranges[this.ranges.length - 1];
         let range: SelectionRange;
@@ -201,7 +201,6 @@ export type TableSelectionReducer = [
         action: "setFocus",
         rowIndex: number,
         cellIndex: number,
-        clear?: boolean,
     } | {
         action: "clearFocus",
     } | {
@@ -213,6 +212,7 @@ export type TableSelectionReducer = [
         endRow: number,
         endCell: number,
         clear?: boolean,
+        draft?: boolean,
     } | {
         action: "excludeRange",
         startRow: number,
@@ -230,9 +230,6 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
         case "update":
             return {...model, file: action.file};
         case "setFocus":
-            if (action.clear) {
-                tableSelection.clearSelection();
-            }
             tableSelection.setFocus(action.rowIndex, action.cellIndex);
             break;
         case "clearFocus":
