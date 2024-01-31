@@ -82,7 +82,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     function onMouseDown(e: MouseEvent) {
         if (isEditing()) return;
         setMouseDown([rowIndex, cellIndex, e.ctrlKey ? tableSelection.contains(rowIndex, cellIndex) : false]);
-        if (e.button === 2) {
+        if (e.button !== 0) {
             select({action: "setFocus", rowIndex, cellIndex});
         } else if (e.shiftKey) {
             select({
@@ -94,7 +94,15 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                 clear: !e.ctrlKey,
             });
         } else {
-            select({action: "setFocus", rowIndex, cellIndex, clear: !e.ctrlKey});
+            select({action: "setFocus", rowIndex, cellIndex});
+            select({
+                action: "selectRange",
+                startRow: rowIndex,
+                startCell: cellIndex,
+                endRow: rowIndex,
+                endCell: cellIndex,
+                clear: !e.ctrlKey,
+            });
         }
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
