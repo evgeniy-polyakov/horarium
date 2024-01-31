@@ -102,10 +102,12 @@ export interface ITableSelection {
 export class TableSelection implements ITableSelection {
 
     private ranges: SelectionRange[] = [];
+    // todo make an array of excluded ranges
+    private excludedRange?: SelectionRange;
     private focus: [number, number] = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
-        return this.ranges.some(it => it.contains(rowIndex, cellIndex));
+        return !this.excludedRange?.contains(rowIndex, cellIndex) && this.ranges.some(it => it.contains(rowIndex, cellIndex));
     }
 
     isFocus(rowIndex: number, cellIndex: number) {
@@ -132,9 +134,11 @@ export class TableSelection implements ITableSelection {
 
     clearSelection() {
         this.ranges = [];
+        this.excludedRange = undefined;
     }
 
     selectRange(startRow: number, startCell: number, endRow: number, endCell: number) {
+        this.excludedRange = undefined;
         const existingRange = this.ranges[this.ranges.length - 1];
         let range: SelectionRange;
         if (existingRange?.isStart(startRow, startCell)) {
@@ -147,14 +151,19 @@ export class TableSelection implements ITableSelection {
         this.swallowRanges(range);
     }
 
-    excludeRange(startRow: number, startCell: number, endRow: number, endCell: number) {
-        if (startRow === endRow && startCell === endCell) {
+    excludeRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
+        if (draft) {
+            this.excludedRange = new SelectionRange(startRow, startCell, endRow, endCell);
+        } else if (startRow === endRow && startCell === endCell) {
+            this.excludedRange = undefined;
             this.ranges.forEach(it => it.exclude(startRow, startCell));
+            this.clearRanges();
         } else {
+            this.excludedRange = undefined;
             const range = new SelectionRange(startRow, startCell, endRow, endCell);
             this.ranges.forEach(it => it.exclude(range));
+            this.clearRanges();
         }
-        this.clearRanges();
     }
 
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
@@ -247,6 +256,7 @@ export type TableSelectionReducer = [
         startCell: number,
         endRow: number,
         endCell: number,
+        draft?: boolean,
     }
     >
 ];
@@ -275,7 +285,7 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell);
             break;
         case "excludeRange":
-            tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell);
+            tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
             break;
     }
     return {...model};
