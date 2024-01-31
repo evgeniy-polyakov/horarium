@@ -16,7 +16,7 @@ export function TableEditor({file}: {
     const [fileId, setFileId] = useState(-1);
     const csvState = useState<string[][]>([]);
     const [csv, setCSV] = csvState;
-    const mouseDownState = useState(false);
+    const mouseDownState = useState<[number, number]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
     const cellEditState = useState<[number, number]>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
@@ -33,7 +33,7 @@ export function TableEditor({file}: {
     });
 
     if (selectionReducer[0].file !== file) {
-        setMouseDown(false);
+        setMouseDown([-1, -1]);
         selectionReducer[1]({file: file, action: "update"});
     }
 
@@ -48,7 +48,7 @@ export function TableEditor({file}: {
     }
 
     function onMouseUp() {
-        setMouseDown(false);
+        setMouseDown([-1, -1]);
     }
 
     function onCellEdit(rowIndex: number, cellIndex: number, value: string) {

@@ -11,7 +11,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     onEdit?: (value: string) => void,
     onMenu?: (e: MouseEvent) => void,
     cellEditState: State<[number, number]>,
-    mouseDownState: State<boolean>,
+    mouseDownState: State<[number, number]>,
 }) {
 
     const [text, setText] = useState("");
@@ -78,7 +78,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
 
     function onMouseDown(e: MouseEvent) {
         if (isEditing()) return;
-        setMouseDown(true);
+        setMouseDown([rowIndex, cellIndex]);
         setMouseAction(true);
         if (e.button === 2) {
             select({action: "setFocus", rowIndex, cellIndex});
@@ -114,7 +114,15 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
 
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
-        setMouseDown(false);
+        if (e.ctrlKey && !e.shiftKey) {
+            const selected = tableSelection.contains(...mouseDown);
+            if (selected) {
+                select({action: "excludeRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
+            } else {
+                select({action: "selectRange", startRow: mouseDown[0], startCell: mouseDown[1], endRow: rowIndex, endCell: cellIndex});
+            }
+        }
+        setMouseDown([-1, -1]);
         onMouseEnter(e);
     }
 

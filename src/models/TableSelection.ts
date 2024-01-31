@@ -147,6 +147,16 @@ export class TableSelection implements ITableSelection {
         this.swallowRanges(range);
     }
 
+    excludeRange(startRow: number, startCell: number, endRow: number, endCell: number) {
+        if (startRow === endRow && startCell === endCell) {
+            this.ranges.forEach(it => it.exclude(startRow, startCell));
+        } else {
+            const range = new SelectionRange(startRow, startCell, endRow, endCell);
+            this.ranges.forEach(it => it.exclude(range));
+        }
+        this.clearRanges();
+    }
+
     toggleSelection(rowIndex: number, cellIndex: number, mode: number) {
         if (mode & MODE_UP) {
             this.ranges.forEach(it => it.shiftRow(rowIndex, -1));
@@ -231,32 +241,41 @@ export type TableSelectionReducer = [
         endRow: number,
         endCell: number,
         clear?: boolean,
+    } | {
+        action: "excludeRange",
+        startRow: number,
+        startCell: number,
+        endRow: number,
+        endCell: number,
     }
     >
 ];
 
 export function tableSelectionReducer(model: TableSelectionReducer[0], action: Parameters<TableSelectionReducer[1]>[0]): TableSelectionReducer[0] {
-    const cellSelection = model.file.tableSelection as TableSelection;
+    const tableSelection = model.file.tableSelection as TableSelection;
     switch (action.action) {
         case "update":
             return {...model, file: action.file};
         case "setFocus":
             if (action.clear) {
-                cellSelection.clearSelection();
+                tableSelection.clearSelection();
             }
-            cellSelection.setFocus(action.rowIndex, action.cellIndex);
+            tableSelection.setFocus(action.rowIndex, action.cellIndex);
             break;
         case "clearFocus":
-            cellSelection.clearFocus();
+            tableSelection.clearFocus();
             break;
         case "clearSelection":
-            cellSelection.clearSelection();
+            tableSelection.clearSelection();
             break;
         case "selectRange":
             if (action.clear) {
-                cellSelection.clearSelection();
+                tableSelection.clearSelection();
             }
-            cellSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell);
+            tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell);
+            break;
+        case "excludeRange":
+            tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell);
             break;
     }
     return {...model};
