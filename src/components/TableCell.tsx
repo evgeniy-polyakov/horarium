@@ -87,14 +87,21 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                 clear: !e.ctrlKey, replace: true,
             });
         } else {
-            // todo exclude selection on Ctrl
             select({action: "setFocus", rowIndex, cellIndex});
-            select({
-                action: "selectRange",
-                startRow: rowIndex, startCell: cellIndex,
-                endRow: rowIndex, endCell: cellIndex,
-                clear: !e.ctrlKey,
-            });
+            if (e.ctrlKey && tableSelection.contains(rowIndex, cellIndex)) {
+                select({
+                    action: "excludeRange",
+                    startRow: rowIndex, startCell: cellIndex,
+                    endRow: rowIndex, endCell: cellIndex,
+                });
+            } else {
+                select({
+                    action: "selectRange",
+                    startRow: rowIndex, startCell: cellIndex,
+                    endRow: rowIndex, endCell: cellIndex,
+                    clear: !e.ctrlKey,
+                });
+            }
         }
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
