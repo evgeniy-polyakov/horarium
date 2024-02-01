@@ -1,5 +1,7 @@
 import {FileModel} from "@/models/FileModel";
 import {Dispatch} from "react";
+import {Cell} from "@/models/Cell";
+import {Range} from "@/models/Range";
 
 export const MODE_UP = 64;
 export const MODE_DOWN = 128;
@@ -100,7 +102,7 @@ export class TableSelection implements ITableSelection {
     private ranges: SelectionRange[] = [];
     private draftIncluded?: SelectionRange;
     private draftExcluded?: SelectionRange;
-    private focus: [number, number] = [-1, -1];
+    private focus: Cell = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
         return !this.draftExcluded?.contains(rowIndex, cellIndex) &&
@@ -212,19 +214,13 @@ export type TableSelectionReducer = [
         action: "clearSelection",
     } | {
         action: "selectRange",
-        startRow: number,
-        startCell: number,
-        endRow: number,
-        endCell: number,
+        range: Cell | Range,
         clear?: boolean,
         draft?: boolean,
         replace?: boolean,
     } | {
         action: "excludeRange",
-        startRow: number,
-        startCell: number,
-        endRow: number,
-        endCell: number,
+        range: Cell | Range,
         draft?: boolean,
     } | {
         action: "commitDraft",
@@ -251,12 +247,20 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
                 tableSelection.clearSelection();
             }
             if (action.replace) {
-                tableSelection.removeRange(action.startRow, action.startCell);
+                tableSelection.removeRange(action.range[0], action.range[1]);
             }
-            tableSelection.selectRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
+            if (action.range.length > 2) {
+                tableSelection.selectRange(...action.range as Range, action.draft);
+            } else {
+                tableSelection.selectRange(...action.range as Cell, ...action.range as Cell, action.draft);
+            }
             break;
         case "excludeRange":
-            tableSelection.excludeRange(action.startRow, action.startCell, action.endRow, action.endCell, action.draft);
+            if (action.range.length > 2) {
+                tableSelection.excludeRange(...action.range as Range, action.draft);
+            } else {
+                tableSelection.excludeRange(...action.range as Cell, ...action.range as Cell, action.draft);
+            }
             break;
         case "commitDraft":
             tableSelection.commitDraft();

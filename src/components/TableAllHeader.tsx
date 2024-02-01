@@ -10,10 +10,7 @@ export function TableAllHeader({csv, selectionReducer: [, select]}: {
         e.preventDefault();
         select({
             action: "selectRange",
-            startRow: 0,
-            startCell: 0,
-            endRow: csv.length - 1,
-            endCell: csv[0].length - 1,
+            range: [0, 0, csv.length - 1, csv[0].length - 1],
             clear: true
         });
     }

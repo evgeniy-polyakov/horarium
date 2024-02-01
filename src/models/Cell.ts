@@ -1,0 +1,1 @@
+export type Cell = [rowIndex: number, cellIndex: number];

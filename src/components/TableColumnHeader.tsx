@@ -19,10 +19,10 @@ export function TableColumnHeader({csv, cellIndex, selectionReducer: [selection,
             focusCell = cellIndex;
         }
         if (e.shiftKey) {
-            select({action: "selectRange", startRow: 0, startCell: focusCell, endRow: csv.length - 1, endCell: cellIndex, clear: !e.ctrlKey});
+            select({action: "selectRange", range: [0, focusCell, csv.length - 1, cellIndex], clear: !e.ctrlKey});
         } else {
             select({action: "setFocus", rowIndex: 0, cellIndex});
-            select({action: "selectRange", startRow: 0, startCell: cellIndex, endRow: csv.length - 1, endCell: cellIndex, clear: !e.ctrlKey});
+            select({action: "selectRange", range: [0, cellIndex, csv.length - 1, cellIndex], clear: !e.ctrlKey});
         }
     }
 

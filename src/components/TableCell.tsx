@@ -2,6 +2,7 @@ import {MouseEvent, useRef, useState} from "react";
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
+import {Cell} from "@/models/Cell";
 
 export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
     csv: string[][],
@@ -10,8 +11,8 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     selectionReducer: TableSelectionReducer,
     onEdit?: (value: string) => void,
     onMenu?: (e: MouseEvent) => void,
-    cellEditState: State<[number, number]>,
-    mouseDownState: State<[number, number, boolean?]>,
+    cellEditState: State<Cell>,
+    mouseDownState: State<[...Cell, boolean?]>,
 }) {
 
     const [text, setText] = useState("");
@@ -81,9 +82,10 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             }
             select({
                 action: "selectRange",
-                startRow: hasFocus ? tableSelection.focusRow : rowIndex,
-                startCell: hasFocus ? tableSelection.focusCell : cellIndex,
-                endRow: rowIndex, endCell: cellIndex,
+                range: [
+                    hasFocus ? tableSelection.focusRow : rowIndex,
+                    hasFocus ? tableSelection.focusCell : cellIndex,
+                    rowIndex, cellIndex],
                 clear: !e.ctrlKey, replace: true,
             });
         } else {
@@ -91,14 +93,12 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             if (e.ctrlKey && tableSelection.contains(rowIndex, cellIndex)) {
                 select({
                     action: "excludeRange",
-                    startRow: rowIndex, startCell: cellIndex,
-                    endRow: rowIndex, endCell: cellIndex,
+                    range: [rowIndex, cellIndex],
                 });
             } else {
                 select({
                     action: "selectRange",
-                    startRow: rowIndex, startCell: cellIndex,
-                    endRow: rowIndex, endCell: cellIndex,
+                    range: [rowIndex, cellIndex],
                     clear: !e.ctrlKey,
                 });
             }
@@ -114,15 +114,13 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             if (isStartCellSelected()) {
                 select({
                     action: "excludeRange",
-                    startRow: mouseDown[0], startCell: mouseDown[1],
-                    endRow: rowIndex, endCell: cellIndex,
+                    range: [mouseDown[0], mouseDown[1], rowIndex, cellIndex],
                     draft: true
                 });
             } else {
                 select({
                     action: "selectRange",
-                    startRow: tableSelection.focusRow, startCell: tableSelection.focusCell,
-                    endRow: rowIndex, endCell: cellIndex,
+                    range: [tableSelection.focusRow, tableSelection.focusCell, rowIndex, cellIndex],
                     draft: true, replace: true
                 });
             }

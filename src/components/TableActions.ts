@@ -3,13 +3,14 @@ import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp
 import {faClone, faTrashCan} from '@fortawesome/free-regular-svg-icons'
 import {MODE_CLEAR, MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
+import {Cell} from "@/models/Cell";
 
 export class EditCellAction implements IMenuItem {
 
     readonly name = "Edit Cell";
     readonly icon = faPencil;
 
-    constructor(private readonly cellEditState: State<[number, number]>,
+    constructor(private readonly cellEditState: State<Cell>,
                 private readonly rowIndex: number,
                 private readonly cellIndex: number) {
     }

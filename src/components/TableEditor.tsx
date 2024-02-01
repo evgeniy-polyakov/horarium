@@ -9,6 +9,7 @@ import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
 import {CloneColumnAction, CloneRowAction, ColumnMenuGroup, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
+import {Cell} from "@/models/Cell";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -16,9 +17,9 @@ export function TableEditor({file}: {
     const [fileId, setFileId] = useState(-1);
     const csvState = useState<string[][]>([]);
     const [csv, setCSV] = csvState;
-    const mouseDownState = useState<[number, number, boolean?]>([-1, -1]);
+    const mouseDownState = useState<[...Cell, boolean?]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
-    const cellEditState = useState<[number, number]>([-1, -1]);
+    const cellEditState = useState<Cell>([-1, -1]);
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);

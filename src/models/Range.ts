@@ -1,0 +1,1 @@
+export type Range = [startRow: number, startCell: number, endRow: number, endCell: number];

@@ -19,10 +19,10 @@ export function TableRowHeader({csv, rowIndex, selectionReducer: [selection, sel
             focusRow = rowIndex;
         }
         if (e.shiftKey) {
-            select({action: "selectRange", startRow: focusRow, startCell: 0, endRow: rowIndex, endCell: csv[rowIndex].length - 1, clear: !e.ctrlKey});
+            select({action: "selectRange", range: [focusRow, 0, rowIndex, csv[rowIndex].length - 1], clear: !e.ctrlKey});
         } else {
             select({action: "setFocus", rowIndex, cellIndex: 0});
-            select({action: "selectRange", startRow: rowIndex, startCell: 0, endRow: rowIndex, endCell: csv[rowIndex].length - 1, clear: !e.ctrlKey});
+            select({action: "selectRange", range: [rowIndex, 0, rowIndex, csv[rowIndex].length - 1], clear: !e.ctrlKey});
         }
     }
 
