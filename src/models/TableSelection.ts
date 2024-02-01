@@ -28,6 +28,33 @@ class SelectionRange {
         return this.inRange(rowIndex, cellIndex);
     }
 
+    exclude(range: SelectionRange): void;
+    exclude(rowIndex: number, cellIndex: number): void;
+    exclude(rowIndex: number | SelectionRange, cellIndex?: number): void {
+        if (typeof rowIndex === "number" && typeof cellIndex === "number") {
+            if (this.contains(rowIndex, cellIndex)) {
+                this.excluded.push(rowIndex, cellIndex);
+            }
+        } else if (typeof rowIndex === "object") {
+            const range = rowIndex;
+            const minRow = Math.min(range.startRow, range.endRow);
+            const maxRow = Math.max(range.startRow, range.endRow);
+            const minCell = Math.min(range.startCell, range.endCell);
+            const maxCell = Math.max(range.startCell, range.endCell);
+            for (let row = minRow; row <= maxRow; row++) {
+                for (let cell = minCell; cell <= maxCell; cell++) {
+                    this.exclude(row, cell);
+                }
+            }
+        }
+    }
+
+    expand(endRow: number, endCell: number) {
+        this.endRow = endRow;
+        this.endCell = endCell;
+        this.excluded = [];
+    }
+
     isEmpty() {
         return this.excluded.length >= (1 + Math.abs(this.startRow - this.endRow)) * (1 + Math.abs(this.startCell - this.endCell)) * 2;
     }
@@ -70,15 +97,14 @@ export interface ITableSelection {
 
 export class TableSelection implements ITableSelection {
 
-    private included: SelectionRange[] = [];
-    private excluded: SelectionRange[] = [];
+    private ranges: SelectionRange[] = [];
     private draftIncluded?: SelectionRange;
     private draftExcluded?: SelectionRange;
     private focus: [number, number] = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
-        return (!this.draftExcluded?.contains(rowIndex, cellIndex) && !this.excluded.some(it => it.contains(rowIndex, cellIndex))) &&
-            (this.draftIncluded?.contains(rowIndex, cellIndex) || this.included.some(it => it.contains(rowIndex, cellIndex)));
+        return !this.draftExcluded?.contains(rowIndex, cellIndex) &&
+            (this.draftIncluded?.contains(rowIndex, cellIndex) || this.ranges.some(it => it.contains(rowIndex, cellIndex)));
     }
 
     isFocus(rowIndex: number, cellIndex: number) {
@@ -108,41 +134,59 @@ export class TableSelection implements ITableSelection {
     }
 
     clearSelection() {
-        this.included = [];
-        this.excluded = [];
+        this.ranges = [];
+        this.draftIncluded = undefined;
+        this.draftExcluded = undefined;
     }
 
     selectRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
         if (draft) {
             this.draftIncluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
-            this.included.push(new SelectionRange(startRow, startCell, endRow, endCell));
+            const range = new SelectionRange(startRow, startCell, endRow, endCell);
+            this.ranges.push(range);
+            this.combineRanges(range);
         }
     }
 
     removeRange(startRow: number, startCell: number) {
-        this.included = this.included.filter(it => !it.isStart(startRow, startCell));
+        this.ranges = this.ranges.filter(it => !it.isStart(startRow, startCell));
     }
 
     excludeRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
-        // todo make exclude ranges consistent
         if (draft) {
             this.draftExcluded = new SelectionRange(startRow, startCell, endRow, endCell);
         } else {
             const range = new SelectionRange(startRow, startCell, endRow, endCell);
-            this.excluded.push(range);
+            this.ranges.forEach(it => it.exclude(range));
+            this.clearRanges();
         }
     }
 
     commitDraft() {
         if (this.draftIncluded) {
-            this.included.push(this.draftIncluded);
+            this.ranges.push(this.draftIncluded);
+            this.combineRanges(this.draftIncluded);
             this.draftIncluded = undefined;
         }
         if (this.draftExcluded) {
-            this.excluded.push(this.draftExcluded);
+            this.ranges.forEach(it => it.exclude(this.draftExcluded!));
+            this.clearRanges();
             this.draftExcluded = undefined;
         }
+    }
+
+    private combineRanges(range: SelectionRange) {
+        this.ranges.forEach(it => {
+            if (it !== range) {
+                it.exclude(range);
+            }
+        })
+        this.clearRanges();
+    }
+
+    private clearRanges() {
+        this.ranges = this.ranges.filter(it => !it.isEmpty());
     }
 }
 
