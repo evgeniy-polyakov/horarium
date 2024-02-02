@@ -3,12 +3,6 @@ import {Dispatch} from "react";
 import {Cell} from "@/models/Cell";
 import {Range} from "@/models/Range";
 
-export const MODE_UP = 64;
-export const MODE_DOWN = 128;
-export const MODE_LEFT = 256;
-export const MODE_RIGHT = 512;
-export const MODE_CLEAR = 1024;
-
 class SelectionRange {
 
     private excluded: number[] = [];
@@ -102,6 +96,7 @@ export class TableSelection implements ITableSelection {
     private ranges: SelectionRange[] = [];
     private draftIncluded?: SelectionRange;
     private draftExcluded?: SelectionRange;
+    private draftInserted?: Range;
     private focus: Cell = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
@@ -176,6 +171,18 @@ export class TableSelection implements ITableSelection {
             this.clearRanges();
             this.draftExcluded = undefined;
         }
+        if (this.draftInserted) {
+            // todo
+            this.draftInserted = undefined;
+        }
+    }
+
+    insertRow(rowIndex: number, rows?: number) {
+        this.draftInserted = [rowIndex, -1, rows ?? 1, -1];
+    }
+
+    insertColumn(columnIndex: number, columns?: number) {
+        this.draftInserted = [-1, columnIndex, -1, columns ?? 1];
     }
 
     private combineRanges(range: SelectionRange) {
@@ -224,6 +231,14 @@ export type TableSelectionReducer = [
         draft?: boolean,
     } | {
         action: "commitDraft",
+    } | {
+        action: "insertRow",
+        rowIndex: number,
+        rows?: number,
+    } | {
+        action: "insertColumn",
+        columnIndex: number,
+        columns?: number,
     }
     >
 ];
@@ -264,6 +279,12 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             break;
         case "commitDraft":
             tableSelection.commitDraft();
+            break;
+        case "insertRow":
+            tableSelection.insertRow(action.rowIndex, action.rows);
+            break;
+        case "insertColumn":
+            tableSelection.insertColumn(action.columnIndex, action.columns);
             break;
     }
     return {...model};

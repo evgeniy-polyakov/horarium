@@ -65,7 +65,7 @@ export function TableEditor({file}: {
 
         function getRowItems() {
             return [
-                new CloneRowAction(csvState, rowIndex),
+                new CloneRowAction(csvState, selectionReducer, rowIndex),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, true),
                 new InsertRowAction(csvState, selectionReducer, rowIndex, false),
                 new MenuSeparator(),
@@ -78,7 +78,7 @@ export function TableEditor({file}: {
 
         function getColumnItems() {
             return [
-                new CloneColumnAction(csvState, cellIndex),
+                new CloneColumnAction(csvState, selectionReducer, cellIndex),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
                 new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
                 new MenuSeparator(),

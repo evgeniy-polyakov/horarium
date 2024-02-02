@@ -1,7 +1,7 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
 import {faClone, faTrashCan} from '@fortawesome/free-regular-svg-icons'
-import {MODE_CLEAR, MODE_DOWN, MODE_LEFT, MODE_RIGHT, MODE_UP, TableSelectionReducer} from "@/models/TableSelection";
+import {TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
 
@@ -38,13 +38,9 @@ export class InsertRowAction implements IMenuItem {
         const row = csv[0].map(() => "");
         csv.splice(index, 0, row);
         setCSV([...csv]);
-        if (this.above) {
-            this.selectionReducer[1]({
-                mode: MODE_DOWN,
-                rowIndex: this.rowIndex,
-                cellIndex: -1,
-            });
-        }
+        const [, select] = this.selectionReducer;
+        select({action: "insertRow", rowIndex: index});
+        select({action: "commitDraft"});
     }
 }
 
@@ -67,13 +63,9 @@ export class InsertColumnAction implements IMenuItem {
             row.splice(index, 0, "");
         }
         setCSV([...csv]);
-        if (this.before) {
-            this.selectionReducer[1]({
-                mode: MODE_RIGHT,
-                rowIndex: -1,
-                cellIndex: this.columnIndex,
-            });
-        }
+        const [, select] = this.selectionReducer;
+        select({action: "insertColumn", columnIndex: index});
+        select({action: "commitDraft"});
     }
 }
 
@@ -83,6 +75,7 @@ export class CloneRowAction implements IMenuItem {
     readonly icon = faClone;
 
     constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number) {
     }
 
@@ -92,6 +85,9 @@ export class CloneRowAction implements IMenuItem {
         const row = csv[index].slice();
         csv.splice(index, 0, row);
         setCSV([...csv]);
+        const [, select] = this.selectionReducer;
+        select({action: "insertRow", rowIndex: index});
+        select({action: "commitDraft"});
     }
 }
 
@@ -101,6 +97,7 @@ export class CloneColumnAction implements IMenuItem {
     readonly icon = faClone;
 
     constructor(private readonly csvState: State<string[][]>,
+                private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number) {
     }
 
@@ -111,6 +108,9 @@ export class CloneColumnAction implements IMenuItem {
             row.splice(index, 0, row[index]);
         }
         setCSV([...csv]);
+        const [, select] = this.selectionReducer;
+        select({action: "insertColumn", columnIndex: index});
+        select({action: "commitDraft"});
     }
 }
 
@@ -132,11 +132,6 @@ export class MoveRowAction implements IMenuItem {
         csv[this.rowIndex] = csv[otherIndex];
         csv[otherIndex] = row;
         setCSV([...csv]);
-        this.selectionReducer[1]({
-            mode: this.up ? MODE_UP : MODE_DOWN,
-            rowIndex: this.rowIndex,
-            cellIndex: -1,
-        });
     }
 
     get disabled() {
@@ -165,11 +160,6 @@ export class MoveColumnAction implements IMenuItem {
             row[otherIndex] = cell;
         }
         setCSV([...csv]);
-        this.selectionReducer[1]({
-            mode: this.left ? MODE_LEFT : MODE_RIGHT,
-            rowIndex: -1,
-            cellIndex: this.columnIndex,
-        });
     }
 
     get disabled() {
@@ -192,11 +182,9 @@ export class DeleteRowAction implements IMenuItem {
         const [csv, setCSV] = this.csvState;
         csv.splice(this.rowIndex, 1);
         setCSV([...csv]);
-        this.selectionReducer[1]({
-            mode: MODE_CLEAR,
-            rowIndex: -1,
-            cellIndex: -1,
-        });
+        const [, select] = this.selectionReducer;
+        select({action: "insertRow", rowIndex: this.rowIndex, rows: -1});
+        select({action: "commitDraft"});
     }
 }
 
@@ -216,11 +204,9 @@ export class DeleteColumnAction implements IMenuItem {
             row.splice(this.columnIndex, 1);
         }
         setCSV([...csv]);
-        this.selectionReducer[1]({
-            mode: MODE_CLEAR,
-            rowIndex: -1,
-            cellIndex: -1,
-        });
+        const [, select] = this.selectionReducer;
+        select({action: "insertColumn", columnIndex: this.columnIndex, columns: -1});
+        select({action: "commitDraft"});
     }
 }
 
