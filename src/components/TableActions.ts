@@ -186,6 +186,11 @@ export class DeleteRowAction implements IMenuItem {
         select({action: "insertRow", rowIndex: this.rowIndex, rows: -1});
         select({action: "commitDraft"});
     }
+
+    get disabled() {
+        const [csv] = this.csvState;
+        return csv.length < 2;
+    }
 }
 
 export class DeleteColumnAction implements IMenuItem {
@@ -207,6 +212,11 @@ export class DeleteColumnAction implements IMenuItem {
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: this.columnIndex, columns: -1});
         select({action: "commitDraft"});
+    }
+
+    get disabled() {
+        const [csv] = this.csvState;
+        return csv[0].length < 2;
     }
 }
 
