@@ -26,17 +26,16 @@ class SelectionRange {
 
     exclude(range: SelectionRange): void;
     exclude(rowIndex: number, cellIndex: number): void;
-    exclude(rowIndex: number | SelectionRange, cellIndex?: number): void {
-        if (typeof rowIndex === "number" && typeof cellIndex === "number") {
+    exclude(minRow: number, minCell: number, maxRow: number, maxCell: number): void;
+    exclude(rowIndex: number | SelectionRange, cellIndex?: number, maxRowIndex?: number, maxCellIndex?: number): void {
+        if (typeof rowIndex === "number" && typeof cellIndex === "number" && maxRowIndex === undefined && maxCellIndex === undefined) {
             if (this.contains(rowIndex, cellIndex)) {
                 this.excluded.push(rowIndex, cellIndex);
             }
-        } else if (typeof rowIndex === "object") {
-            const range = rowIndex;
-            const minRow = Math.min(range.startRow, range.endRow);
-            const maxRow = Math.max(range.startRow, range.endRow);
-            const minCell = Math.min(range.startCell, range.endCell);
-            const maxCell = Math.max(range.startCell, range.endCell);
+        } else {
+            const [minRow, minCell, maxRow, maxCell] = typeof rowIndex === "object" ?
+                rowIndex.getBounds() :
+                [rowIndex, cellIndex!, maxRowIndex ?? rowIndex, maxCellIndex ?? cellIndex!];
             for (let row = minRow; row <= maxRow; row++) {
                 for (let cell = minCell; cell <= maxCell; cell++) {
                     this.exclude(row, cell);
@@ -46,7 +45,68 @@ class SelectionRange {
     }
 
     insert(rowIndex: number, columnIndex: number, rows: number, columns: number) {
-
+        let [minRow, minCell, maxRow, maxCell] = this.getBounds();
+        let empty = false;
+        if (rows !== 0) {
+            if (rows < 0 && minRow >= rowIndex && minRow < rowIndex - rows) {
+                minRow = rowIndex;
+            } else if (minRow >= rowIndex) {
+                minRow += rows;
+            }
+            if (maxRow >= rowIndex) {
+                maxRow += rows;
+            }
+            for (let i = 0; i < this.excluded.length; i += 2) {
+                let row = this.excluded[i];
+                if (rows < 0 && row >= rowIndex && row < rowIndex - rows) {
+                    row = -1;
+                } else if (row >= rowIndex) {
+                    row += rows;
+                }
+                this.excluded[i] = row;
+            }
+            if (minRow > maxRow) {
+                maxRow = minRow;
+                empty = true;
+            }
+        }
+        if (columns !== 0) {
+            if (columns < 0 && minCell >= columnIndex && minCell < columnIndex - columns) {
+                minCell = columnIndex;
+            } else if (minCell >= columnIndex) {
+                minCell += columns;
+            }
+            if (maxCell >= columnIndex) {
+                maxCell += columns;
+            }
+            for (let i = 1; i < this.excluded.length; i += 2) {
+                let cell = this.excluded[i];
+                if (columns < 0 && cell >= columnIndex && cell < columnIndex - columns) {
+                    cell = -1;
+                } else if (cell >= columnIndex) {
+                    cell += columns;
+                }
+                this.excluded[i] = cell;
+            }
+            if (minCell > maxCell) {
+                maxCell = minCell;
+                empty = true;
+            }
+        }
+        const minMaxRow = this.startRow <= this.endRow;
+        this.startRow = minMaxRow ? minRow : maxRow;
+        this.endRow = minMaxRow ? maxRow : minRow;
+        const minMaxCell = this.startCell <= this.endCell;
+        this.startCell = minMaxCell ? minCell : maxCell;
+        this.endCell = minMaxCell ? maxCell : minCell;
+        const excluded = [...this.excluded];
+        this.excluded = [];
+        for (let i = 0; i < excluded.length; i += 2) {
+            this.exclude(excluded[i], excluded[i + 1]);
+        }
+        if (empty) {
+            this.exclude(minRow, minCell, maxRow, maxCell);
+        }
     }
 
     isEmpty() {
@@ -57,27 +117,18 @@ class SelectionRange {
         return this.startRow === rowIndex && this.startCell === cellIndex;
     }
 
-    shiftRow(rowIndex: number, distance: number) {
-        rowIndex += distance;
-        this.startRow = rowIndex;
-        this.endRow = rowIndex;
-        for (let i = 0; i < this.excluded.length; i += 2) {
-            this.excluded[i] = rowIndex;
-        }
-    }
-
-    shiftColumn(cellIndex: number, distance: number) {
-        cellIndex += distance;
-        this.startCell = cellIndex;
-        this.endCell = cellIndex;
-        for (let i = 1; i < this.excluded.length; i += 2) {
-            this.excluded[i] = cellIndex;
-        }
-    }
-
     private inRange(rowIndex: number, cellIndex: number) {
         return (this.startRow <= this.endRow ? rowIndex >= this.startRow && rowIndex <= this.endRow : rowIndex <= this.startRow && rowIndex >= this.endRow) &&
             (this.startCell <= this.endCell ? cellIndex >= this.startCell && cellIndex <= this.endCell : cellIndex <= this.startCell && cellIndex >= this.endCell);
+    }
+
+    private getBounds(): Range {
+        return [
+            Math.min(this.startRow, this.endRow),
+            Math.min(this.startCell, this.endCell),
+            Math.max(this.startRow, this.endRow),
+            Math.max(this.startCell, this.endCell),
+        ];
     }
 }
 
