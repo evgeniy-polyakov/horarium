@@ -45,10 +45,8 @@ class SelectionRange {
         }
     }
 
-    expand(endRow: number, endCell: number) {
-        this.endRow = endRow;
-        this.endCell = endCell;
-        this.excluded = [];
+    insert(rowIndex: number, columnIndex: number, rows: number, columns: number) {
+
     }
 
     isEmpty() {
@@ -97,7 +95,7 @@ export class TableSelection implements ITableSelection {
     private draftIncluded?: SelectionRange;
     private draftExcluded?: SelectionRange;
     private draftInserted?: Range;
-    private focus: Cell = [-1, -1];
+    private readonly focus: Cell = [-1, -1];
 
     contains(rowIndex: number, cellIndex: number) {
         return !this.draftExcluded?.contains(rowIndex, cellIndex) &&
@@ -172,17 +170,30 @@ export class TableSelection implements ITableSelection {
             this.draftExcluded = undefined;
         }
         if (this.draftInserted) {
-            // todo
+            const [rowIndex, columnIndex, rows, columns] = this.draftInserted;
+            let [focusRow, focusColumn] = this.focus;
+            if (rowIndex >= 0) {
+                if (rows < 0 && focusRow >= rowIndex && focusRow < rowIndex - rows) focusRow = -1;
+                else if (focusRow >= rowIndex) focusRow += rows;
+            }
+            if (columnIndex >= 0) {
+                if (columns < 0 && focusColumn >= columnIndex && focusColumn < columnIndex - columns) focusColumn = -1;
+                else if (focusColumn >= columnIndex) focusColumn += columns;
+            }
+            this.focus[0] = focusRow;
+            this.focus[1] = focusColumn;
+            this.ranges.forEach(it => it.insert(rowIndex, columnIndex, rows, columns));
+            this.clearRanges();
             this.draftInserted = undefined;
         }
     }
 
     insertRow(rowIndex: number, rows?: number) {
-        this.draftInserted = [rowIndex, -1, rows ?? 1, -1];
+        this.draftInserted = [rowIndex, -1, rows ?? 1, 0];
     }
 
     insertColumn(columnIndex: number, columns?: number) {
-        this.draftInserted = [-1, columnIndex, -1, columns ?? 1];
+        this.draftInserted = [-1, columnIndex, 0, columns ?? 1];
     }
 
     private combineRanges(range: SelectionRange) {

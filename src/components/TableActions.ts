@@ -86,7 +86,7 @@ export class CloneRowAction implements IMenuItem {
         csv.splice(index, 0, row);
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
-        select({action: "insertRow", rowIndex: index});
+        select({action: "insertRow", rowIndex: index + 1});
         select({action: "commitDraft"});
     }
 }
@@ -109,7 +109,7 @@ export class CloneColumnAction implements IMenuItem {
         }
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
-        select({action: "insertColumn", columnIndex: index});
+        select({action: "insertColumn", columnIndex: index + 1});
         select({action: "commitDraft"});
     }
 }
