@@ -2,6 +2,7 @@ import {FileModel} from "@/models/FileModel";
 import {Dispatch} from "react";
 import {Cell} from "@/models/Cell";
 import {Range} from "@/models/Range";
+import {CSV} from "@/models/CSV";
 
 class SelectionRange {
 
@@ -150,6 +151,8 @@ export interface ITableSelection extends Iterable<Cell> {
     hasFocus(): boolean;
     readonly focusRow: number;
     readonly focusCell: number;
+    copy(csv: CSV): CSV;
+    clear(csv: CSV, value?: string): void;
 }
 
 export class TableSelection implements ITableSelection {
@@ -295,6 +298,34 @@ export class TableSelection implements ITableSelection {
                         yield cell;
                     }
                 }
+            }
+        }
+    }
+
+    copy(csv: CSV) {
+        const selectionCsv: CSV = [];
+        let startRow = -1;
+        let startCell = -1;
+        for (const [rowIndex, cellIndex] of this) {
+            if (startRow < 0) startRow = rowIndex;
+            if (startCell < 0) startCell = cellIndex;
+            if (csv[rowIndex]?.[cellIndex] !== undefined) {
+                if (selectionCsv[rowIndex - startRow] === undefined) {
+                    selectionCsv[rowIndex - startRow] = [];
+                }
+                selectionCsv[rowIndex - startRow][cellIndex - startCell] = csv[rowIndex][cellIndex];
+            }
+        }
+        for (let i = 0; i < selectionCsv.length; i++) {
+            selectionCsv[i] ??= [];
+        }
+        return selectionCsv;
+    }
+
+    clear(csv: CSV, value = "") {
+        for (const [rowIndex, cellIndex] of this) {
+            if (csv[rowIndex]?.[cellIndex] !== undefined) {
+                csv[rowIndex][cellIndex] = "";
             }
         }
     }

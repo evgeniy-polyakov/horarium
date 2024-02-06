@@ -8,14 +8,15 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
+import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
 import {Cell} from "@/models/Cell";
+import {CSV} from "@/models/CSV";
 
 export function TableEditor({file}: {
     file: FileModel
 }) {
     const [fileId, setFileId] = useState(-1);
-    const csvState = useState<string[][]>([]);
+    const csvState = useState<CSV>([]);
     const [csv, setCSV] = csvState;
     const mouseDownState = useState<[...Cell, boolean?]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
@@ -43,18 +44,18 @@ export function TableEditor({file}: {
         parseCSV(file.textContent).then(records => setCSV(records));
     }
 
-    function storeCSV(csv: string[][]) {
+    async function storeCSV(csv: CSV) {
         setCSV(csv);
-        stringifyCSV(csv, file);
+        file.textContent = await stringifyCSV(csv);
     }
 
     function onMouseUp() {
         setMouseDown([-1, -1]);
     }
 
-    function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
+    async function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
         csv[rowIndex][cellIndex] = value;
-        stringifyCSV(csv, file);
+        file.textContent = await stringifyCSV(csv);
     }
 
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {
@@ -92,6 +93,9 @@ export function TableEditor({file}: {
         const items: IMenuItem[] =
             rowIndex >= 0 && cellIndex >= 0 ? [
                 new EditCellAction(cellEditState, rowIndex, cellIndex),
+                new MenuSeparator(),
+                new CutCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
+                new CopyCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new ClearCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new MenuSeparator(),
                 new RowMenuGroup(getRowItems()),

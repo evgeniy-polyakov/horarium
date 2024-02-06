@@ -1,9 +1,11 @@
 import {IMenuItem} from "@/components/IMenuItem";
-import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
-import {faClone, faTrashCan} from '@fortawesome/free-regular-svg-icons'
+import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faCut, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
+import {faClone, faCopy, faTrashCan} from '@fortawesome/free-regular-svg-icons'
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
+import {stringifyCSV} from "@/models/CSVParser";
+import {CSV} from "@/models/CSV";
 
 export class EditCellAction implements IMenuItem {
 
@@ -22,7 +24,7 @@ export class EditCellAction implements IMenuItem {
 
 export abstract class SelectionMenuItem implements IMenuItem {
 
-    constructor(protected readonly csvState: State<string[][]>,
+    constructor(protected readonly csvState: State<CSV>,
                 protected readonly selectionReducer: TableSelectionReducer,
                 protected readonly rowIndex: number,
                 protected readonly cellIndex: number) {
@@ -42,12 +44,33 @@ export class ClearCellsAction extends SelectionMenuItem {
     select() {
         const [csv, setCsv] = this.csvState;
         const [selection] = this.selectionReducer;
-        for (const [rowIndex, cellIndex] of selection.file.tableSelection) {
-            if (csv[rowIndex]?.[cellIndex] !== undefined) {
-                csv[rowIndex][cellIndex] = "";
-            }
-        }
+        selection.file.tableSelection.clear(csv);
         setCsv([...csv]);
+    }
+}
+
+export class CopyCellsAction extends SelectionMenuItem {
+
+    readonly name: string = "Copy";
+    readonly icon = faCopy;
+
+    async select() {
+        const [csv, setCsv] = this.csvState;
+        const [selection] = this.selectionReducer;
+        const selectionCsv = selection.file.tableSelection.copy(csv);
+        setCsv([...csv]);
+        await navigator.clipboard.writeText(await stringifyCSV(selectionCsv));
+    }
+}
+
+export class CutCellsAction extends CopyCellsAction {
+
+    readonly name = "Cut";
+    readonly icon = faCut;
+
+    async select() {
+        await super.select();
+        new ClearCellsAction(this.csvState, this.selectionReducer, this.rowIndex, this.cellIndex).select();
     }
 }
 
@@ -57,7 +80,7 @@ export class InsertRowAction implements IMenuItem {
     readonly icon = faArrowRightToBracket;
     readonly className = `rotate${this.above ? "-90" : "90"}`;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number,
                 private readonly above: boolean) {
@@ -81,7 +104,7 @@ export class InsertColumnAction implements IMenuItem {
     readonly icon = faArrowRightToBracket;
     readonly className = `rotate${this.before ? "180" : "0"}`;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number,
                 private readonly before: boolean) {
@@ -105,7 +128,7 @@ export class CloneRowAction implements IMenuItem {
     readonly name = `Clone Row`;
     readonly icon = faClone;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number) {
     }
@@ -127,7 +150,7 @@ export class CloneColumnAction implements IMenuItem {
     readonly name = `Clone Column`;
     readonly icon = faClone;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number) {
     }
@@ -150,7 +173,7 @@ export class MoveRowAction implements IMenuItem {
     readonly name = `Move Row ${this.up ? "Up" : "Down"}`;
     readonly icon = this.up ? faArrowUp : faArrowDown;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number,
                 private readonly up: boolean) {
@@ -176,7 +199,7 @@ export class MoveColumnAction implements IMenuItem {
     readonly name = `Move Column ${this.left ? "Left" : "Right"}`;
     readonly icon = this.left ? faArrowLeft : faArrowRight;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number,
                 private readonly left: boolean) {
@@ -204,7 +227,7 @@ export class DeleteRowAction implements IMenuItem {
     readonly name = "Delete Row";
     readonly icon = faTrashCan;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly rowIndex: number) {
     }
@@ -229,7 +252,7 @@ export class DeleteColumnAction implements IMenuItem {
     readonly name = "Delete Column";
     readonly icon = faTrashCan;
 
-    constructor(private readonly csvState: State<string[][]>,
+    constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
                 private readonly columnIndex: number) {
     }

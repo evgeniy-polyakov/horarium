@@ -1,12 +1,12 @@
 import {parse} from "csv-parse";
 import {stringify} from "csv-stringify";
-import {FileModel} from "@/models/FileModel";
+import {CSV} from "@/models/CSV";
 
 export async function parseCSV(value: string) {
-    return new Promise<string[][]>((res, rej) => parse(value, {
+    return new Promise<CSV>((res, rej) => parse(value, {
         relaxColumnCount: true,
         relaxQuotes: true,
-    }, (err, records: string[][]) => {
+    }, (err, records: CSV) => {
         if (!err) {
             const columns = records.reduce((a, t) => Math.max(t.length, a), 0);
             records.forEach(it => {
@@ -25,10 +25,9 @@ export async function parseCSV(value: string) {
     }));
 }
 
-export async function stringifyCSV(csv: string[][], file: FileModel) {
-    return new Promise<string>((res, rej) => stringify(csv, (err, output) => {
+export async function stringifyCSV(csv: CSV) {
+    return new Promise<string>((res, rej) => stringify(csv, {eof: false}, (err, output) => {
         if (!err) {
-            file.textContent = output;
             res(output);
         } else {
             console.error(err);

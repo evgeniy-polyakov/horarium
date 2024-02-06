@@ -3,9 +3,10 @@ import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
+import {CSV} from "@/models/CSV";
 
 export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
-    csv: string[][],
+    csv: CSV,
     rowIndex: number,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,

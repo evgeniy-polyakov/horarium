@@ -1,8 +1,9 @@
 import {MouseEvent} from "react";
 import {TableSelectionReducer} from "@/models/TableSelection";
+import {CSV} from "@/models/CSV";
 
 export function TableColumnHeader({csv, cellIndex, selectionReducer: [selection, select], onMenu}: {
-    csv: string[][],
+    csv: CSV,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
     onMenu?: (event: MouseEvent) => void
