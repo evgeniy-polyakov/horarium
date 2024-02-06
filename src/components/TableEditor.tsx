@@ -8,7 +8,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {CloneColumnAction, CloneRowAction, ColumnMenuGroup, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
+import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
 import {Cell} from "@/models/Cell";
 
 export function TableEditor({file}: {
@@ -92,6 +92,7 @@ export function TableEditor({file}: {
         const items: IMenuItem[] =
             rowIndex >= 0 && cellIndex >= 0 ? [
                 new EditCellAction(cellEditState, rowIndex, cellIndex),
+                new ClearCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new MenuSeparator(),
                 new RowMenuGroup(getRowItems()),
                 new ColumnMenuGroup(getColumnItems()),

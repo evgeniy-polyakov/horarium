@@ -7,7 +7,7 @@ import {Cell} from "@/models/Cell";
 
 export class EditCellAction implements IMenuItem {
 
-    readonly name = "Edit Cell";
+    readonly name = "Edit";
     readonly icon = faPencil;
 
     constructor(private readonly cellEditState: State<Cell>,
@@ -17,6 +17,37 @@ export class EditCellAction implements IMenuItem {
 
     select() {
         this.cellEditState[1]([this.rowIndex, this.cellIndex]);
+    }
+}
+
+export abstract class SelectionMenuItem implements IMenuItem {
+
+    constructor(protected readonly csvState: State<string[][]>,
+                protected readonly selectionReducer: TableSelectionReducer,
+                protected readonly rowIndex: number,
+                protected readonly cellIndex: number) {
+    }
+
+    get disabled() {
+        const [selection] = this.selectionReducer;
+        return !selection.file.tableSelection.contains(this.rowIndex, this.cellIndex);
+    }
+}
+
+export class ClearCellsAction extends SelectionMenuItem {
+
+    readonly name = "Clear";
+    readonly icon = faTrashCan;
+
+    select() {
+        const [csv, setCsv] = this.csvState;
+        const [selection] = this.selectionReducer;
+        for (const [rowIndex, cellIndex] of selection.file.tableSelection) {
+            if (csv[rowIndex]?.[cellIndex] !== undefined) {
+                csv[rowIndex][cellIndex] = "";
+            }
+        }
+        setCsv([...csv]);
     }
 }
 

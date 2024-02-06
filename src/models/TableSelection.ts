@@ -33,9 +33,11 @@ class SelectionRange {
                 this.excluded.push(rowIndex, cellIndex);
             }
         } else {
-            const [minRow, minCell, maxRow, maxCell] = typeof rowIndex === "object" ?
-                rowIndex.getBounds() :
-                [rowIndex, cellIndex!, maxRowIndex ?? rowIndex, maxCellIndex ?? cellIndex!];
+            const isRange = typeof rowIndex === "object";
+            const minRow = isRange ? rowIndex.minRow : rowIndex;
+            const maxRow = isRange ? rowIndex.maxRow : maxRowIndex ?? rowIndex;
+            const minCell = isRange ? rowIndex.minCell : cellIndex!;
+            const maxCell = isRange ? rowIndex.maxCell : maxCellIndex ?? cellIndex!;
             for (let row = minRow; row <= maxRow; row++) {
                 for (let cell = minCell; cell <= maxCell; cell++) {
                     this.exclude(row, cell);
@@ -45,7 +47,10 @@ class SelectionRange {
     }
 
     insert(rowIndex: number, columnIndex: number, rows: number, columns: number) {
-        let [minRow, minCell, maxRow, maxCell] = this.getBounds();
+        let minRow = this.minRow;
+        let maxRow = this.maxRow;
+        let minCell = this.minCell;
+        let maxCell = this.maxCell;
         let empty = false;
         if (rows !== 0) {
             if (rows < 0 && minRow >= rowIndex && minRow < rowIndex - rows) {
@@ -122,17 +127,24 @@ class SelectionRange {
             (this.startCell <= this.endCell ? cellIndex >= this.startCell && cellIndex <= this.endCell : cellIndex <= this.startCell && cellIndex >= this.endCell);
     }
 
-    private getBounds(): Range {
-        return [
-            Math.min(this.startRow, this.endRow),
-            Math.min(this.startCell, this.endCell),
-            Math.max(this.startRow, this.endRow),
-            Math.max(this.startCell, this.endCell),
-        ];
+    get minRow() {
+        return Math.min(this.startRow, this.endRow);
+    }
+
+    get maxRow() {
+        return Math.max(this.startRow, this.endRow);
+    }
+
+    get minCell() {
+        return Math.min(this.startCell, this.endCell);
+    }
+
+    get maxCell() {
+        return Math.max(this.startCell, this.endCell);
     }
 }
 
-export interface ITableSelection {
+export interface ITableSelection extends Iterable<Cell> {
     contains(rowIndex: number, cellIndex: number): boolean;
     isFocus(rowIndex: number, cellIndex: number): boolean;
     hasFocus(): boolean;
@@ -258,6 +270,33 @@ export class TableSelection implements ITableSelection {
 
     private clearRanges() {
         this.ranges = this.ranges.filter(it => !it.isEmpty());
+    }
+
+    private getBounds() {
+        const bounds: Range = [-1, -1, -1, -1];
+        for (const range of this.ranges) {
+            if (bounds[0] === -1 || bounds[0] > range.minRow) bounds[0] = range.minRow;
+            if (bounds[1] === -1 || bounds[1] > range.minCell) bounds[1] = range.minCell;
+            if (bounds[2] === -1 || bounds[2] < range.maxRow) bounds[2] = range.maxRow;
+            if (bounds[3] === -1 || bounds[3] < range.maxCell) bounds[3] = range.maxCell;
+        }
+        return bounds;
+    }
+
+    * [Symbol.iterator]() {
+        const [minRow, minCell, maxRow, maxCell] = this.getBounds();
+        if (minRow >= 0 && minCell >= 0) {
+            const cell: Cell = [-1, -1];
+            for (let rowIndex = minRow; rowIndex <= maxRow; rowIndex++) {
+                for (let cellIndex = minCell; cellIndex <= maxCell; cellIndex++) {
+                    if (this.contains(rowIndex, cellIndex)) {
+                        cell[0] = rowIndex;
+                        cell[1] = cellIndex;
+                        yield cell;
+                    }
+                }
+            }
+        }
     }
 }
 
