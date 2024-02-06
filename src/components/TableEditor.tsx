@@ -8,7 +8,7 @@ import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
 import {IMenuItem} from "@/components/IMenuItem";
-import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, RowMenuGroup} from "@/components/TableActions";
+import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, PasteCellsAction, RowMenuGroup} from "@/components/TableActions";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 
@@ -96,6 +96,7 @@ export function TableEditor({file}: {
                 new MenuSeparator(),
                 new CutCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new CopyCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
+                new PasteCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new ClearCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
                 new MenuSeparator(),
                 new RowMenuGroup(getRowItems()),

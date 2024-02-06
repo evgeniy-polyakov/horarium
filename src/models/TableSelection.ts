@@ -152,6 +152,7 @@ export interface ITableSelection extends Iterable<Cell> {
     readonly focusRow: number;
     readonly focusCell: number;
     copy(csv: CSV): CSV;
+    paste(csv: CSV, value: CSV, rowIndex: number, cellIndex: number): void;
     clear(csv: CSV, value?: string): void;
 }
 
@@ -306,9 +307,11 @@ export class TableSelection implements ITableSelection {
         const selectionCsv: CSV = [];
         let startRow = -1;
         let startCell = -1;
+        let maxCell = -1;
         for (const [rowIndex, cellIndex] of this) {
             if (startRow < 0) startRow = rowIndex;
             if (startCell < 0) startCell = cellIndex;
+            if (cellIndex > maxCell) maxCell = cellIndex;
             if (csv[rowIndex]?.[cellIndex] !== undefined) {
                 if (selectionCsv[rowIndex - startRow] === undefined) {
                     selectionCsv[rowIndex - startRow] = [];
@@ -318,8 +321,30 @@ export class TableSelection implements ITableSelection {
         }
         for (let i = 0; i < selectionCsv.length; i++) {
             selectionCsv[i] ??= [];
+            for (let j = 0; j < maxCell; j++) {
+                selectionCsv[i][j] ??= "";
+            }
         }
         return selectionCsv;
+    }
+
+    paste(csv: CSV, value: CSV, rowIndex: number, cellIndex: number) {
+        const startRows = csv.length;
+        const startCells = csv[0].length;
+        for (let i = 0; i < value.length; i++) {
+            csv[i + rowIndex] ??= [];
+            for (let j = 0; j < value[i].length; j++) {
+                if (value[i][j] !== "" && value[i][j] !== undefined) {
+                    csv[i + rowIndex][j + cellIndex] = value[i][j];
+                }
+            }
+        }
+        for (let i = startRows; i < rowIndex + value.length; i++) {
+            csv[i] ??= [];
+            for (let j = startCells; j < cellIndex + value[0]?.length; j++) {
+                csv[i][j] ??= "";
+            }
+        }
     }
 
     clear(csv: CSV, value = "") {

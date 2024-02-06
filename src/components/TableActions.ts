@@ -1,10 +1,10 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faCut, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
-import {faClone, faCopy, faTrashCan} from '@fortawesome/free-regular-svg-icons'
+import {faClone, faCopy, faPaste, faTrashCan} from '@fortawesome/free-regular-svg-icons'
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
-import {stringifyCSV} from "@/models/CSVParser";
+import {parseCSV, stringifyCSV} from "@/models/CSVParser";
 import {CSV} from "@/models/CSV";
 
 export class EditCellAction implements IMenuItem {
@@ -71,6 +71,27 @@ export class CutCellsAction extends CopyCellsAction {
     async select() {
         await super.select();
         new ClearCellsAction(this.csvState, this.selectionReducer, this.rowIndex, this.cellIndex).select();
+    }
+}
+
+export class PasteCellsAction extends SelectionMenuItem {
+
+    readonly name = "Paste";
+    readonly icon = faPaste;
+
+    async select() {
+        const [selection] = this.selectionReducer;
+        const text = await navigator.clipboard.readText();
+        if (text) {
+            const [csv, setCsv] = this.csvState;
+            const selectionCSV = await parseCSV(text);
+            selection.file.tableSelection.paste(csv, selectionCSV, this.rowIndex, this.cellIndex);
+            setCsv([...csv]);
+        }
+    }
+
+    get disabled() {
+        return false;
     }
 }
 
