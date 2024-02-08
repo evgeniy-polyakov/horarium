@@ -5,6 +5,11 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.4.0
+
+* Separate cell focus and selection
+* Clear, Cut, Copy and Paste selection 
+
 ### 0.3.0
 
 * Letters instead of numbers in column headers
