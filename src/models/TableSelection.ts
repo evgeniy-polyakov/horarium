@@ -339,9 +339,9 @@ export class TableSelection implements ITableSelection {
                 }
             }
         }
-        for (let i = startRows; i < rowIndex + value.length; i++) {
+        for (let i = 0; i < rowIndex + value.length; i++) {
             csv[i] ??= [];
-            for (let j = startCells; j < cellIndex + value[0]?.length; j++) {
+            for (let j = 0; j < cellIndex + value[0]?.length; j++) {
                 csv[i][j] ??= "";
             }
         }
