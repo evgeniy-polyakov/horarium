@@ -151,9 +151,10 @@ export interface ITableSelection extends Iterable<Cell> {
     hasFocus(): boolean;
     readonly focusRow: number;
     readonly focusCell: number;
-    copy(csv: CSV): CSV;
-    paste(csv: CSV, value: CSV, rowIndex: number, cellIndex: number): void;
-    clear(csv: CSV, value?: string): void;
+    copyCells(csv: CSV): CSV;
+    pasteCells(csv: CSV, value: CSV, rowIndex: number, cellIndex: number): void;
+    clearCells(csv: CSV, value?: string): void;
+    clear(): void;
 }
 
 export class TableSelection implements ITableSelection {
@@ -199,6 +200,7 @@ export class TableSelection implements ITableSelection {
         this.ranges = [];
         this.draftIncluded = undefined;
         this.draftExcluded = undefined;
+        this.draftInserted = undefined;
     }
 
     selectRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
@@ -303,7 +305,7 @@ export class TableSelection implements ITableSelection {
         }
     }
 
-    copy(csv: CSV) {
+    copyCells(csv: CSV) {
         const selectionCsv: CSV = [];
         let startRow = -1;
         let startCell = -1;
@@ -328,7 +330,7 @@ export class TableSelection implements ITableSelection {
         return selectionCsv;
     }
 
-    paste(csv: CSV, value: CSV, rowIndex: number, cellIndex: number) {
+    pasteCells(csv: CSV, value: CSV, rowIndex: number, cellIndex: number) {
         const startRows = csv.length;
         const startCells = csv[0].length;
         for (let i = 0; i < value.length; i++) {
@@ -347,12 +349,17 @@ export class TableSelection implements ITableSelection {
         }
     }
 
-    clear(csv: CSV, value = "") {
+    clearCells(csv: CSV, value = "") {
         for (const [rowIndex, cellIndex] of this) {
             if (csv[rowIndex]?.[cellIndex] !== undefined) {
-                csv[rowIndex][cellIndex] = "";
+                csv[rowIndex][cellIndex] = value;
             }
         }
+    }
+
+    clear() {
+        this.clearSelection();
+        this.clearFocus();
     }
 }
 

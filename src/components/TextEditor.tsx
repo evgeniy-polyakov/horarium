@@ -12,6 +12,7 @@ export function TextEditor({file}: {
         <textarea className="text-editor" value={value}
                   onChange={e => {
                       file.textContent = e.target.value;
+                      file.tableSelection.clear();
                       setValue(e.target.value);
                   }}
                   onScroll={e => {

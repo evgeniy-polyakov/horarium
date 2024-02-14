@@ -44,7 +44,7 @@ export class ClearCellsAction extends SelectionMenuItem {
     select() {
         const [csv, setCsv] = this.csvState;
         const [selection] = this.selectionReducer;
-        selection.file.tableSelection.clear(csv);
+        selection.file.tableSelection.clearCells(csv);
         setCsv([...csv]);
     }
 }
@@ -57,7 +57,7 @@ export class CopyCellsAction extends SelectionMenuItem {
     async select() {
         const [csv, setCsv] = this.csvState;
         const [selection] = this.selectionReducer;
-        const selectionCsv = selection.file.tableSelection.copy(csv);
+        const selectionCsv = selection.file.tableSelection.copyCells(csv);
         setCsv([...csv]);
         await navigator.clipboard.writeText(await stringifyCSV(selectionCsv));
     }
@@ -85,7 +85,7 @@ export class PasteCellsAction extends SelectionMenuItem {
         if (text) {
             const [csv, setCsv] = this.csvState;
             const selectionCSV = await parseCSV(text);
-            selection.file.tableSelection.paste(csv, selectionCSV, this.rowIndex, this.cellIndex);
+            selection.file.tableSelection.pasteCells(csv, selectionCSV, this.rowIndex, this.cellIndex);
             setCsv([...csv]);
         }
     }
