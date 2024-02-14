@@ -7,10 +7,9 @@ import {TableColumnHeader} from "@/components/TableColumnHeader";
 import {TableRowHeader} from "@/components/TableRowHeader";
 import {TableAllHeader} from "@/components/TableAllHeader";
 import {IMenu, Menu} from "@/components/Menu";
-import {IMenuItem} from "@/components/IMenuItem";
-import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, PasteCellsAction, RowMenuGroup} from "@/components/TableActions";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
+import {TableCellMenuBuilder} from "@/components/TableCellMenuBuilder";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -24,6 +23,7 @@ export function TableEditor({file}: {
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);
+    const menuBuilder = new TableCellMenuBuilder(csvState, cellEditState, selectionReducer);
 
     useEffect(() => {
         if (mouseDown) {
@@ -63,52 +63,11 @@ export function TableEditor({file}: {
         if (!editor.current) {
             return;
         }
-
-        function getRowItems() {
-            return [
-                new CloneRowAction(csvState, selectionReducer, rowIndex),
-                new InsertRowAction(csvState, selectionReducer, rowIndex, true),
-                new InsertRowAction(csvState, selectionReducer, rowIndex, false),
-                new MenuSeparator(),
-                new MoveRowAction(csvState, selectionReducer, rowIndex, true),
-                new MoveRowAction(csvState, selectionReducer, rowIndex, false),
-                new MenuSeparator(),
-                new DeleteRowAction(csvState, selectionReducer, rowIndex),
-            ];
-        }
-
-        function getColumnItems() {
-            return [
-                new CloneColumnAction(csvState, selectionReducer, cellIndex),
-                new InsertColumnAction(csvState, selectionReducer, cellIndex, true),
-                new InsertColumnAction(csvState, selectionReducer, cellIndex, false),
-                new MenuSeparator(),
-                new MoveColumnAction(csvState, selectionReducer, cellIndex, true),
-                new MoveColumnAction(csvState, selectionReducer, cellIndex, false),
-                new MenuSeparator(),
-                new DeleteColumnAction(csvState, selectionReducer, cellIndex),
-            ];
-        }
-
-        const items: IMenuItem[] =
-            rowIndex >= 0 && cellIndex >= 0 ? [
-                new EditCellAction(cellEditState, rowIndex, cellIndex),
-                new MenuSeparator(),
-                new CutCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
-                new CopyCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
-                new PasteCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
-                new ClearCellsAction(csvState, selectionReducer, rowIndex, cellIndex),
-                new MenuSeparator(),
-                new RowMenuGroup(getRowItems()),
-                new ColumnMenuGroup(getColumnItems()),
-            ] : rowIndex >= 0 ? getRowItems() :
-                cellIndex >= 0 ? getColumnItems() : [];
         const b = editor.current.querySelector('table.content')!.getBoundingClientRect();
         const h = (editor.current.querySelector('table.columns') as HTMLElement).offsetHeight;
         const v = editor.current.offsetHeight;
-
         setContextMenu({
-            items: items,
+            items: menuBuilder.buildMenu(rowIndex, cellIndex),
             x: event.clientX - (b.x ?? 0),
             y: event.clientY - (b.y ?? 0) + h,
             viewportWidth: b.width,
