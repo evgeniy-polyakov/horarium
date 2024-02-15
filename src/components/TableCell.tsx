@@ -1,11 +1,11 @@
-import {MouseEvent, useRef, useState} from "react";
+import {KeyboardEvent, MouseEvent, useRef, useState} from "react";
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 
-export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown]}: {
+export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyDownState: [navKeyDown, setNavKeyDown]}: {
     csv: CSV,
     rowIndex: number,
     cellIndex: number,
@@ -14,6 +14,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     onMenu?: (e: MouseEvent) => void,
     cellEditState: State<Cell>,
     mouseDownState: State<[...Cell, boolean?]>,
+    navKeyDownState: State<Record<string, number>>,
 }) {
 
     const [text, setText] = useState("");
@@ -29,6 +30,10 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     if (isEditing() && !thisCellEdit) {
         setThisCellEdit(true);
         edit();
+    }
+
+    if (tableSelection.isFocus(rowIndex, cellIndex)) {
+        cell.current?.focus();
     }
 
     function isMouseDown() {
@@ -145,15 +150,43 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         }
     }
 
+    function onKeyDown(e: KeyboardEvent) {
+        if (tableSelection.isFocus(rowIndex, cellIndex)) {
+            const key = e.key;
+            const rowOffset = {ArrowUp: -1, ArrowDown: 1}[key] ?? 0;
+            const cellOffset = {ArrowLeft: -1, ArrowRight: 1}[key] ?? 0;
+            if (rowOffset !== 0 || cellOffset !== 0) {
+                e.preventDefault();
+                const t = new Date().getTime();
+                if (navKeyDown[key] === undefined || t - navKeyDown[key] > 50) {
+                    setNavKeyDown({...navKeyDown, [key]: t});
+                    const r = rowIndex + rowOffset;
+                    const c = cellIndex + cellOffset;
+                    if (r >= 0 && r < csv.length && c >= 0 && c < csv[0].length) {
+                        select({action: "setFocus", rowIndex: r, cellIndex: c});
+                    }
+                }
+            }
+        }
+    }
+
+    function onKeyUp(e: KeyboardEvent) {
+        if (tableSelection.isFocus(rowIndex, cellIndex)) {
+            const key = e.key;
+            delete navKeyDown[key];
+            setNavKeyDown({...navKeyDown});
+        }
+    }
+
     return (
-        <td ref={cell}
+        <td ref={cell} tabIndex={rowIndex * csv[0].length + cellIndex}
             className={classList({
                 selected: tableSelection.contains(rowIndex, cellIndex),
                 focused: tableSelection.isFocus(rowIndex, cellIndex)
             })}
             onDoubleClick={onDoubleClick} onContextMenu={onContextMenu}
             onMouseDown={onMouseDown} onMouseUp={onMouseUp}
-            onMouseEnter={onMouseEnter}>
+            onMouseEnter={onMouseEnter} onKeyDown={onKeyDown} onKeyUp={onKeyUp}>
             <span>{text}</span>
         </td>
     );

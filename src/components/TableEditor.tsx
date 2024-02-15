@@ -20,6 +20,7 @@ export function TableEditor({file}: {
     const mouseDownState = useState<[...Cell, boolean?]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
     const cellEditState = useState<Cell>([-1, -1]);
+    const navKeyDownState = useState<Record<string, number>>({});
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);
@@ -98,8 +99,8 @@ export function TableEditor({file}: {
                                         onMenu={event => onCellMenu(event, rowIndex, -1)}/>
                         {
                             row.map((cell, cellIndex) =>
-                                <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex}
-                                           selectionReducer={selectionReducer} mouseDownState={mouseDownState} cellEditState={cellEditState}
+                                <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex} selectionReducer={selectionReducer}
+                                           mouseDownState={mouseDownState} cellEditState={cellEditState} navKeyDownState={navKeyDownState}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }
