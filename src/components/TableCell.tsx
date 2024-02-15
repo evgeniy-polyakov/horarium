@@ -19,6 +19,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
 
     const [text, setText] = useState("");
     const [thisCellEdit, setThisCellEdit] = useState(false);
+    const [thisCellFocus, setThisCellFocus] = useState(false);
     const cell = useRef<HTMLTableCellElement>(null);
     const tableSelection = selection.file.tableSelection;
 
@@ -33,7 +34,12 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     }
 
     if (tableSelection.isFocus(rowIndex, cellIndex)) {
-        cell.current?.focus();
+        if (!thisCellFocus) {
+            cell.current?.focus();
+            setThisCellFocus(true);
+        }
+    } else if (thisCellFocus) {
+        setThisCellFocus(false);
     }
 
     function isMouseDown() {
