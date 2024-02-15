@@ -218,8 +218,8 @@ export class TableSelection implements ITableSelection {
         }
     }
 
-    expandRange(endRow: number, endCell: number, clear?: boolean) {
-        let range = this.ranges.pop() ?? new SelectionRange(endRow, endCell, endRow, endCell);
+    expandRange(startRow: number, startCell: number, endRow: number, endCell: number, clear?: boolean) {
+        let range = this.ranges.pop() ?? new SelectionRange(startRow, startCell, endRow, endCell);
         range.expand(endRow, endCell);
         if (clear) {
             this.clearSelection();
@@ -406,7 +406,7 @@ export type TableSelectionReducer = [
         replace?: boolean,
     } | {
         action: "expandRange",
-        range: Cell,
+        range: Cell | Range,
         clear?: boolean,
     } | {
         action: "excludeRange",
@@ -454,7 +454,11 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             }
             break;
         case "expandRange":
-            tableSelection.expandRange(...action.range, action.clear);
+            if (action.range.length > 2) {
+                tableSelection.expandRange(...action.range as Range, action.clear);
+            } else {
+                tableSelection.expandRange(...action.range as Cell, ...action.range as Cell, action.clear);
+            }
             break;
         case "excludeRange":
             if (action.range.length > 2) {

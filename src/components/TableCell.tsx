@@ -174,14 +174,24 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                         select({
                             action: "setFocus",
                             rowIndex: r,
-                            cellIndex: c
+                            cellIndex: c,
                         });
                         if (key !== "Tab") {
                             if (e.shiftKey) {
                                 select({
                                     action: "expandRange",
-                                    range: [r, c],
-                                    clear: !e.ctrlKey
+                                    range: [rowIndex, cellIndex, r, c],
+                                    clear: !e.ctrlKey,
+                                });
+                            } else if (e.ctrlKey && (tableSelection.contains(rowIndex, cellIndex) && tableSelection.contains(r, c))) {
+                                select({
+                                    action: "excludeRange",
+                                    range: [rowIndex, cellIndex],
+                                });
+                            } else if (e.ctrlKey) {
+                                select({
+                                    action: "selectRange",
+                                    range: [rowIndex, cellIndex, r, c],
                                 });
                             }
                         }
