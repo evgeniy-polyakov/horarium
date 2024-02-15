@@ -190,6 +190,10 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             e.preventDefault();
             cancelEdit();
             return;
+        } else if (key === "F2" && !editing) {
+            e.preventDefault();
+            setCellEdit([focusRow, focusCell]);
+            return;
         } else if (key === "Enter" && !e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             if (editing) {
