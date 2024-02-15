@@ -182,24 +182,23 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                             rowIndex: r,
                             cellIndex: c,
                         });
-                        if (key !== "Tab") {
-                            if (e.shiftKey) {
-                                select({
-                                    action: "expandRange",
-                                    range: [rowIndex, cellIndex, r, c],
-                                    clear: !e.ctrlKey,
-                                });
-                            } else if (e.ctrlKey && (tableSelection.contains(rowIndex, cellIndex) && tableSelection.contains(r, c))) {
-                                select({
-                                    action: "excludeRange",
-                                    range: [rowIndex, cellIndex],
-                                });
-                            } else if (e.ctrlKey) {
-                                select({
-                                    action: "selectRange",
-                                    range: [rowIndex, cellIndex, r, c],
-                                });
-                            }
+                        if (key === "Tab") return;
+                        if (e.shiftKey) {
+                            select({
+                                action: tableSelection.contains(rowIndex, cellIndex) ? "expandRange" : "selectRange",
+                                range: [rowIndex, cellIndex, r, c],
+                                clear: !e.ctrlKey,
+                            });
+                        } else if (e.ctrlKey && (tableSelection.contains(rowIndex, cellIndex) && tableSelection.contains(r, c))) {
+                            select({
+                                action: "excludeRange",
+                                range: [rowIndex, cellIndex],
+                            });
+                        } else if (e.ctrlKey) {
+                            select({
+                                action: "selectRange",
+                                range: [rowIndex, cellIndex, r, c],
+                            });
                         }
                     }
                 }
