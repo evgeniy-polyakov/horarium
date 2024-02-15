@@ -153,8 +153,16 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     function onKeyDown(e: KeyboardEvent) {
         if (tableSelection.isFocus(rowIndex, cellIndex)) {
             const key = e.key;
-            const rowOffset = {ArrowUp: -1, ArrowDown: 1}[key] ?? 0;
-            const cellOffset = {ArrowLeft: -1, ArrowRight: 1}[key] ?? 0;
+            const maxRow = csv.length - 1;
+            const maxCell = csv[rowIndex].length - 1;
+            const rowOffset = {
+                ArrowUp: -1, ArrowDown: 1,
+                Tab: e.shiftKey ? (cellIndex === 0 ? -1 : 0) : (cellIndex === maxCell ? 1 : 0)
+            }[key] ?? 0;
+            const cellOffset = {
+                ArrowLeft: -1, ArrowRight: 1,
+                Tab: e.shiftKey ? (cellIndex === 0 ? maxCell : -1) : (cellIndex === maxCell ? -maxCell : 1)
+            }[key] ?? 0;
             if (rowOffset !== 0 || cellOffset !== 0) {
                 e.preventDefault();
                 const t = new Date().getTime();
@@ -162,7 +170,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                     setNavKeyDown({...navKeyDown, [key]: t});
                     const r = rowIndex + rowOffset;
                     const c = cellIndex + cellOffset;
-                    if (r >= 0 && r < csv.length && c >= 0 && c < csv[0].length) {
+                    if (r >= 0 && r <= maxRow && c >= 0 && c <= maxCell) {
                         select({action: "setFocus", rowIndex: r, cellIndex: c});
                     }
                 }
