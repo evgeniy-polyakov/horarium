@@ -22,6 +22,7 @@ export function TableEditor({file}: {
     const cellEditState = useState<Cell>([-1, -1]);
     const navKeyDownState = useState<Record<string, number>>({});
     const selectionReducer = useReducer(tableSelectionReducer, {file});
+    const [selection, select] = selectionReducer;
     const [contextMenu, setContextMenu] = useState<IMenu>();
     const editor = useRef<HTMLDivElement>(null);
     const menuBuilder = new TableCellMenuBuilder(csvState, cellEditState, selectionReducer);
@@ -32,6 +33,12 @@ export function TableEditor({file}: {
         }
         return () => {
             window.removeEventListener("mouseup", onMouseUp, false);
+        }
+    });
+
+    useEffect(() => {
+        if (!selection.file.tableSelection.hasFocus()) {
+            select({action: "setFocus", rowIndex: 0, cellIndex: 0});
         }
     });
 

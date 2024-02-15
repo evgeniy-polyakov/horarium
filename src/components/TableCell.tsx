@@ -1,4 +1,4 @@
-import {KeyboardEvent, MouseEvent, useRef, useState} from "react";
+import {KeyboardEvent, MouseEvent, useEffect, useRef, useState} from "react";
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
@@ -19,10 +19,15 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
 
     const [text, setText] = useState("");
     const [thisCellEdit, setThisCellEdit] = useState(false);
-    const [thisCellFocus, setThisCellFocus] = useState(false);
     const [textArea, setTextArea] = useState<HTMLTextAreaElement>();
     const cell = useRef<HTMLTableCellElement>(null);
     const tableSelection = selection.file.tableSelection;
+
+    useEffect(() => {
+        if (tableSelection.isFocus(rowIndex, cellIndex) && !isEditing()) {
+            cell.current?.focus();
+        }
+    });
 
     const oldText = csv[rowIndex]?.[cellIndex];
     if (text !== oldText) {
@@ -32,15 +37,6 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     if (isEditing() && !thisCellEdit) {
         setThisCellEdit(true);
         edit();
-    }
-
-    if (tableSelection.isFocus(rowIndex, cellIndex)) {
-        if (!thisCellFocus) {
-            cell.current?.focus();
-            setThisCellFocus(true);
-        }
-    } else if (thisCellFocus) {
-        setThisCellFocus(false);
     }
 
     function isMouseDown() {
