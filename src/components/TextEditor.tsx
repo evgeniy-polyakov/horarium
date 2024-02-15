@@ -16,7 +16,7 @@ export function TextEditor({file}: {
                       setValue(e.target.value);
                   }}
                   onScroll={e => {
-                      // todo
+                      // todo track scroll
                   }}/>
     );
 }
