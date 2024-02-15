@@ -99,18 +99,26 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (e.button !== 0) {
             select({action: "setFocus", rowIndex, cellIndex});
         } else if (e.shiftKey) {
+            let focusRow = tableSelection.focusRow;
+            let focusCell = tableSelection.focusCell;
             const hasFocus = tableSelection.hasFocus();
             if (!hasFocus) {
+                focusRow = rowIndex;
+                focusCell = cellIndex;
                 select({action: "setFocus", rowIndex, cellIndex});
             }
-            select({
-                action: "selectRange",
-                range: [
-                    hasFocus ? tableSelection.focusRow : rowIndex,
-                    hasFocus ? tableSelection.focusCell : cellIndex,
-                    rowIndex, cellIndex],
-                clear: !e.ctrlKey, replace: true,
-            });
+            if (e.ctrlKey && !tableSelection.contains(focusRow, focusCell)) {
+                select({
+                    action: "excludeRange",
+                    range: [focusRow, focusCell, rowIndex, cellIndex],
+                });
+            } else {
+                select({
+                    action: "selectRange",
+                    range: [focusRow, focusCell, rowIndex, cellIndex],
+                    clear: !e.ctrlKey, replace: true,
+                });
+            }
         } else {
             select({action: "setFocus", rowIndex, cellIndex});
             if (e.ctrlKey && tableSelection.contains(rowIndex, cellIndex)) {
