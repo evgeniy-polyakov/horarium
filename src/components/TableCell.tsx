@@ -118,11 +118,14 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                     action: "excludeRange",
                     range: [rowIndex, cellIndex],
                 });
-            } else {
+            } else if (e.ctrlKey) {
                 select({
                     action: "selectRange",
                     range: [rowIndex, cellIndex],
-                    clear: !e.ctrlKey,
+                })
+            } else {
+                select({
+                    action: "clearSelection",
                 });
             }
         }
