@@ -157,49 +157,49 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     }
 
     function onKeyDown(e: KeyboardEvent) {
-        if (tableSelection.isFocus(rowIndex, cellIndex)) {
-            const key = e.key;
-            const maxRow = csv.length - 1;
-            const maxCell = csv[rowIndex].length - 1;
-            const rowOffset = {
-                ArrowUp: -1, ArrowDown: 1,
-                Tab: e.shiftKey ? (cellIndex === 0 ? -1 : 0) : (cellIndex === maxCell ? 1 : 0)
-            }[key] ?? 0;
-            const cellOffset = {
-                ArrowLeft: -1, ArrowRight: 1,
-                Tab: e.shiftKey ? (cellIndex === 0 ? maxCell : -1) : (cellIndex === maxCell ? -maxCell : 1)
-            }[key] ?? 0;
-            if (rowOffset !== 0 || cellOffset !== 0) {
-                e.preventDefault();
-                const t = new Date().getTime();
-                if (navKeyDown[key] === undefined || t - navKeyDown[key] > 50) {
-                    setNavKeyDown({...navKeyDown, [key]: t});
-                    const r = rowIndex + rowOffset;
-                    const c = cellIndex + cellOffset;
-                    if (r >= 0 && r <= maxRow && c >= 0 && c <= maxCell) {
+        const focusRow = tableSelection.focusRow;
+        const focusCell = tableSelection.focusCell;
+        const key = e.key;
+        const maxRow = csv.length - 1;
+        const maxCell = csv[focusRow].length - 1;
+        const rowOffset = {
+            ArrowUp: -1, ArrowDown: 1,
+            Tab: e.shiftKey ? (focusCell === 0 ? -1 : 0) : (focusCell === maxCell ? 1 : 0)
+        }[key] ?? 0;
+        const cellOffset = {
+            ArrowLeft: -1, ArrowRight: 1,
+            Tab: e.shiftKey ? (focusCell === 0 ? maxCell : -1) : (focusCell === maxCell ? -maxCell : 1)
+        }[key] ?? 0;
+        if (rowOffset !== 0 || cellOffset !== 0) {
+            e.preventDefault();
+            const t = new Date().getTime();
+            if (navKeyDown[key] === undefined || t - navKeyDown[key] > 50) {
+                setNavKeyDown({...navKeyDown, [key]: t});
+                const nextRow = focusRow + rowOffset;
+                const nextCell = focusCell + cellOffset;
+                if (nextRow >= 0 && nextRow <= maxRow && nextCell >= 0 && nextCell <= maxCell) {
+                    select({
+                        action: "setFocus",
+                        rowIndex: nextRow,
+                        cellIndex: nextCell,
+                    });
+                    if (key === "Tab") return;
+                    if (e.shiftKey) {
                         select({
-                            action: "setFocus",
-                            rowIndex: r,
-                            cellIndex: c,
+                            action: tableSelection.contains(focusRow, focusCell) ? "expandRange" : "selectRange",
+                            range: [focusRow, focusCell, nextRow, nextCell],
+                            clear: !e.ctrlKey,
                         });
-                        if (key === "Tab") return;
-                        if (e.shiftKey) {
-                            select({
-                                action: tableSelection.contains(rowIndex, cellIndex) ? "expandRange" : "selectRange",
-                                range: [rowIndex, cellIndex, r, c],
-                                clear: !e.ctrlKey,
-                            });
-                        } else if (e.ctrlKey && (tableSelection.contains(rowIndex, cellIndex) && tableSelection.contains(r, c))) {
-                            select({
-                                action: "excludeRange",
-                                range: [rowIndex, cellIndex],
-                            });
-                        } else if (e.ctrlKey) {
-                            select({
-                                action: "selectRange",
-                                range: [rowIndex, cellIndex, r, c],
-                            });
-                        }
+                    } else if (e.ctrlKey && (tableSelection.contains(focusRow, focusCell) && tableSelection.contains(nextRow, nextCell))) {
+                        select({
+                            action: "excludeRange",
+                            range: [focusRow, focusCell],
+                        });
+                    } else if (e.ctrlKey) {
+                        select({
+                            action: "selectRange",
+                            range: [focusRow, focusCell, nextRow, nextCell],
+                        });
                     }
                 }
             }
