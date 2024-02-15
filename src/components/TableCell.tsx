@@ -20,6 +20,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     const [text, setText] = useState("");
     const [thisCellEdit, setThisCellEdit] = useState(false);
     const [thisCellFocus, setThisCellFocus] = useState(false);
+    const [textArea, setTextArea] = useState<HTMLTextAreaElement>();
     const cell = useRef<HTMLTableCellElement>(null);
     const tableSelection = selection.file.tableSelection;
 
@@ -80,6 +81,16 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                 textarea.style.height = `${getMinHeight()}px`;
             }
         });
+        setTextArea(textarea);
+    }
+
+    function confirmEdit() {
+        cell.current?.focus();
+    }
+
+    function cancelEdit() {
+        if (textArea) textArea.value = text;
+        cell.current?.focus();
     }
 
     function onMouseDown(e: MouseEvent) {
@@ -157,9 +168,28 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     }
 
     function onKeyDown(e: KeyboardEvent) {
+        if (!tableSelection.hasFocus()) {
+            return;
+        }
         const focusRow = tableSelection.focusRow;
         const focusCell = tableSelection.focusCell;
         const key = e.key;
+        const editing = cellEdit[0] >= 0 && cellEdit[1] >= 0;
+        if (key === "Escape" && editing) {
+            e.preventDefault();
+            cancelEdit();
+            return;
+        } else if (key === "Enter" && !e.ctrlKey && !e.shiftKey) {
+            e.preventDefault();
+            if (editing) {
+                confirmEdit();
+            } else {
+                setCellEdit([focusRow, focusCell]);
+            }
+            return;
+        } else if (editing) {
+            return;
+        }
         const maxRow = csv.length - 1;
         const maxCell = csv[focusRow].length - 1;
         const rowOffset = {
