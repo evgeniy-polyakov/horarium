@@ -171,7 +171,20 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
                     const r = rowIndex + rowOffset;
                     const c = cellIndex + cellOffset;
                     if (r >= 0 && r <= maxRow && c >= 0 && c <= maxCell) {
-                        select({action: "setFocus", rowIndex: r, cellIndex: c});
+                        select({
+                            action: "setFocus",
+                            rowIndex: r,
+                            cellIndex: c
+                        });
+                        if (key !== "Tab") {
+                            if (e.shiftKey) {
+                                select({
+                                    action: "expandRange",
+                                    range: [r, c],
+                                    clear: !e.ctrlKey
+                                });
+                            }
+                        }
                     }
                 }
             }

@@ -25,6 +25,11 @@ class SelectionRange {
         return this.inRange(rowIndex, cellIndex);
     }
 
+    expand(endRow: number, endCell: number) {
+        this.endRow = endRow;
+        this.endCell = endCell;
+    }
+
     exclude(range: SelectionRange): void;
     exclude(rowIndex: number, cellIndex: number): void;
     exclude(minRow: number, minCell: number, maxRow: number, maxCell: number): void;
@@ -213,6 +218,16 @@ export class TableSelection implements ITableSelection {
         }
     }
 
+    expandRange(endRow: number, endCell: number, clear?: boolean) {
+        let range = this.ranges.pop() ?? new SelectionRange(endRow, endCell, endRow, endCell);
+        range.expand(endRow, endCell);
+        if (clear) {
+            this.clearSelection();
+        }
+        this.ranges.push(range);
+        this.combineRanges(range);
+    }
+
     removeRange(startRow: number, startCell: number) {
         this.ranges = this.ranges.filter(it => !it.isStart(startRow, startCell));
     }
@@ -390,6 +405,10 @@ export type TableSelectionReducer = [
         draft?: boolean,
         replace?: boolean,
     } | {
+        action: "expandRange",
+        range: Cell,
+        clear?: boolean,
+    } | {
         action: "excludeRange",
         range: Cell | Range,
         draft?: boolean,
@@ -433,6 +452,9 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             } else {
                 tableSelection.selectRange(...action.range as Cell, ...action.range as Cell, action.draft);
             }
+            break;
+        case "expandRange":
+            tableSelection.expandRange(...action.range, action.clear);
             break;
         case "excludeRange":
             if (action.range.length > 2) {
