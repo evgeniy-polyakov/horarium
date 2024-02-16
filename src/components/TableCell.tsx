@@ -5,8 +5,9 @@ import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 import {Key} from "@/models/Key";
+import {KeyDownRepeater} from "@/models/KeyDownRepeater";
 
-export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyDownState: [navKeyDown, setNavKeyDown]}: {
+export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyRepeater}: {
     csv: CSV,
     rowIndex: number,
     cellIndex: number,
@@ -15,7 +16,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     onMenu?: (e: MouseEvent) => void,
     cellEditState: State<Cell>,
     mouseDownState: State<[...Cell, boolean?]>,
-    navKeyDownState: State<Record<string, number>>,
+    navKeyRepeater: KeyDownRepeater,
 }) {
 
     const [text, setText] = useState("");
@@ -214,9 +215,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         }[key] ?? 0;
         if (rowOffset !== 0 || cellOffset !== 0) {
             e.preventDefault();
-            const t = new Date().getTime();
-            if (navKeyDown[key] === undefined || t - navKeyDown[key] > 50) {
-                setNavKeyDown({...navKeyDown, [key]: t});
+            if (navKeyRepeater.onKeyDown(key)) {
                 const nextRow = focusRow + rowOffset;
                 const nextCell = focusCell + cellOffset;
                 if (nextRow >= 0 && nextRow <= maxRow && nextCell >= 0 && nextCell <= maxCell) {
@@ -249,11 +248,7 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     }
 
     function onKeyUp(e: KeyboardEvent) {
-        if (tableSelection.isFocus(rowIndex, cellIndex)) {
-            const key = e.key;
-            delete navKeyDown[key];
-            setNavKeyDown({...navKeyDown});
-        }
+        navKeyRepeater.onKeyUp(e.key);
     }
 
     return (

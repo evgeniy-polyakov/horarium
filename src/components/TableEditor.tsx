@@ -10,6 +10,7 @@ import {IMenu, Menu} from "@/components/Menu";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 import {TableCellMenuBuilder} from "@/components/TableCellMenuBuilder";
+import {useKeyDownRepeater} from "@/models/KeyDownRepeater";
 
 export function TableEditor({file}: {
     file: FileModel
@@ -20,7 +21,7 @@ export function TableEditor({file}: {
     const mouseDownState = useState<[...Cell, boolean?]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
     const cellEditState = useState<Cell>([-1, -1]);
-    const navKeyDownState = useState<Record<string, number>>({});
+    const navKeyRepeater = useKeyDownRepeater();
     const selectionReducer = useReducer(tableSelectionReducer, {file});
     const [selection, select] = selectionReducer;
     const [contextMenu, setContextMenu] = useState<IMenu>();
@@ -107,7 +108,7 @@ export function TableEditor({file}: {
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex} selectionReducer={selectionReducer}
-                                           mouseDownState={mouseDownState} cellEditState={cellEditState} navKeyDownState={navKeyDownState}
+                                           mouseDownState={mouseDownState} cellEditState={cellEditState} navKeyRepeater={navKeyRepeater}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }
