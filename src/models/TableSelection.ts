@@ -348,7 +348,7 @@ export class TableSelection implements ITableSelection {
         }
         for (let i = 0; i < selectionCsv.length; i++) {
             selectionCsv[i] ??= [];
-            for (let j = 0; j < maxCell; j++) {
+            for (let j = 0; j <= maxCell - startCell; j++) {
                 selectionCsv[i][j] ??= "";
             }
         }
@@ -356,19 +356,21 @@ export class TableSelection implements ITableSelection {
     }
 
     pasteCells(csv: CSV, value: CSV, rowIndex: number, cellIndex: number) {
-        const startRows = csv.length;
-        const startCells = csv[0].length;
+        let maxCell = -1;
         for (let i = 0; i < value.length; i++) {
             csv[i + rowIndex] ??= [];
             for (let j = 0; j < value[i].length; j++) {
                 if (value[i][j] !== "" && value[i][j] !== undefined) {
                     csv[i + rowIndex][j + cellIndex] = value[i][j];
+                    if (maxCell < j) {
+                        maxCell = j;
+                    }
                 }
             }
         }
-        for (let i = 0; i < rowIndex + value.length; i++) {
+        for (let i = 0; i < csv.length; i++) {
             csv[i] ??= [];
-            for (let j = 0; j < cellIndex + value[0]?.length; j++) {
+            for (let j = 0; j <= cellIndex + maxCell; j++) {
                 csv[i][j] ??= "";
             }
         }
