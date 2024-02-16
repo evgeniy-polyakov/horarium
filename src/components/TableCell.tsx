@@ -6,9 +6,10 @@ import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 import {Key} from "@/models/Key";
 import {KeyDownRepeater} from "@/models/KeyDownRepeater";
+import {ClearCellsAction, CopyCellsAction, CutCellsAction, PasteCellsAction} from "@/components/TableActions";
 
-export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyRepeater}: {
-    csv: CSV,
+export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyRepeater}: {
+    csvState: State<CSV>,
     rowIndex: number,
     cellIndex: number,
     selectionReducer: TableSelectionReducer,
@@ -19,6 +20,8 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
     navKeyRepeater: KeyDownRepeater,
 }) {
 
+    const [csv] = csvState;
+    const [selection, select] = selectionReducer;
     const [text, setText] = useState("");
     const [thisCellEdit, setThisCellEdit] = useState(false);
     const [textArea, setTextArea] = useState<HTMLTextAreaElement>();
@@ -187,11 +190,9 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         if (key === Key.Escape && editing) {
             e.preventDefault();
             cancelEdit();
-            return;
         } else if (key === Key.F2 && !editing) {
             e.preventDefault();
             setCellEdit([focusRow, focusCell]);
-            return;
         } else if (key === Key.Enter && !e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             if (editing) {
@@ -199,10 +200,32 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
             } else {
                 setCellEdit([focusRow, focusCell]);
             }
-            return;
         } else if (editing) {
-            return;
+            // no action in edit mode
+        } else if (key === Key.Delete) {
+            e.preventDefault();
+            new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+        } else if (key === Key.Escape && !tableSelection.isEmpty()) {
+            e.preventDefault();
+            select({action: "clearSelection"});
+        } else if (key === Key.c && e.ctrlKey) {
+            e.preventDefault();
+            new CopyCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+        } else if (key === Key.x && e.ctrlKey) {
+            e.preventDefault();
+            new CutCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+        } else if (key === Key.v && e.ctrlKey) {
+            e.preventDefault();
+            new PasteCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+        } else {
+            onKeyNav(e);
         }
+    }
+
+    function onKeyNav(e: KeyboardEvent) {
+        const focusRow = tableSelection.focusRow;
+        const focusCell = tableSelection.focusCell;
+        const key = e.key;
         const maxRow = csv.length - 1;
         const maxCell = csv[focusRow].length - 1;
         const rowOffset = {

@@ -107,7 +107,7 @@ export function TableEditor({file}: {
                                         onMenu={event => onCellMenu(event, rowIndex, -1)}/>
                         {
                             row.map((cell, cellIndex) =>
-                                <TableCell key={cellIndex} csv={csv} rowIndex={rowIndex} cellIndex={cellIndex} selectionReducer={selectionReducer}
+                                <TableCell key={cellIndex} csvState={csvState} rowIndex={rowIndex} cellIndex={cellIndex} selectionReducer={selectionReducer}
                                            mouseDownState={mouseDownState} cellEditState={cellEditState} navKeyRepeater={navKeyRepeater}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)

@@ -156,6 +156,7 @@ export interface ITableSelection extends Iterable<Cell> {
     hasFocus(): boolean;
     readonly focusRow: number;
     readonly focusCell: number;
+    isEmpty(): boolean;
     copyCells(csv: CSV): CSV;
     pasteCells(csv: CSV, value: CSV, rowIndex: number, cellIndex: number): void;
     clearCells(csv: CSV, value?: string): void;
@@ -206,6 +207,10 @@ export class TableSelection implements ITableSelection {
         this.draftIncluded = undefined;
         this.draftExcluded = undefined;
         this.draftInserted = undefined;
+    }
+
+    isEmpty() {
+        return this.ranges.every(it => it.isEmpty());
     }
 
     selectRange(startRow: number, startCell: number, endRow: number, endCell: number, draft?: boolean) {
