@@ -113,6 +113,10 @@ nav.menu {
           display: block;
         }
       }
+
+      &.expanded:before {
+        background: none;
+      }
     }
   }
 
