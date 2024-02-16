@@ -106,6 +106,7 @@ export class InsertRowAction implements IMenuItem {
     readonly name = `Insert Row ${this.above ? "Above" : "Below"}`;
     readonly icon = faArrowRightToBracket;
     readonly className = `rotate${this.above ? "-90" : "90"}`;
+    readonly keys = `${this.above ? "Ctrl + " : ""}Insert`;
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -130,6 +131,7 @@ export class InsertColumnAction implements IMenuItem {
     readonly name = `Insert Column ${this.before ? "Before" : "After"}`;
     readonly icon = faArrowRightToBracket;
     readonly className = `rotate${this.before ? "180" : "0"}`;
+    readonly keys = `${this.before ? "Ctrl + " : ""}Shift + Insert`;
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -154,6 +156,7 @@ export class CloneRowAction implements IMenuItem {
 
     readonly name = `Clone Row`;
     readonly icon = faClone;
+    readonly keys = "Ctrl + D";
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -176,6 +179,7 @@ export class CloneColumnAction implements IMenuItem {
 
     readonly name = `Clone Column`;
     readonly icon = faClone;
+    readonly keys = "Ctrl + Shift + D";
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -253,6 +257,7 @@ export class DeleteRowAction implements IMenuItem {
 
     readonly name = "Delete Row";
     readonly icon = faTrashCan;
+    readonly keys = "Ctrl + Delete";
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -278,6 +283,7 @@ export class DeleteColumnAction implements IMenuItem {
 
     readonly name = "Delete Column";
     readonly icon = faTrashCan;
+    readonly keys = "Ctrl + Shift + Delete";
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
