@@ -45,7 +45,7 @@ export function TableEditor({file}: {
 
     useEffect(() => {
         stringifyCSV(csv).then(text => file.textContent = text);
-    }, [csv]);
+    }, [csv, file]);
 
     if (selectionReducer[0].file !== file) {
         setMouseDown([-1, -1]);
