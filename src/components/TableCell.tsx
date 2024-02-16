@@ -230,41 +230,46 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         const maxCell = csv[focusRow].length - 1;
         const rowOffset = {
             [Key.ArrowUp]: -1, [Key.ArrowDown]: 1,
-            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? -1 : 0) : (focusCell === maxCell ? 1 : 0)
-        }[key] ?? 0;
+            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? -1 : 0) : (focusCell === maxCell ? 1 : 0),
+            [Key.Home]: e.ctrlKey ? -focusRow : 0,
+            [Key.End]: e.ctrlKey ? maxRow - focusRow : 0,
+        }[key];
         const cellOffset = {
             [Key.ArrowLeft]: -1, [Key.ArrowRight]: 1,
-            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? maxCell : -1) : (focusCell === maxCell ? -maxCell : 1)
-        }[key] ?? 0;
-        if (rowOffset !== 0 || cellOffset !== 0) {
+            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? maxCell : -1) : (focusCell === maxCell ? -maxCell : 1),
+            [Key.Home]: -focusCell,
+            [Key.End]: maxCell - focusCell,
+        }[key];
+        const arrowKeys: string[] = [Key.ArrowUp, Key.ArrowDown, Key.ArrowLeft, Key.ArrowRight];
+        if (rowOffset !== undefined || cellOffset !== undefined) {
             e.preventDefault();
-            if (navKeyRepeater.onKeyDown(key)) {
-                const nextRow = focusRow + rowOffset;
-                const nextCell = focusCell + cellOffset;
-                if (nextRow >= 0 && nextRow <= maxRow && nextCell >= 0 && nextCell <= maxCell) {
+        }
+        if ((rowOffset !== 0 || cellOffset !== 0) && navKeyRepeater.onKeyDown(key)) {
+            const nextRow = focusRow + (rowOffset ?? 0);
+            const nextCell = focusCell + (cellOffset ?? 0);
+            if (nextRow >= 0 && nextRow <= maxRow && nextCell >= 0 && nextCell <= maxCell) {
+                select({
+                    action: "setFocus",
+                    rowIndex: nextRow,
+                    cellIndex: nextCell,
+                });
+                if (arrowKeys.indexOf(key) < 0) return;
+                if (e.shiftKey) {
                     select({
-                        action: "setFocus",
-                        rowIndex: nextRow,
-                        cellIndex: nextCell,
+                        action: tableSelection.contains(focusRow, focusCell) ? "expandRange" : "selectRange",
+                        range: [focusRow, focusCell, nextRow, nextCell],
+                        clear: !e.ctrlKey,
                     });
-                    if (key === "Tab") return;
-                    if (e.shiftKey) {
-                        select({
-                            action: tableSelection.contains(focusRow, focusCell) ? "expandRange" : "selectRange",
-                            range: [focusRow, focusCell, nextRow, nextCell],
-                            clear: !e.ctrlKey,
-                        });
-                    } else if (e.ctrlKey && (tableSelection.contains(focusRow, focusCell) && tableSelection.contains(nextRow, nextCell))) {
-                        select({
-                            action: "excludeRange",
-                            range: [focusRow, focusCell],
-                        });
-                    } else if (e.ctrlKey) {
-                        select({
-                            action: "selectRange",
-                            range: [focusRow, focusCell, nextRow, nextCell],
-                        });
-                    }
+                } else if (e.ctrlKey && (tableSelection.contains(focusRow, focusCell) && tableSelection.contains(nextRow, nextCell))) {
+                    select({
+                        action: "excludeRange",
+                        range: [focusRow, focusCell],
+                    });
+                } else if (e.ctrlKey) {
+                    select({
+                        action: "selectRange",
+                        range: [focusRow, focusCell, nextRow, nextCell],
+                    });
                 }
             }
         }

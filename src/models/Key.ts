@@ -15,6 +15,8 @@ export enum Key {
     Enter = "Enter",
     Tab = "Tab",
     Delete = "Delete",
+    Home = "Home",
+    End = "End",
     ArrowUp = "ArrowUp",
     ArrowDown = "ArrowDown",
     ArrowLeft = "ArrowLeft",
