@@ -202,12 +202,12 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
             }
         } else if (editing) {
             // no action in edit mode
-        } else if (key === Key.Delete) {
-            e.preventDefault();
-            new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
         } else if (key === Key.Escape && !tableSelection.isEmpty()) {
             e.preventDefault();
             select({action: "clearSelection"});
+        } else if (key === Key.Delete) {
+            e.preventDefault();
+            new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
         } else if (key === Key.c && e.ctrlKey) {
             e.preventDefault();
             new CopyCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
