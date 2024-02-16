@@ -5,6 +5,13 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.5.0
+
+* Table keyboard navigation: Arrow Keys, Home, End, Tab, Shift + Tab
+* Table keyboard selection: Ctrl + Arrow Keys, Shift + Arrow Keys
+* Context menu keyboard navigation: Arrow Keys, Home, End
+* Keyboard editing actions: Enter, Escape, Delete, Ctrl + X, Ctrl + C, Ctrl + V 
+
 ### 0.4.0
 
 * Separate cell focus and selection
