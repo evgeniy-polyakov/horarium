@@ -68,13 +68,12 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         }
     });
 
-    function onKeyDown(e: KeyboardEvent) {
+    function onKeyDown(e: KeyboardEvent, item?: IMenuItem) {
         const key = e.key;
         if (key === Key.Escape) {
             e.preventDefault();
             remove?.();
-        }
-        if (key === Key.ArrowDown || key === Key.ArrowUp) {
+        } else if (key === Key.ArrowDown || key === Key.ArrowUp) {
             e.preventDefault();
             if (navKeyRepeater.onKeyDown(key)) {
                 const li = nav.current?.querySelector('li:focus');
@@ -92,8 +91,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                     list?.item(index)?.focus();
                 }
             }
-        }
-        if (key === Key.ArrowRight) {
+        } else if (key === Key.ArrowRight || (key === Key.Enter && item?.items?.length)) {
             e.preventDefault();
             if (navKeyRepeater.onKeyDown(key)) {
                 const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('li:focus > ul > li[tabindex]');
@@ -103,14 +101,16 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                     li.focus();
                 }
             }
-        }
-        if (key === Key.ArrowLeft) {
+        } else if (key === Key.ArrowLeft) {
             e.preventDefault();
             if (navKeyRepeater.onKeyDown(key)) {
                 const li = nav.current?.querySelector('li:focus')?.parentElement?.closest('li');
                 li?.classList.remove('expanded');
                 li?.focus();
             }
+        } else if (key === Key.Enter && item) {
+            e.preventDefault();
+            onSelect(item);
         }
     }
 
@@ -123,6 +123,11 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         nav.current?.querySelectorAll('li.expanded').forEach(li => li.classList.remove('expanded'));
     }
 
+    function onSelect(item: IMenuItem) {
+        remove?.();
+        item.select?.();
+    }
+
     function renderItems(items: IMenuItem[], root?: boolean) {
         return (<ul className={classList({"root-menu": root})}>
             {items.map((item, i) => item.separator ? (
@@ -130,11 +135,8 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             ) : (
                 <li key={i} tabIndex={item.disabled ? -1 : i}
                     className={classList(item.className, {disabled: item.disabled})}
-                    onClick={e => {
-                        remove?.();
-                        item.select?.();
-                    }}
-                    onKeyDown={onKeyDown} onKeyUp={onKeyUp}
+                    onClick={e => onSelect(item)}
+                    onKeyDown={e => onKeyDown(e, item)} onKeyUp={onKeyUp}
                     onMouseOver={onMouseOver}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
