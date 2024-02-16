@@ -73,6 +73,15 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         if (key === Key.Escape) {
             e.preventDefault();
             remove?.();
+        } else if (key === Key.Home || key === Key.End) {
+            e.preventDefault();
+            const list = [...(
+                nav.current?.querySelector('li:focus')?.parentElement?.children ??
+                nav.current?.querySelectorAll('.root-menu > li') ?? [])
+            ].filter(li => (li as HTMLElement).tabIndex >= 0);
+            if (list.length > 0) {
+                (list[key === Key.Home ? 0 : list.length - 1] as HTMLElement).focus();
+            }
         } else if (key === Key.ArrowDown || key === Key.ArrowUp) {
             e.preventDefault();
             if (navKeyRepeater.onKeyDown(key)) {
