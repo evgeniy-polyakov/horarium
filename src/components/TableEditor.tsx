@@ -43,6 +43,10 @@ export function TableEditor({file}: {
         }
     });
 
+    useEffect(() => {
+        stringifyCSV(csv).then(text => file.textContent = text);
+    }, [csv]);
+
     if (selectionReducer[0].file !== file) {
         setMouseDown([-1, -1]);
         selectionReducer[1]({file: file, action: "update"});
@@ -53,18 +57,13 @@ export function TableEditor({file}: {
         parseCSV(file.textContent).then(records => setCSV(records));
     }
 
-    async function storeCSV(csv: CSV) {
-        setCSV(csv);
-        file.textContent = await stringifyCSV(csv);
-    }
-
     function onMouseUp() {
         setMouseDown([-1, -1]);
     }
 
     async function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
         csv[rowIndex][cellIndex] = value;
-        file.textContent = await stringifyCSV(csv);
+        setCSV([...csv]);
     }
 
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {
