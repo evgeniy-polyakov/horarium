@@ -1,8 +1,10 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretRight} from '@fortawesome/free-solid-svg-icons'
-import {useEffect, useRef} from "react";
+import {KeyboardEvent, useEffect, useRef} from "react";
 import {classList} from "@/models/classList";
+import {Key} from "@/models/Key";
+import {useKeyDownRepeater} from "@/models/KeyDownRepeater";
 
 export interface IMenu {
     items: IMenuItem[],
@@ -16,6 +18,7 @@ export interface IMenu {
 export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu) {
 
     const nav = useRef<HTMLElement>(null);
+    const navKeyRepeater = useKeyDownRepeater();
 
     function onMouseDown(e: MouseEvent) {
         if (!nav.current?.contains(e.target as Node)) {
@@ -59,20 +62,56 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             });
             menu.style.left = `${isRight ? x - width : x}px`;
             menu.style.top = `${isBottom ? y - height : y}px`;
-            menu.classList.toggle('menu-right', isRightSubmenu);
-            menu.classList.toggle('menu-bottom', isBottomSubmenu);
+            menu.classList.toggle("menu-right", isRightSubmenu);
+            menu.classList.toggle("menu-bottom", isBottomSubmenu);
+            menu.focus();
         }
     });
 
-    function renderItems(items: IMenuItem[]) {
-        return (<ul>
+    function onKeyDown(e: KeyboardEvent) {
+        const key = e.key;
+        if (key === Key.Escape) {
+            e.preventDefault();
+            remove?.();
+        }
+        if (key === Key.ArrowDown || key === Key.ArrowUp) {
+            e.preventDefault();
+            if (navKeyRepeater.onKeyDown(key)) {
+                const li = nav.current?.querySelector('li:focus');
+                if (li) {
+                    const sibling = key === Key.ArrowDown ? "nextElementSibling" : "previousElementSibling";
+                    for (let next = li[sibling]; next; next = next[sibling]) {
+                        if ((next as HTMLElement).tabIndex >= 0) {
+                            (next as HTMLElement).focus();
+                            break;
+                        }
+                    }
+                } else {
+                    const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('.root-menu > li[tabindex]');
+                    const index = key === Key.ArrowDown ? 0 : (list?.length ?? 1) - 1;
+                    list?.item(index)?.focus();
+                }
+            }
+        }
+    }
+
+    function onKeyUp(e: KeyboardEvent) {
+        navKeyRepeater.onKeyUp(e.key);
+    }
+
+    function renderItems(items: IMenuItem[], root?: boolean) {
+        return (<ul className={classList({"root-menu": root})}>
             {items.map((item, i) => item.separator ? (
                 <li key={i} className="separator"></li>
             ) : (
-                <li key={i} onClick={() => {
-                    remove?.();
-                    item.select?.();
-                }} className={classList(item.className, {disabled: item.disabled})}>
+                <li key={i} tabIndex={i}
+                    className={classList(item.className, {disabled: item.disabled})}
+                    onClick={e => {
+                        remove?.();
+                        item.select?.();
+                    }}
+                    onKeyDown={onKeyDown} onKeyUp={onKeyUp}
+                    onMouseOver={() => nav.current?.focus()}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
                     {item.items && <span className="expand"><FontAwesomeIcon icon={faCaretRight}/></span>}
@@ -83,10 +122,11 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
     }
 
     return (
-        <nav className="menu" ref={nav}
+        <nav className="menu" ref={nav} tabIndex={0}
              style={{display: items.length > 0 ? "block" : "none"}}
-             onContextMenu={e => e.preventDefault()}>
-            {renderItems(items)}
+             onContextMenu={e => e.preventDefault()}
+             onKeyDown={onKeyDown} onKeyUp={onKeyUp}>
+            {renderItems(items, true)}
         </nav>
     );
 }
