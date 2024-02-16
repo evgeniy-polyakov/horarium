@@ -93,10 +93,34 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                 }
             }
         }
+        if (key === Key.ArrowRight) {
+            e.preventDefault();
+            if (navKeyRepeater.onKeyDown(key)) {
+                const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('li:focus > ul > li[tabindex]');
+                if (list?.length) {
+                    const li = list.item(0);
+                    li.parentElement?.closest('li')?.classList.add('expanded');
+                    li.focus();
+                }
+            }
+        }
+        if (key === Key.ArrowLeft) {
+            e.preventDefault();
+            if (navKeyRepeater.onKeyDown(key)) {
+                const li = nav.current?.querySelector('li:focus')?.parentElement?.closest('li');
+                li?.classList.remove('expanded');
+                li?.focus();
+            }
+        }
     }
 
     function onKeyUp(e: KeyboardEvent) {
         navKeyRepeater.onKeyUp(e.key);
+    }
+
+    function onMouseOver() {
+        nav.current?.focus();
+        nav.current?.querySelectorAll('li.expanded').forEach(li => li.classList.remove('expanded'));
     }
 
     function renderItems(items: IMenuItem[], root?: boolean) {
@@ -104,14 +128,14 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             {items.map((item, i) => item.separator ? (
                 <li key={i} className="separator"></li>
             ) : (
-                <li key={i} tabIndex={i}
+                <li key={i} tabIndex={item.disabled ? -1 : i}
                     className={classList(item.className, {disabled: item.disabled})}
                     onClick={e => {
                         remove?.();
                         item.select?.();
                     }}
                     onKeyDown={onKeyDown} onKeyUp={onKeyUp}
-                    onMouseOver={() => nav.current?.focus()}>
+                    onMouseOver={onMouseOver}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
                     {item.items && <span className="expand"><FontAwesomeIcon icon={faCaretRight}/></span>}
