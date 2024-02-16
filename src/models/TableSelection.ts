@@ -306,6 +306,7 @@ export class TableSelection implements ITableSelection {
 
     * [Symbol.iterator]() {
         const [minRow, minCell, maxRow, maxCell] = this.getBounds();
+        let yieldAny = false;
         if (minRow >= 0 && minCell >= 0) {
             const cell: Cell = [-1, -1];
             for (let rowIndex = minRow; rowIndex <= maxRow; rowIndex++) {
@@ -313,10 +314,14 @@ export class TableSelection implements ITableSelection {
                     if (this.contains(rowIndex, cellIndex)) {
                         cell[0] = rowIndex;
                         cell[1] = cellIndex;
+                        yieldAny = true;
                         yield cell;
                     }
                 }
             }
+        }
+        if (!yieldAny && this.hasFocus()) {
+            yield [this.focusRow, this.focusCell] as Cell;
         }
     }
 

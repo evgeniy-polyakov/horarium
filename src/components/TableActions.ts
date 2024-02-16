@@ -31,8 +31,9 @@ export abstract class SelectionMenuItem implements IMenuItem {
     }
 
     get disabled() {
-        const [selection] = this.selectionReducer;
-        return !selection.file.tableSelection.contains(this.rowIndex, this.cellIndex);
+        const tableSelection = this.selectionReducer[0].file.tableSelection;
+        return !tableSelection.contains(this.rowIndex, this.cellIndex) &&
+            !tableSelection.isFocus(this.rowIndex, this.cellIndex);
     }
 }
 
