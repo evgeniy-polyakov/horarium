@@ -4,6 +4,7 @@ import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
+import {Key} from "@/models/Key";
 
 export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionReducer: [selection, select], cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyDownState: [navKeyDown, setNavKeyDown]}: {
     csv: CSV,
@@ -182,15 +183,15 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         const focusCell = tableSelection.focusCell;
         const key = e.key;
         const editing = cellEdit[0] >= 0 && cellEdit[1] >= 0;
-        if (key === "Escape" && editing) {
+        if (key === Key.Escape && editing) {
             e.preventDefault();
             cancelEdit();
             return;
-        } else if (key === "F2" && !editing) {
+        } else if (key === Key.F2 && !editing) {
             e.preventDefault();
             setCellEdit([focusRow, focusCell]);
             return;
-        } else if (key === "Enter" && !e.ctrlKey && !e.shiftKey) {
+        } else if (key === Key.Enter && !e.ctrlKey && !e.shiftKey) {
             e.preventDefault();
             if (editing) {
                 confirmEdit();
@@ -204,12 +205,12 @@ export function TableCell({csv, rowIndex, cellIndex, onEdit, onMenu, selectionRe
         const maxRow = csv.length - 1;
         const maxCell = csv[focusRow].length - 1;
         const rowOffset = {
-            ArrowUp: -1, ArrowDown: 1,
-            Tab: e.shiftKey ? (focusCell === 0 ? -1 : 0) : (focusCell === maxCell ? 1 : 0)
+            [Key.ArrowUp]: -1, [Key.ArrowDown]: 1,
+            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? -1 : 0) : (focusCell === maxCell ? 1 : 0)
         }[key] ?? 0;
         const cellOffset = {
-            ArrowLeft: -1, ArrowRight: 1,
-            Tab: e.shiftKey ? (focusCell === 0 ? maxCell : -1) : (focusCell === maxCell ? -maxCell : 1)
+            [Key.ArrowLeft]: -1, [Key.ArrowRight]: 1,
+            [Key.Tab]: e.shiftKey ? (focusCell === 0 ? maxCell : -1) : (focusCell === maxCell ? -maxCell : 1)
         }[key] ?? 0;
         if (rowOffset !== 0 || cellOffset !== 0) {
             e.preventDefault();
