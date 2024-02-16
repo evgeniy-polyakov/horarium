@@ -82,21 +82,27 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             if (list.length > 0) {
                 (list[key === Key.Home ? 0 : list.length - 1] as HTMLElement).focus();
             }
-        } else if (key === Key.ArrowDown || key === Key.ArrowUp) {
+        } else if (key === Key.ArrowDown || key === Key.ArrowUp || key === Key.Tab) {
             e.preventDefault();
             if (navKeyRepeater.onKeyDown(key)) {
                 const li = nav.current?.querySelector('li:focus');
                 if (li) {
-                    const sibling = key === Key.ArrowDown ? "nextElementSibling" : "previousElementSibling";
+                    const sibling = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? "previousElementSibling" : "nextElementSibling";
+                    let elementFound = false;
                     for (let next = li[sibling]; next; next = next[sibling]) {
                         if ((next as HTMLElement).tabIndex >= 0) {
+                            elementFound = true;
                             (next as HTMLElement).focus();
                             break;
                         }
                     }
+                    if (!elementFound && key === Key.Tab) {
+                        const list = [...li.parentElement?.children ?? []].filter(it => (it as HTMLElement).tabIndex >= 0) as HTMLElement[];
+                        list[e.shiftKey ? list.length - 1 : 0]?.focus();
+                    }
                 } else {
                     const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('.root-menu > li[tabindex]');
-                    const index = key === Key.ArrowDown ? 0 : (list?.length ?? 1) - 1;
+                    const index = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? (list?.length ?? 1) - 1 : 0;
                     list?.item(index)?.focus();
                 }
             }
