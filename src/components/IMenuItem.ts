@@ -7,5 +7,6 @@ export interface IMenuItem {
     readonly disabled?: boolean;
     readonly separator?: boolean;
     readonly items?: IMenuItem[];
+    readonly keys?: string;
     select?(): void;
 }

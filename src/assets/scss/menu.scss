@@ -14,7 +14,7 @@ nav.menu {
 
     > li {
       position: relative;
-      padding: 8px 32px 8px 24px;
+      padding: 8px 24px 8px 24px;
       margin: 4px 0;
       white-space: nowrap;
       @include select(none);
@@ -32,6 +32,7 @@ nav.menu {
 
       > * {
         position: relative;
+        display: block;
       }
 
       &.disabled {
@@ -63,6 +64,12 @@ nav.menu {
         transform: rotate(180deg);
       }
 
+      .keys {
+        margin-left: auto;
+        padding-left: 64px;
+        color: var(--color-text-disabled);
+      }
+
       &.separator {
         pointer-events: none;
         padding-left: 0;
@@ -81,7 +88,6 @@ nav.menu {
         margin-left: auto;
         color: var(--color-text-disabled);
         width: 32px;
-        transform: translateX(12px);
 
         svg {
           display: block;

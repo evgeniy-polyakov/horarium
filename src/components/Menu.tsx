@@ -140,6 +140,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                     onMouseOver={onMouseOver}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
+                    <span className="keys">{item.keys}</span>
                     {item.items && <span className="expand"><FontAwesomeIcon icon={faCaretRight}/></span>}
                     {item.items && renderItems(item.items)}
                 </li>

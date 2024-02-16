@@ -11,6 +11,7 @@ export class EditCellAction implements IMenuItem {
 
     readonly name = "Edit";
     readonly icon = faPencil;
+    readonly keys = "F2, Enter";
 
     constructor(private readonly cellEditState: State<Cell>,
                 private readonly rowIndex: number,
@@ -41,6 +42,7 @@ export class ClearCellsAction extends SelectionMenuItem {
 
     readonly name = "Clear";
     readonly icon = faTrashCan;
+    readonly keys = "Delete";
 
     select() {
         const [csv, setCsv] = this.csvState;
@@ -54,6 +56,7 @@ export class CopyCellsAction extends SelectionMenuItem {
 
     readonly name: string = "Copy";
     readonly icon = faCopy;
+    readonly keys: string = "Ctrl + C";
 
     async select() {
         const [csv, setCsv] = this.csvState;
@@ -68,6 +71,7 @@ export class CutCellsAction extends CopyCellsAction {
 
     readonly name = "Cut";
     readonly icon = faCut;
+    readonly keys = "Ctrl + X";
 
     async select() {
         await super.select();
@@ -79,6 +83,7 @@ export class PasteCellsAction extends SelectionMenuItem {
 
     readonly name = "Paste";
     readonly icon = faPaste;
+    readonly keys = "Ctrl + V";
 
     async select() {
         const [selection] = this.selectionReducer;
