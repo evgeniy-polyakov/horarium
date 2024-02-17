@@ -5,6 +5,12 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.5.1
+
+* Clone, Insert and Delete keyboard actions for rows and columns
+* Tab key in context menu navigation
+* Fixed focus cell on Insert and Delete columns and rows
+
 ### 0.5.0
 
 * Table keyboard navigation: Arrow Keys, Home, End, Tab, Shift + Tab
