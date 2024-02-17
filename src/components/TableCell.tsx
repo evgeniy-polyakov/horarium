@@ -234,7 +234,9 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         }
         if (action) {
             e.preventDefault();
-            action.select?.();
+            if (!action.disabled) {
+                action.select?.();
+            }
         } else {
             onKeyNav(e);
         }
