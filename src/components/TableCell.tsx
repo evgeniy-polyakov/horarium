@@ -3,7 +3,7 @@ import {TableSelectionReducer} from "@/models/TableSelection";
 import {classList} from "@/models/classList";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
-import {CSV} from "@/models/CSV";
+import {CSV, csvSize} from "@/models/CSV";
 import {Key} from "@/models/Key";
 import {KeyDownRepeater} from "@/models/KeyDownRepeater";
 import {ClearCellsAction, CloneColumnAction, CloneRowAction, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, InsertColumnAction, InsertRowAction, PasteCellsAction} from "@/components/TableActions";
@@ -165,7 +165,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
 
     function onMouseUp(e: MouseEvent) {
         if (isEditing()) return;
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
         setMouseDown([-1, -1]);
     }
 

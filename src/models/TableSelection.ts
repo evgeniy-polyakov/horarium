@@ -247,7 +247,7 @@ export class TableSelection implements ITableSelection {
         }
     }
 
-    commitDraft() {
+    commitDraft(totalRows: number, totalColumns: number) {
         if (this.draftIncluded) {
             this.ranges.push(this.draftIncluded);
             this.combineRanges(this.draftIncluded);
@@ -262,12 +262,18 @@ export class TableSelection implements ITableSelection {
             const [rowIndex, columnIndex, rows, columns] = this.draftInserted;
             let [focusRow, focusColumn] = this.focus;
             if (rowIndex >= 0) {
-                if (rows < 0 && focusRow >= rowIndex && focusRow < rowIndex - rows) focusRow = -1;
-                else if (focusRow >= rowIndex) focusRow += rows;
+                if (rows < 0 && focusRow >= rowIndex && focusRow < rowIndex - rows) {
+                    focusRow = Math.min(rowIndex, totalRows - 1);
+                } else if (focusRow >= rowIndex) {
+                    focusRow += rows;
+                }
             }
             if (columnIndex >= 0) {
-                if (columns < 0 && focusColumn >= columnIndex && focusColumn < columnIndex - columns) focusColumn = -1;
-                else if (focusColumn >= columnIndex) focusColumn += columns;
+                if (columns < 0 && focusColumn >= columnIndex && focusColumn < columnIndex - columns) {
+                    focusColumn = Math.min(columnIndex, totalColumns - 1);
+                } else if (focusColumn >= columnIndex) {
+                    focusColumn += columns;
+                }
             }
             this.focus[0] = focusRow;
             this.focus[1] = focusColumn;
@@ -426,6 +432,7 @@ export type TableSelectionReducer = [
         draft?: boolean,
     } | {
         action: "commitDraft",
+        size: Cell,
     } | {
         action: "insertRow",
         rowIndex: number,
@@ -480,7 +487,7 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
             }
             break;
         case "commitDraft":
-            tableSelection.commitDraft();
+            tableSelection.commitDraft(...action.size);
             break;
         case "insertRow":
             tableSelection.insertRow(action.rowIndex, action.rows);

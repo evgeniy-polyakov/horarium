@@ -5,7 +5,7 @@ import {TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
 import {parseCSV, stringifyCSV} from "@/models/CSVParser";
-import {CSV} from "@/models/CSV";
+import {CSV, csvSize} from "@/models/CSV";
 
 export class EditCellAction implements IMenuItem {
 
@@ -122,7 +122,7 @@ export class InsertRowAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: index});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 }
 
@@ -148,7 +148,7 @@ export class InsertColumnAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: index});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 }
 
@@ -171,7 +171,7 @@ export class CloneRowAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: index + 1});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 }
 
@@ -195,7 +195,7 @@ export class CloneColumnAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: index + 1});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 }
 
@@ -270,7 +270,7 @@ export class DeleteRowAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: this.rowIndex, rows: -1});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 
     get disabled() {
@@ -298,7 +298,7 @@ export class DeleteColumnAction implements IMenuItem {
         setCSV([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: this.columnIndex, columns: -1});
-        select({action: "commitDraft"});
+        select({action: "commitDraft", size: csvSize(csv)});
     }
 
     get disabled() {
