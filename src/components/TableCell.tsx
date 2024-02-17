@@ -9,7 +9,7 @@ import {KeyDownRepeater} from "@/models/KeyDownRepeater";
 import {ClearCellsAction, CloneColumnAction, CloneRowAction, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, InsertColumnAction, InsertRowAction, PasteCellsAction} from "@/components/TableActions";
 import {IMenuItem} from "@/components/IMenuItem";
 
-export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyRepeater}: {
+export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], keyDownRepeater}: {
     csvState: State<CSV>,
     rowIndex: number,
     cellIndex: number,
@@ -18,7 +18,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
     onMenu?: (e: MouseEvent) => void,
     cellEditState: State<Cell>,
     mouseDownState: State<[...Cell, boolean?]>,
-    navKeyRepeater: KeyDownRepeater,
+    keyDownRepeater: KeyDownRepeater,
 }) {
 
     const [csv] = csvState;
@@ -184,9 +184,14 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         if (!tableSelection.hasFocus()) {
             return;
         }
+        const key = e.key;
+        const isKeyDown = keyDownRepeater.isKeyDown(key);
+        if (!isKeyDown) {
+            e.preventDefault();
+            return;
+        }
         const focusRow = tableSelection.focusRow;
         const focusCell = tableSelection.focusCell;
-        const key = e.key;
         const editing = cellEdit[0] >= 0 && cellEdit[1] >= 0;
         let action: IMenuItem | undefined;
         if (key === Key.Escape && editing) {
@@ -258,7 +263,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         if (rowOffset !== undefined || cellOffset !== undefined) {
             e.preventDefault();
         }
-        if ((rowOffset !== 0 || cellOffset !== 0) && navKeyRepeater.onKeyDown(key)) {
+        if (rowOffset !== 0 || cellOffset !== 0) {
             const nextRow = focusRow + (rowOffset ?? 0);
             const nextCell = focusCell + (cellOffset ?? 0);
             if (nextRow >= 0 && nextRow <= maxRow && nextCell >= 0 && nextCell <= maxCell) {
@@ -289,10 +294,6 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         }
     }
 
-    function onKeyUp(e: KeyboardEvent) {
-        navKeyRepeater.onKeyUp(e.key);
-    }
-
     return (
         <td ref={cell} tabIndex={rowIndex * csv[0].length + cellIndex}
             className={classList({
@@ -301,7 +302,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
             })}
             onDoubleClick={onDoubleClick} onContextMenu={onContextMenu}
             onMouseDown={onMouseDown} onMouseUp={onMouseUp}
-            onMouseEnter={onMouseEnter} onKeyDown={onKeyDown} onKeyUp={onKeyUp}>
+            onMouseEnter={onMouseEnter} onKeyDown={onKeyDown}>
             <span>{text}</span>
         </td>
     );

@@ -18,7 +18,7 @@ export interface IMenu {
 export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu) {
 
     const nav = useRef<HTMLElement>(null);
-    const navKeyRepeater = useKeyDownRepeater();
+    const keyDownRepeater = useKeyDownRepeater();
 
     function onMouseDown(e: MouseEvent) {
         if (!nav.current?.contains(e.target as Node)) {
@@ -70,6 +70,10 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
 
     function onKeyDown(e: KeyboardEvent, item?: IMenuItem) {
         const key = e.key;
+        if (!keyDownRepeater.isKeyDown(key)) {
+            e.preventDefault();
+            return;
+        }
         if (key === Key.Escape) {
             e.preventDefault();
             remove?.();
@@ -84,53 +88,43 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
             }
         } else if (key === Key.ArrowDown || key === Key.ArrowUp || key === Key.Tab) {
             e.preventDefault();
-            if (navKeyRepeater.onKeyDown(key)) {
-                const li = nav.current?.querySelector('li:focus');
-                if (li) {
-                    const sibling = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? "previousElementSibling" : "nextElementSibling";
-                    let elementFound = false;
-                    for (let next = li[sibling]; next; next = next[sibling]) {
-                        if ((next as HTMLElement).tabIndex >= 0) {
-                            elementFound = true;
-                            (next as HTMLElement).focus();
-                            break;
-                        }
+            const li = nav.current?.querySelector('li:focus');
+            if (li) {
+                const sibling = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? "previousElementSibling" : "nextElementSibling";
+                let elementFound = false;
+                for (let next = li[sibling]; next; next = next[sibling]) {
+                    if ((next as HTMLElement).tabIndex >= 0) {
+                        elementFound = true;
+                        (next as HTMLElement).focus();
+                        break;
                     }
-                    if (!elementFound && key === Key.Tab) {
-                        const list = [...li.parentElement?.children ?? []].filter(it => (it as HTMLElement).tabIndex >= 0) as HTMLElement[];
-                        list[e.shiftKey ? list.length - 1 : 0]?.focus();
-                    }
-                } else {
-                    const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('.root-menu > li[tabindex]');
-                    const index = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? (list?.length ?? 1) - 1 : 0;
-                    list?.item(index)?.focus();
                 }
+                if (!elementFound && key === Key.Tab) {
+                    const list = [...li.parentElement?.children ?? []].filter(it => (it as HTMLElement).tabIndex >= 0) as HTMLElement[];
+                    list[e.shiftKey ? list.length - 1 : 0]?.focus();
+                }
+            } else {
+                const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('.root-menu > li[tabindex]');
+                const index = key === Key.ArrowUp || (e.shiftKey && key === Key.Tab) ? (list?.length ?? 1) - 1 : 0;
+                list?.item(index)?.focus();
             }
         } else if (key === Key.ArrowRight || (key === Key.Enter && item?.items?.length)) {
             e.preventDefault();
-            if (navKeyRepeater.onKeyDown(key)) {
-                const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('li:focus > ul > li[tabindex]');
-                if (list?.length) {
-                    const li = list.item(0);
-                    li.parentElement?.closest('li')?.classList.add('expanded');
-                    li.focus();
-                }
+            const list: NodeListOf<HTMLElement> | undefined = nav.current?.querySelectorAll('li:focus > ul > li[tabindex]');
+            if (list?.length) {
+                const li = list.item(0);
+                li.parentElement?.closest('li')?.classList.add('expanded');
+                li.focus();
             }
         } else if (key === Key.ArrowLeft) {
             e.preventDefault();
-            if (navKeyRepeater.onKeyDown(key)) {
-                const li = nav.current?.querySelector('li:focus')?.parentElement?.closest('li');
-                li?.classList.remove('expanded');
-                li?.focus();
-            }
+            const li = nav.current?.querySelector('li:focus')?.parentElement?.closest('li');
+            li?.classList.remove('expanded');
+            li?.focus();
         } else if (key === Key.Enter && item) {
             e.preventDefault();
             onSelect(item);
         }
-    }
-
-    function onKeyUp(e: KeyboardEvent) {
-        navKeyRepeater.onKeyUp(e.key);
     }
 
     function onMouseOver() {
@@ -151,7 +145,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
                 <li key={i} tabIndex={item.disabled ? -1 : i}
                     className={classList(item.className, {disabled: item.disabled})}
                     onClick={e => onSelect(item)}
-                    onKeyDown={e => onKeyDown(e, item)} onKeyUp={onKeyUp}
+                    onKeyDown={e => onKeyDown(e, item)}
                     onMouseOver={onMouseOver}>
                     <span className="icon">{item.icon && <FontAwesomeIcon icon={item.icon}/>}</span>
                     <span className="name">{item.name}</span>
@@ -167,7 +161,7 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         <nav className="menu" ref={nav} tabIndex={0}
              style={{display: items.length > 0 ? "block" : "none"}}
              onContextMenu={e => e.preventDefault()}
-             onKeyDown={onKeyDown} onKeyUp={onKeyUp}>
+             onKeyDown={onKeyDown}>
             {renderItems(items, true)}
         </nav>
     );

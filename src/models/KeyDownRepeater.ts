@@ -9,19 +9,19 @@ export class KeyDownRepeater {
 
     private keyDownTimestamp: Record<string, number> = {};
 
-    constructor(readonly interval = 50) {
+    constructor(readonly interval: number | Record<string, number> = 60) {
+        window.addEventListener("keyup", e => {
+            delete this.keyDownTimestamp[e.key];
+        });
     }
 
-    onKeyDown(key: string) {
+    isKeyDown(key: string) {
         const t = new Date().getTime();
-        if (this.keyDownTimestamp[key] === undefined || t - this.keyDownTimestamp[key] > this.interval) {
+        const interval = typeof this.interval === "number" ? this.interval : this.interval[key] ?? Number.POSITIVE_INFINITY;
+        if (this.keyDownTimestamp[key] === undefined || t - this.keyDownTimestamp[key] > interval) {
             this.keyDownTimestamp[key] = t;
             return true;
         }
         return false;
-    }
-
-    onKeyUp(key: string) {
-        delete this.keyDownTimestamp[key];
     }
 }
