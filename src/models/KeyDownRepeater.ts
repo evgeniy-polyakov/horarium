@@ -15,10 +15,10 @@ export class KeyDownRepeater {
         });
     }
 
-    isKeyDown(key: string) {
+    isKeyDown(key: string, once = false) {
         const t = new Date().getTime();
         const interval = typeof this.interval === "number" ? this.interval : this.interval[key] ?? Number.POSITIVE_INFINITY;
-        if (this.keyDownTimestamp[key] === undefined || t - this.keyDownTimestamp[key] > interval) {
+        if (this.keyDownTimestamp[key] === undefined || (!once && t - this.keyDownTimestamp[key] > interval)) {
             this.keyDownTimestamp[key] = t;
             return true;
         }

@@ -185,8 +185,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
             return;
         }
         const key = e.key;
-        const isKeyDown = keyDownRepeater.isKeyDown(key);
-        if (!isKeyDown) {
+        if (!keyDownRepeater.isKeyDown(key, key === Key.Enter)) {
             e.preventDefault();
             return;
         }
