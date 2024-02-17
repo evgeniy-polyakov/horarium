@@ -6,10 +6,10 @@ import {Cell} from "@/models/Cell";
 import {CSV, csvSize} from "@/models/CSV";
 import {Key} from "@/models/Key";
 import {KeyDownRepeater} from "@/models/KeyDownRepeater";
-import {ClearCellsAction, CloneColumnAction, CloneRowAction, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, InsertColumnAction, InsertRowAction, PasteCellsAction} from "@/components/TableActions";
 import {IMenuItem} from "@/components/IMenuItem";
+import {TableCellMenuBuilder} from "@/components/TableCellMenuBuilder";
 
-export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], keyDownRepeater}: {
+export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], keyDownRepeater, menuBuilder}: {
     csvState: State<CSV>,
     rowIndex: number,
     cellIndex: number,
@@ -19,6 +19,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
     cellEditState: State<Cell>,
     mouseDownState: State<[...Cell, boolean?]>,
     keyDownRepeater: KeyDownRepeater,
+    menuBuilder: TableCellMenuBuilder,
 }) {
 
     const [csv] = csvState;
@@ -211,26 +212,8 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         } else if (key === Key.Escape && !tableSelection.isEmpty()) {
             e.preventDefault();
             select({action: "clearSelection"});
-        } else if (key === Key.Delete && e.ctrlKey && e.shiftKey) {
-            action = new DeleteColumnAction(csvState, selectionReducer, focusCell);
-        } else if (key === Key.Delete && e.ctrlKey) {
-            action = new DeleteRowAction(csvState, selectionReducer, focusRow);
-        } else if (key === Key.Delete) {
-            action = new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell);
-        } else if (key === Key.c && e.ctrlKey) {
-            action = new CopyCellsAction(csvState, selectionReducer, focusRow, focusCell);
-        } else if (key === Key.x && e.ctrlKey) {
-            action = new CutCellsAction(csvState, selectionReducer, focusRow, focusCell);
-        } else if (key === Key.v && e.ctrlKey) {
-            action = new PasteCellsAction(csvState, selectionReducer, focusRow, focusCell);
-        } else if (key === Key.D && e.ctrlKey && e.shiftKey) {
-            action = new CloneColumnAction(csvState, selectionReducer, focusCell);
-        } else if (key === Key.d && e.ctrlKey) {
-            action = new CloneRowAction(csvState, selectionReducer, focusRow);
-        } else if (key === Key.Insert && e.shiftKey) {
-            action = new InsertColumnAction(csvState, selectionReducer, focusCell, e.ctrlKey);
-        } else if (key === Key.Insert) {
-            action = new InsertRowAction(csvState, selectionReducer, focusRow, e.ctrlKey);
+        } else {
+            action = menuBuilder.keyAction(e, focusRow, focusCell);
         }
         if (action) {
             e.preventDefault();

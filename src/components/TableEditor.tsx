@@ -80,7 +80,13 @@ export function TableEditor({file}: {
             y: event.clientY - (b.y ?? 0) + h,
             viewportWidth: b.width,
             viewportHeight: v,
-            remove: () => setContextMenu(undefined)
+            remove: () => setContextMenu(undefined),
+            keyAction: e => {
+                const tableSelection = selection.file.tableSelection;
+                if (tableSelection.hasFocus()) {
+                    return menuBuilder.keyAction(e, tableSelection.focusRow, tableSelection.focusCell);
+                }
+            }
         });
     }
 
@@ -107,7 +113,7 @@ export function TableEditor({file}: {
                         {
                             row.map((cell, cellIndex) =>
                                 <TableCell key={cellIndex} csvState={csvState} rowIndex={rowIndex} cellIndex={cellIndex} selectionReducer={selectionReducer}
-                                           mouseDownState={mouseDownState} cellEditState={cellEditState} keyDownRepeater={navKeyRepeater}
+                                           mouseDownState={mouseDownState} cellEditState={cellEditState} keyDownRepeater={navKeyRepeater} menuBuilder={menuBuilder}
                                            onEdit={value => onCellEdit(rowIndex, cellIndex, value)}
                                            onMenu={event => onCellMenu(event, rowIndex, cellIndex)}/>)
                         }

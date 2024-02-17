@@ -12,10 +12,11 @@ export interface IMenu {
     y: number,
     viewportWidth: number,
     viewportHeight: number,
-    remove?: () => void
+    remove?: () => void,
+    keyAction?: (e: KeyboardEvent) => IMenuItem | undefined,
 }
 
-export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu) {
+export function Menu({items, x, y, remove, viewportWidth, viewportHeight, keyAction}: IMenu) {
 
     const nav = useRef<HTMLElement>(null);
     const keyDownRepeater = useKeyDownRepeater();
@@ -124,6 +125,14 @@ export function Menu({items, x, y, remove, viewportWidth, viewportHeight}: IMenu
         } else if (key === Key.Enter && item) {
             e.preventDefault();
             onSelect(item);
+        } else if (keyAction) {
+            const action = keyAction(e);
+            if (action) {
+                e.preventDefault();
+                if (!action.disabled) {
+                    onSelect(action);
+                }
+            }
         }
     }
 
