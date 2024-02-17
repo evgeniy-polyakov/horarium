@@ -6,7 +6,8 @@ import {Cell} from "@/models/Cell";
 import {CSV} from "@/models/CSV";
 import {Key} from "@/models/Key";
 import {KeyDownRepeater} from "@/models/KeyDownRepeater";
-import {ClearCellsAction, CopyCellsAction, CutCellsAction, PasteCellsAction} from "@/components/TableActions";
+import {ClearCellsAction, CloneColumnAction, CloneRowAction, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, InsertColumnAction, InsertRowAction, PasteCellsAction} from "@/components/TableActions";
+import {IMenuItem} from "@/components/IMenuItem";
 
 export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, selectionReducer, cellEditState: [cellEdit, setCellEdit], mouseDownState: [mouseDown, setMouseDown], navKeyRepeater}: {
     csvState: State<CSV>,
@@ -187,6 +188,7 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         const focusCell = tableSelection.focusCell;
         const key = e.key;
         const editing = cellEdit[0] >= 0 && cellEdit[1] >= 0;
+        let action: IMenuItem | undefined;
         if (key === Key.Escape && editing) {
             e.preventDefault();
             cancelEdit();
@@ -205,18 +207,30 @@ export function TableCell({csvState, rowIndex, cellIndex, onEdit, onMenu, select
         } else if (key === Key.Escape && !tableSelection.isEmpty()) {
             e.preventDefault();
             select({action: "clearSelection"});
+        } else if (key === Key.Delete && e.ctrlKey && e.shiftKey) {
+            action = new DeleteColumnAction(csvState, selectionReducer, focusCell);
+        } else if (key === Key.Delete && e.ctrlKey) {
+            action = new DeleteRowAction(csvState, selectionReducer, focusRow);
         } else if (key === Key.Delete) {
-            e.preventDefault();
-            new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+            action = new ClearCellsAction(csvState, selectionReducer, focusRow, focusCell);
         } else if (key === Key.c && e.ctrlKey) {
-            e.preventDefault();
-            new CopyCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+            action = new CopyCellsAction(csvState, selectionReducer, focusRow, focusCell);
         } else if (key === Key.x && e.ctrlKey) {
-            e.preventDefault();
-            new CutCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+            action = new CutCellsAction(csvState, selectionReducer, focusRow, focusCell);
         } else if (key === Key.v && e.ctrlKey) {
+            action = new PasteCellsAction(csvState, selectionReducer, focusRow, focusCell);
+        } else if (key === Key.D && e.ctrlKey && e.shiftKey) {
+            action = new CloneColumnAction(csvState, selectionReducer, focusCell);
+        } else if (key === Key.d && e.ctrlKey) {
+            action = new CloneRowAction(csvState, selectionReducer, focusRow);
+        } else if (key === Key.Insert && e.shiftKey) {
+            action = new InsertColumnAction(csvState, selectionReducer, focusCell, e.ctrlKey);
+        } else if (key === Key.Insert) {
+            action = new InsertRowAction(csvState, selectionReducer, focusRow, e.ctrlKey);
+        }
+        if (action) {
             e.preventDefault();
-            new PasteCellsAction(csvState, selectionReducer, focusRow, focusCell).select();
+            action.select?.();
         } else {
             onKeyNav(e);
         }
