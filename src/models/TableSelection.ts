@@ -291,6 +291,18 @@ export class TableSelection implements ITableSelection {
         this.draftInserted = [-1, columnIndex, 0, columns ?? 1];
     }
 
+    moveRow(rowIndex: number, distance: number) {
+        if (this.focus[0] === rowIndex) {
+            this.focus[0] += distance;
+        }
+    }
+
+    moveColumn(columnIndex: number, distance: number) {
+        if (this.focus[1] === columnIndex) {
+            this.focus[1] += distance;
+        }
+    }
+
     private combineRanges(range: SelectionRange) {
         this.ranges.forEach(it => {
             if (it !== range) {
@@ -441,6 +453,14 @@ export type TableSelectionReducer = [
         action: "insertColumn",
         columnIndex: number,
         columns?: number,
+    } | {
+        action: "moveRow",
+        rowIndex: number,
+        distance: number
+    } | {
+        action: "moveColumn",
+        columnIndex: number,
+        distance: number
     }
     >
 ];
@@ -495,6 +515,13 @@ export function tableSelectionReducer(model: TableSelectionReducer[0], action: P
         case "insertColumn":
             tableSelection.insertColumn(action.columnIndex, action.columns);
             break;
+        case "moveRow":
+            tableSelection.moveRow(action.rowIndex, action.distance);
+            break;
+        case "moveColumn":
+            tableSelection.moveColumn(action.columnIndex, action.distance);
+            break;
+
     }
     return {...model};
 }

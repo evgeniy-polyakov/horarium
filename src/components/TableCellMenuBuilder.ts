@@ -77,6 +77,10 @@ export class TableCellMenuBuilder {
             return new InsertColumnAction(this.csvState, this.selectionReducer, cellIndex, e.ctrlKey);
         } else if (key === Key.Insert) {
             return new InsertRowAction(this.csvState, this.selectionReducer, rowIndex, e.ctrlKey);
+        } else if ((key === Key.PageUp || key === Key.PageDown) && e.shiftKey) {
+            return new MoveColumnAction(this.csvState, this.selectionReducer, cellIndex, key === Key.PageUp);
+        } else if (key === Key.PageUp || key === Key.PageDown) {
+            return new MoveRowAction(this.csvState, this.selectionReducer, rowIndex, key === Key.PageUp);
         }
         return undefined;
     }

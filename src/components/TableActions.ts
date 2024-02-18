@@ -203,6 +203,7 @@ export class MoveRowAction implements IMenuItem {
 
     readonly name = `Move Row ${this.up ? "Up" : "Down"}`;
     readonly icon = this.up ? faArrowUp : faArrowDown;
+    readonly keys = this.up ? "PageUp" : "PageDown";
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -212,11 +213,14 @@ export class MoveRowAction implements IMenuItem {
 
     select() {
         const [csv, setCsv] = this.csvState;
-        const otherIndex = this.rowIndex + (this.up ? -1 : 1);
+        const distance = this.up ? -1 : 1;
+        const otherIndex = this.rowIndex + distance;
         const row = csv[this.rowIndex];
         csv[this.rowIndex] = csv[otherIndex];
         csv[otherIndex] = row;
         setCsv([...csv]);
+        const [, select] = this.selectionReducer;
+        select({action: "moveRow", rowIndex: this.rowIndex, distance});
     }
 
     get disabled() {
@@ -229,6 +233,7 @@ export class MoveColumnAction implements IMenuItem {
 
     readonly name = `Move Column ${this.left ? "Left" : "Right"}`;
     readonly icon = this.left ? faArrowLeft : faArrowRight;
+    readonly keys = `Shift + ${this.left ? "PageUp" : "PageDown"}`;
 
     constructor(private readonly csvState: State<CSV>,
                 private readonly selectionReducer: TableSelectionReducer,
@@ -238,13 +243,16 @@ export class MoveColumnAction implements IMenuItem {
 
     select() {
         const [csv, setCsv] = this.csvState;
-        const otherIndex = this.columnIndex + (this.left ? -1 : 1);
+        const distance = this.left ? -1 : 1;
+        const otherIndex = this.columnIndex + distance;
         for (const row of csv) {
             const cell = row[this.columnIndex];
             row[this.columnIndex] = row[otherIndex];
             row[otherIndex] = cell;
         }
         setCsv([...csv]);
+        const [, select] = this.selectionReducer;
+        select({action: "moveColumn", columnIndex: this.columnIndex, distance});
     }
 
     get disabled() {

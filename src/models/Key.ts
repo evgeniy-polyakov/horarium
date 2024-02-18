@@ -18,6 +18,8 @@ export enum Key {
     Delete = "Delete",
     Home = "Home",
     End = "End",
+    PageUp = "PageUp",
+    PageDown = "PageDown",
     ArrowUp = "ArrowUp",
     ArrowDown = "ArrowDown",
     ArrowLeft = "ArrowLeft",
