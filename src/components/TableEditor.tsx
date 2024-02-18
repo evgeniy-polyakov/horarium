@@ -17,7 +17,7 @@ export function TableEditor({file}: {
 }) {
     const [fileId, setFileId] = useState(-1);
     const csvState = useState<CSV>([]);
-    const [csv, setCSV] = csvState;
+    const [csv, setCsv] = csvState;
     const mouseDownState = useState<[...Cell, boolean?]>([-1, -1]);
     const [mouseDown, setMouseDown] = mouseDownState;
     const cellEditState = useState<Cell>([-1, -1]);
@@ -54,7 +54,7 @@ export function TableEditor({file}: {
 
     if (fileId !== file.id) {
         setFileId(file.id);
-        parseCSV(file.textContent).then(records => setCSV(records));
+        parseCSV(file.textContent).then(records => setCsv(records));
     }
 
     function onMouseUp() {
@@ -63,7 +63,7 @@ export function TableEditor({file}: {
 
     async function onCellEdit(rowIndex: number, cellIndex: number, value: string) {
         csv[rowIndex][cellIndex] = value;
-        setCSV([...csv]);
+        setCsv([...csv]);
     }
 
     function onCellMenu(event: MouseEvent, rowIndex: number, cellIndex: number) {

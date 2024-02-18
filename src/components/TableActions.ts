@@ -115,11 +115,11 @@ export class InsertRowAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const index = this.rowIndex + (this.above ? 0 : 1);
         const row = csv[0].map(() => "");
         csv.splice(index, 0, row);
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: index});
         select({action: "commitDraft", size: csvSize(csv)});
@@ -140,12 +140,12 @@ export class InsertColumnAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const index = this.columnIndex + (this.before ? 0 : 1);
         for (const row of csv) {
             row.splice(index, 0, "");
         }
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: index});
         select({action: "commitDraft", size: csvSize(csv)});
@@ -164,11 +164,11 @@ export class CloneRowAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const index = this.rowIndex;
         const row = csv[index].slice();
         csv.splice(index, 0, row);
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: index + 1});
         select({action: "commitDraft", size: csvSize(csv)});
@@ -187,12 +187,12 @@ export class CloneColumnAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const index = this.columnIndex;
         for (const row of csv) {
             row.splice(index, 0, row[index]);
         }
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: index + 1});
         select({action: "commitDraft", size: csvSize(csv)});
@@ -211,12 +211,12 @@ export class MoveRowAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const otherIndex = this.rowIndex + (this.up ? -1 : 1);
         const row = csv[this.rowIndex];
         csv[this.rowIndex] = csv[otherIndex];
         csv[otherIndex] = row;
-        setCSV([...csv]);
+        setCsv([...csv]);
     }
 
     get disabled() {
@@ -237,14 +237,14 @@ export class MoveColumnAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         const otherIndex = this.columnIndex + (this.left ? -1 : 1);
         for (const row of csv) {
             const cell = row[this.columnIndex];
             row[this.columnIndex] = row[otherIndex];
             row[otherIndex] = cell;
         }
-        setCSV([...csv]);
+        setCsv([...csv]);
     }
 
     get disabled() {
@@ -265,9 +265,9 @@ export class DeleteRowAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         csv.splice(this.rowIndex, 1);
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertRow", rowIndex: this.rowIndex, rows: -1});
         select({action: "commitDraft", size: csvSize(csv)});
@@ -291,11 +291,11 @@ export class DeleteColumnAction implements IMenuItem {
     }
 
     select() {
-        const [csv, setCSV] = this.csvState;
+        const [csv, setCsv] = this.csvState;
         for (const row of csv) {
             row.splice(this.columnIndex, 1);
         }
-        setCSV([...csv]);
+        setCsv([...csv]);
         const [, select] = this.selectionReducer;
         select({action: "insertColumn", columnIndex: this.columnIndex, columns: -1});
         select({action: "commitDraft", size: csvSize(csv)});
