@@ -5,6 +5,12 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.5.2
+
+* PageUp, PageDown keys for move row and column actions
+* Select All and Clear Selection items in context menu
+* Ctrl + A keyboard shortcut to select all cells
+
 ### 0.5.1
 
 * Clone, Insert and Delete keyboard actions for rows and columns
