@@ -96,7 +96,8 @@ export function TableEditor({file}: {
                 <table className="columns">
                     <thead>
                     <tr>
-                        <TableAllHeader csv={csv} selectionReducer={selectionReducer}/>
+                        <TableAllHeader csvState={csvState} selectionReducer={selectionReducer}
+                                        onMenu={event => onCellMenu(event, -1, -1)}/>
                         {csv[0].map((cell, cellIndex) =>
                             <TableColumnHeader key={cellIndex} cellIndex={cellIndex} csv={csv} selectionReducer={selectionReducer}
                                                onMenu={event => onCellMenu(event, -1, cellIndex)}/>)}

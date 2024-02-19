@@ -1,6 +1,6 @@
 import {IMenuItem} from "@/components/IMenuItem";
 import {faArrowDown, faArrowLeft, faArrowRight, faArrowRightToBracket, faArrowUp, faColumns, faCut, faPencil, faTableList} from '@fortawesome/free-solid-svg-icons'
-import {faClone, faCopy, faPaste, faTrashCan} from '@fortawesome/free-regular-svg-icons'
+import {faClone, faCopy, faObjectGroup, faObjectUngroup, faPaste, faTrashCan} from '@fortawesome/free-regular-svg-icons'
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {State} from "@/models/State";
 import {Cell} from "@/models/Cell";
@@ -312,6 +312,48 @@ export class DeleteColumnAction implements IMenuItem {
     get disabled() {
         const [csv] = this.csvState;
         return csv[0].length < 2;
+    }
+}
+
+export class SelectAllAction implements IMenuItem {
+
+    readonly name = "Select All";
+    readonly icon = faObjectGroup;
+    readonly keys = "Ctrl + A";
+
+    constructor(private readonly csvState: State<CSV>,
+                private readonly selectionReducer: TableSelectionReducer) {
+    }
+
+    select() {
+        const [csv] = this.csvState;
+        const [, select] = this.selectionReducer;
+        select({
+            action: "selectRange",
+            range: [0, 0, csv.length - 1, csv[0].length - 1],
+            clear: true
+        });
+    }
+}
+
+export class ClearSelectionAction implements IMenuItem {
+
+    readonly name = "Clear Selection";
+    readonly icon = faObjectUngroup;
+    readonly keys = "Escape";
+
+    constructor(private readonly csvState: State<CSV>,
+                private readonly selectionReducer: TableSelectionReducer) {
+    }
+
+    select() {
+        const [, select] = this.selectionReducer;
+        select({action: "clearSelection"});
+    }
+
+    get disabled() {
+        const [selection] = this.selectionReducer;
+        return selection.file.tableSelection.isEmpty();
     }
 }
 

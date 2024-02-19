@@ -1,22 +1,23 @@
 import {MouseEvent} from "react";
 import {TableSelectionReducer} from "@/models/TableSelection";
 import {CSV} from "@/models/CSV";
+import {SelectAllAction} from "@/components/TableActions";
+import {State} from "@/models/State";
 
-export function TableAllHeader({csv, selectionReducer: [, select]}: {
-    csv: CSV,
+export function TableAllHeader({csvState, selectionReducer, onMenu}: {
+    csvState: State<CSV>,
     selectionReducer: TableSelectionReducer,
+    onMenu?: (event: MouseEvent) => void,
 }) {
 
-    function onClick(e: MouseEvent) {
-        e.preventDefault();
-        select({
-            action: "selectRange",
-            range: [0, 0, csv.length - 1, csv[0].length - 1],
-            clear: true
-        });
+    function onMouseDown(e: MouseEvent) {
+        if (e.button !== 0) {
+            return;
+        }
+        new SelectAllAction(csvState, selectionReducer).select();
     }
 
     return (
-        <th onClick={onClick}></th>
+        <th onMouseDown={onMouseDown} onContextMenu={onMenu}></th>
     );
 }

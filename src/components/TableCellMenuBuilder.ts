@@ -1,7 +1,7 @@
 import {State} from "@/models/State";
 import {CSV} from "@/models/CSV";
 import {TableSelectionReducer} from "@/models/TableSelection";
-import {ClearCellsAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, PasteCellsAction, RowMenuGroup} from "@/components/TableActions";
+import {ClearCellsAction, ClearSelectionAction, CloneColumnAction, CloneRowAction, ColumnMenuGroup, CopyCellsAction, CutCellsAction, DeleteColumnAction, DeleteRowAction, EditCellAction, InsertColumnAction, InsertRowAction, MenuSeparator, MoveColumnAction, MoveRowAction, PasteCellsAction, RowMenuGroup, SelectAllAction} from "@/components/TableActions";
 import {Cell} from "@/models/Cell";
 import {KeyboardEvent} from "react";
 import {Key} from "@/models/Key";
@@ -40,6 +40,13 @@ export class TableCellMenuBuilder {
         ];
     }
 
+    private getTableItems() {
+        return [
+            new SelectAllAction(this.csvState, this.selectionReducer),
+            new ClearSelectionAction(this.csvState, this.selectionReducer),
+        ];
+    }
+
     buildMenu(rowIndex: number, cellIndex: number): IMenuItem[] {
         return rowIndex >= 0 && cellIndex >= 0 ? [
             new EditCellAction(this.cellEditState, rowIndex, cellIndex),
@@ -51,8 +58,11 @@ export class TableCellMenuBuilder {
             new MenuSeparator(),
             new RowMenuGroup(this.getRowItems(rowIndex)),
             new ColumnMenuGroup(this.getColumnItems(cellIndex)),
+            new MenuSeparator(),
+            ...this.getTableItems(),
         ] : rowIndex >= 0 ? this.getRowItems(rowIndex) :
-            cellIndex >= 0 ? this.getColumnItems(cellIndex) : [];
+            cellIndex >= 0 ? this.getColumnItems(cellIndex) :
+                this.getTableItems();
     }
 
     keyAction(e: KeyboardEvent, rowIndex: number, cellIndex: number): IMenuItem | undefined {
@@ -63,6 +73,8 @@ export class TableCellMenuBuilder {
             return new DeleteRowAction(this.csvState, this.selectionReducer, rowIndex);
         } else if (key === Key.Delete) {
             return new ClearCellsAction(this.csvState, this.selectionReducer, rowIndex, cellIndex);
+        } else if (key === Key.a && e.ctrlKey) {
+            return new SelectAllAction(this.csvState, this.selectionReducer);
         } else if (key === Key.c && e.ctrlKey) {
             return new CopyCellsAction(this.csvState, this.selectionReducer, rowIndex, cellIndex);
         } else if (key === Key.x && e.ctrlKey) {
