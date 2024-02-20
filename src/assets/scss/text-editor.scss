@@ -9,7 +9,7 @@
   color: var(--color-text);
   background: none;
   padding: 2px 6px;
-  font-family: monospace; // todo download google font
   line-height: 1.4;
   font-size: var(--font-size);
+  @include font-monospace();
 }
