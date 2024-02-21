@@ -5,6 +5,10 @@ The tool is developed with React.
 
 ## Changelog
 
+### 0.5.3
+
+* Embedded fonts
+
 ### 0.5.2
 
 * PageUp, PageDown keys for move row and column actions
