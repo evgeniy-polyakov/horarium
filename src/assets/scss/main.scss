@@ -12,6 +12,9 @@ body {
 
   display: flex;
   flex-flow: column nowrap;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
